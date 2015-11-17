@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon
+  id="pvr.enigma2.stb"
+  version="0.0.1"
+  name="Enigma2 STB Client"
+  provider-name="Cristiano A. Silva">
+  <requires>
+    <c-pluff version="0.1"/>
+    <import addon="xbmc.pvr" version="4.1.0"/>
+  </requires>
+  <extension
+    point="xbmc.pvrclient"
+    library_linux="pvr.enigma2.stb.so.0.0.1"/>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Enigma2 STBs PVR client</summary>
+    <description lang="en">Enigma2 STBs PVR client with TV streaming support, EPG, recordings and timers.</description>
+    <disclaimer lang="en">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects!</disclaimer>
+    <platform>linux</platform>
+  </extension>
+</addon>

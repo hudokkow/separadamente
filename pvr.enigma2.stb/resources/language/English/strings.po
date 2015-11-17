@@ -1,0 +1,189 @@
+# Kodi language file
+# Addon Name: Enigma2 STB PVR client
+# Addon id: pvr.enigma2.stb
+# Addon Provider: Cristiano A. Silva
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Main\n"
+"Report-Msgid-Bugs-To: http://trac.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: XBMC Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-main/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#Connection labels
+
+msgctxt "#30000"
+msgid "Connection"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Hostname/IP"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Web interface port [HTTP]"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Web interface streaming port"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Use authentication"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Use HTTPS"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Web interface port [HTTPS]"
+msgstr ""
+
+#empty strings from id 30009 to 30019
+
+#Channel labels
+
+msgctxt "#30020"
+msgid "Channels"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Select TV bouquets to load"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Number of TV bouquets to load"
+msgstr ""
+
+msgctxt "#30023"
+msgid "TV bouquet name #1"
+msgstr ""
+
+msgctxt "#30024"
+msgid "TV bouquet name #2"
+msgstr ""
+
+msgctxt "#30025"
+msgid "TV bouquet name #3"
+msgstr ""
+
+msgctxt "#30026"
+msgid "TV bouquet name #4"
+msgstr ""
+
+msgctxt "#30027"
+msgid "TV bouquet name #5"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Load radio channels [Favourites (Radio) bouquet]"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Zap before channel switch [single tuner STBs]"
+msgstr ""
+
+#empty strings from id 30030 to 30039
+
+#Recordings/Timers labels
+
+msgctxt "#30040"
+msgid "Recordings/Timers"
+msgstr ""
+
+msgctxt "#30041"
+msgid "STB's recording folder"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Only use STB's default recording path"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Automatic timerlist cleanup"
+msgstr ""
+
+#empty strings from id 30044 to 30059
+
+#Advanced labels
+
+msgctxt "#30060"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Enable time shifting"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Time shifting buffer folder"
+msgstr ""
+
+msgctxt "#30064"
+msgid "Load picons from web interface"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Load picons from folder"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Update interval [min]"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Send deep standby command"
+msgstr ""
+
+#empty strings from id 30068 to 30089
+
+#Lsep labels
+
+msgctxt "#30090"
+msgid "Recordings"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Timers"
+msgstr ""
+
+#empty string id 30092
+
+msgctxt "#30093"
+msgid "Time Shifting"
+msgstr ""
+
+msgctxt "#30094"
+msgid "Picons"
+msgstr ""
+
+msgctxt "#30095"
+msgid "Others"
+msgstr ""
+
+msgctxt "#30096"
+msgid "TV Channels"
+msgstr ""
+
+msgctxt "#30097"
+msgid "Radio Channels"
+msgstr ""
+
+msgctxt "#30098"
+msgid "Advanced"
+msgstr ""

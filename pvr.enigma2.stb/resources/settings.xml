@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <!-- Connection -->
+  <category label="30000">
+    <setting label="30001" id="hostname"          type="text"   default="127.0.0.1" />
+    <setting label="30002" id="webporthttp"       type="number" default="80" />
+    <setting label="30003" id="streamport"        type="number" default="8001" />
+    <setting label="30004" id="useauthentication" type="bool"   default="false" />
+    <setting label="30005" id="username"          type="text"   default="" visible="eq(-1,true)" />
+    <setting label="30006" id="password"          type="text"   default="" visible="eq(-2,true)" option="hidden" />
+    <setting label="30007" id="usesecurehttp"     type="bool"   default="false"/>
+    <setting label="30008" id="webporthttps"      type="number" default="443" visible="eq(-1,true)" />
+  </category>
+
+  <!-- Channels -->
+  <category label="30020">
+    <setting label="30095" type="lsep" />
+    <setting label="30021" id="selecttvchannelgroups"    type="bool"      default="false"/>
+    <setting label="30022" id="tvchannelgroupstoload"    type="labelenum" default="1" values="1|2|3|4|5" visible="eq(-1,true)" />
+    <setting label="30023" id="tvchannelgroupone"        type="text"      default=""  visible="eq(-2,true)" />
+    <setting label="30024" id="tvchannelgrouptwo"        type="text"      default=""  visible="eq(-3,true) + gt(-2,0)" />
+    <setting label="30025" id="tvchannelgroupthree"      type="text"      default=""  visible="eq(-4,true) + gt(-3,1)" />
+    <setting label="30026" id="tvchannelgroupfour"       type="text"      default=""  visible="eq(-5,true) + gt(-4,2)" />
+    <setting label="30027" id="tvchannelgroupfive"       type="text"      default=""  visible="eq(-6,true) + gt(-5,3)" />
+    <setting label="30096" type="lsep" />
+    <setting label="30028" id="loadradiochannelsgroup"   type="bool"      default="false"/>
+    <setting label="30097" type="lsep" />
+    <setting label="30029" id="zap"                      type="bool"      default="false"/>
+  </category>
+
+  <!-- Recordings/Timers -->
+  <category label="30040">
+    <setting label="30090" type="lsep" />
+    <setting label="30041" id="recordingpath"            type="text" default="" />
+    <setting label="30042" id="onlycurrentrecordingpath" type="bool" default="false"/>
+    <setting label="30091" type="lsep" />
+    <setting label="30043" id="timerlistcleanup"         type="bool" default="true"/>
+  </category>
+
+  <!-- Advanced -->
+  <category label="30060">
+    <setting label="30093" type="lsep" />
+    <setting label="30062" id="usetimeshift"   type="bool"   default="false" />
+    <setting label="30063" id="timeshiftpath"  type="text"   default="special://userdata/addon_data/pvr.enigma2.stb" option="writeable" enable="eq(-1,true)" />
+    <setting label="30094" type="lsep" />
+    <setting label="30064" id="onlinepicons"   type="bool"   default="true" />
+    <setting label="30065" id="piconspath"     type="folder" default="" enable="eq(-1,false)" />
+    <setting label="30095" type="lsep" />
+    <setting label="30066" id="updateinterval" type="number" default="20" />
+    <setting label="30067" id="sendpowerstate" type="bool"   default="false" />
+  </category>
+</settings>

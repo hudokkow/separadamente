@@ -1,0 +1,14 @@
+# GEdit
+*~
+
+# Eclipse Core
+.project
+
+# CDT-specific
+.cproject
+.settings/
+.settings/*
+
+#cmake
+build/
+build/*
