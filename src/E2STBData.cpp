@@ -51,16 +51,16 @@ CE2STBData::CE2STBData()
   if (!g_bUseSecureHTTP)
   {
     m_strBackendBaseURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
-        + std::to_string(g_iPortWebHTTP) + "/";
+        + m_e2stbutils->IntToString(g_iPortWebHTTP) + "/";
     m_strBackendBaseURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
-        + std::to_string(g_iPortStream) + "/";
+        + m_e2stbutils->IntToString(g_iPortStream) + "/";
   }
   else
   {
     m_strBackendBaseURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
-        + std::to_string(g_iPortWebHTTPS) + "/";
+        + m_e2stbutils->IntToString(g_iPortWebHTTPS) + "/";
     m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
-        + std::to_string(g_iPortStream) + "/";
+        + m_e2stbutils->IntToString(g_iPortStream) + "/";
   }
   m_iNumRecordings       = 0;
   m_iNumChannelGroups    = 0;
@@ -362,7 +362,7 @@ PVR_ERROR CE2STBData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
       if (!g_bUseTimeshift)
       {
-        std::string strStream = "pvr://stream/tv/" + std::to_string(channel.iUniqueId) + ".ts";
+        std::string strStream = "pvr://stream/tv/" + m_e2stbutils->IntToString(channel.iUniqueId) + ".ts";
         PVR_STRCPY(xbmcChannel.strStreamURL, strStream.c_str());
       }
       PVR->TransferChannelEntry(handle, &xbmcChannel);
@@ -1358,12 +1358,12 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef="
       + m_e2stbutils->URLEncodeInline(strServiceReference) + "&repeated="
-      + std::to_string(timer.iWeekdays) + "&begin="
-      + std::to_string(timer.startTime) + "&end="
-      + std::to_string(timer.endTime) + "&name="
+      + m_e2stbutils->IntToString(timer.iWeekdays) + "&begin="
+      + m_e2stbutils->IntToString(timer.startTime) + "&end="
+      + m_e2stbutils->IntToString(timer.endTime) + "&name="
       + m_e2stbutils->URLEncodeInline(timer.strTitle) + "&description="
       + m_e2stbutils->URLEncodeInline(timer.strSummary) + "&eit="
-      + std::to_string(timer.iEpgUid);
+      + m_e2stbutils->IntToString(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
@@ -1387,8 +1387,8 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef="
       + m_e2stbutils->URLEncodeInline(strServiceReference) + "&begin="
-      + std::to_string(timer.startTime) + "&end="
-      + std::to_string(timer.endTime);
+      + m_e2stbutils->IntToString(timer.startTime) + "&end="
+      + m_e2stbutils->IntToString(timer.endTime);
 
   CStdString strResult;
   if (!SendCommandToSTB(strTemp, strResult))
@@ -1478,15 +1478,15 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   }
   std::string strTemp = "web/timerchange?sRef="
       + m_e2stbutils->URLEncodeInline(strServiceReference) + "&begin="
-      + std::to_string(timer.startTime) + "&end="
-      + std::to_string(timer.endTime) + "&name="
+      + m_e2stbutils->IntToString(timer.startTime) + "&end="
+      + m_e2stbutils->IntToString(timer.endTime) + "&name="
       + m_e2stbutils->URLEncodeInline(timer.strTitle) + "&eventID=&description="
       + m_e2stbutils->URLEncodeInline(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
-      + std::to_string(iDisabled) + "&justplay=0&repeated="
-      + std::to_string(timer.iWeekdays) + "&channelOld="
+      + m_e2stbutils->IntToString(iDisabled) + "&justplay=0&repeated="
+      + m_e2stbutils->IntToString(timer.iWeekdays) + "&channelOld="
       + m_e2stbutils->URLEncodeInline(strOldServiceReference) + "&beginOld="
-      + std::to_string(oldTimer.startTime) + "&endOld="
-      + std::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
+      + m_e2stbutils->IntToString(oldTimer.startTime) + "&endOld="
+      + m_e2stbutils->IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
 
   CStdString strResult;
   if (!SendCommandToSTB(strTemp, strResult))

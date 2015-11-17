@@ -30,6 +30,7 @@ class CE2STBUtils
     CE2STBUtils(void) {};
     ~CE2STBUtils(void) {};
 
+    std::string IntToString (int a);
     static long TimeStringToSeconds(const CStdString& timeString);
     std::string URLEncodeInline(const std::string& strURL);
     std::string BackendConnection(std::string& url);
