@@ -440,7 +440,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
   std::string strTemp = m_strBackendBaseURLWeb + "web/getservices?sRef="
-      + m_e2stbutils->URLEncodeInline(strServiceReference);
+      + m_e2stbutils->URLEncode(strServiceReference);
   std::string strXML = m_e2stbutils->BackendConnection(strTemp);
 
   TiXmlDocument xmlDoc;
@@ -712,7 +712,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
   SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
 
   std::string strURL = m_strBackendBaseURLWeb + "web/epgservice?sRef="
-      + m_e2stbutils->URLEncodeInline(myChannel.strServiceReference);
+      + m_e2stbutils->URLEncode(myChannel.strServiceReference);
   std::string strXML = m_e2stbutils->BackendConnection(strURL);
 
   int iNumEPG = 0;
@@ -987,7 +987,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
  ***********************************************/
 PVR_ERROR CE2STBData::DeleteRecording(const PVR_RECORDING &recinfo)
 {
-  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils->URLEncodeInline(recinfo.strRecordingId);
+  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils->URLEncode(recinfo.strRecordingId);
 
   CStdString strResult;
   if (!SendCommandToSTB(strTemp, strResult))
@@ -1114,7 +1114,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
   }
   else
   {
-    strURL = m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils->URLEncodeInline(strRecordingFolder);
+    strURL = m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils->URLEncode(strRecordingFolder);
   }
 
   std::string strXML = m_e2stbutils->BackendConnection(strURL);
@@ -1203,7 +1203,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      strTemp.Format("%sfile?file=%s", m_strBackendBaseURLWeb.c_str(), m_e2stbutils->URLEncodeInline(strTemp.c_str()));
+      strTemp.Format("%sfile?file=%s", m_strBackendBaseURLWeb.c_str(), m_e2stbutils->URLEncode(strTemp.c_str()));
       recording.strStreamURL = strTemp;
     }
     m_iNumRecordings++;
@@ -1307,7 +1307,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   if (g_bZapBeforeChannelChange)
   {
     std::string strServiceReference = m_channels.at(channel.iUniqueId - 1).strServiceReference;
-    std::string strTemp = "web/zap?sRef=" + m_e2stbutils->URLEncodeInline(strServiceReference);
+    std::string strTemp = "web/zap?sRef=" + m_e2stbutils->URLEncode(strServiceReference);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
     CStdString strResult;
@@ -1357,17 +1357,17 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
 
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef="
-      + m_e2stbutils->URLEncodeInline(strServiceReference) + "&repeated="
+      + m_e2stbutils->URLEncode(strServiceReference) + "&repeated="
       + m_e2stbutils->IntToString(timer.iWeekdays) + "&begin="
       + m_e2stbutils->IntToString(timer.startTime) + "&end="
       + m_e2stbutils->IntToString(timer.endTime) + "&name="
-      + m_e2stbutils->URLEncodeInline(timer.strTitle) + "&description="
-      + m_e2stbutils->URLEncodeInline(timer.strSummary) + "&eit="
+      + m_e2stbutils->URLEncode(timer.strTitle) + "&description="
+      + m_e2stbutils->URLEncode(timer.strSummary) + "&eit="
       + m_e2stbutils->IntToString(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
-    strTemp += "&dirname=&" + m_e2stbutils->URLEncodeInline(g_strBackendRecordingPath);
+    strTemp += "&dirname=&" + m_e2stbutils->URLEncode(g_strBackendRecordingPath);
   }
 
   CStdString strResult;
@@ -1386,7 +1386,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
 {
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef="
-      + m_e2stbutils->URLEncodeInline(strServiceReference) + "&begin="
+      + m_e2stbutils->URLEncode(strServiceReference) + "&begin="
       + m_e2stbutils->IntToString(timer.startTime) + "&end="
       + m_e2stbutils->IntToString(timer.endTime);
 
@@ -1477,14 +1477,14 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
     iDisabled = 1;
   }
   std::string strTemp = "web/timerchange?sRef="
-      + m_e2stbutils->URLEncodeInline(strServiceReference) + "&begin="
+      + m_e2stbutils->URLEncode(strServiceReference) + "&begin="
       + m_e2stbutils->IntToString(timer.startTime) + "&end="
       + m_e2stbutils->IntToString(timer.endTime) + "&name="
-      + m_e2stbutils->URLEncodeInline(timer.strTitle) + "&eventID=&description="
-      + m_e2stbutils->URLEncodeInline(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
+      + m_e2stbutils->URLEncode(timer.strTitle) + "&eventID=&description="
+      + m_e2stbutils->URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
       + m_e2stbutils->IntToString(iDisabled) + "&justplay=0&repeated="
       + m_e2stbutils->IntToString(timer.iWeekdays) + "&channelOld="
-      + m_e2stbutils->URLEncodeInline(strOldServiceReference) + "&beginOld="
+      + m_e2stbutils->URLEncode(strOldServiceReference) + "&beginOld="
       + m_e2stbutils->IntToString(oldTimer.startTime) + "&endOld="
       + m_e2stbutils->IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
 

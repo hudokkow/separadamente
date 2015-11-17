@@ -24,6 +24,8 @@
 
 #include "platform/util/StdString.h"
 
+#include <iterator>
+#include <iomanip>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -56,56 +58,29 @@ long CE2STBUtils::TimeStringToSeconds(const CStdString &timeString)
 /********************************************//**
  * Safe encode URL
  ***********************************************/
-std::string CE2STBUtils::URLEncodeInline(const std::string& strURL)
+// Adapted from http://stackoverflow.com/a/17708801 / stolen from pvr.vbox. Thanks Jalle19
+std::string CE2STBUtils::URLEncode(const std::string& strURL)
 {
-  const char SAFE[256] =
+  std::ostringstream escaped;
+  escaped.fill('0');
+  escaped << std::hex;
+
+  for (auto i = strURL.cbegin(), n = strURL.cend(); i != n; ++i)
   {
-  /*     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
-  /* 0 */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* 1 */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* 2 */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* 3 */1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    std::string::value_type c = (*i);
 
-  /* 4 */0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  /* 5 */1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-  /* 6 */0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  /* 7 */1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-
-  /* 8 */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* 9 */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* A */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* B */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  /* C */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* D */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* E */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  /* F */0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-  const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
-  const unsigned char * pSrc = (const unsigned char *) strURL.c_str();
-  const int SRC_LEN = strURL.length();
-  unsigned char * const pStart = new unsigned char[SRC_LEN * 3];
-  unsigned char * pEnd = pStart;
-  const unsigned char * const SRC_END = pSrc + SRC_LEN;
-
-  for (; pSrc < SRC_END; ++pSrc)
-  {
-    if (SAFE[*pSrc])
+    // Keep alphanumeric and other accepted characters intact
+    if (c < 0 || isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
     {
-      *pEnd++ = *pSrc;
+      escaped << c;
+      continue;
     }
-    else
-    {
-      // escape this char
-      *pEnd++ = '%';
-      *pEnd++ = DEC2HEX[*pSrc >> 4];
-      *pEnd++ = DEC2HEX[*pSrc & 0x0F];
-    }
+
+    // Any other characters are percent-encoded
+    escaped << '%' << std::setw(2) << int(static_cast<unsigned char>(c));
   }
 
-  std::string sResult((char *) pStart, (char *) pEnd);
-  delete[] pStart;
-  return sResult;
+  return escaped.str();
 }
 
 /********************************************//**
