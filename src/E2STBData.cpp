@@ -24,7 +24,7 @@
 
 #include "tinyxml.h"
 #include "platform/util/util.h"
-#include "kodi/util/XMLUtils.h"
+#include "E2STBXMLUtils.h"
 
 #include <algorithm>  /* std::transform for GetDeviceInfo() */
 #include <cctype>     /* std::toupper for GetDeviceInfo() */
@@ -161,7 +161,7 @@ void CE2STBData::SendPowerstate()
    */
   std::string strTemp = "web/powerstate?newstate=1";
 
-  CStdString strResult;
+  std::string strResult;
   SendCommandToSTB(strTemp, strResult, true);
 }
 
@@ -194,7 +194,7 @@ bool CE2STBData::GetDeviceInfo()
     return false;
   }
 
-  CStdString strTemp;
+  std::string strTemp;
 
   if (!XMLUtils::GetString(pElement, "e2enigmaversion", strTemp))
   {
@@ -235,7 +235,7 @@ bool CE2STBData::GetDeviceInfo()
 /********************************************//**
  * Send command to backend STB
  ***********************************************/
-bool CE2STBData::SendCommandToSTB(const CStdString& strCommandURL, CStdString& strResultText, bool bIgnoreResult)
+bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
   /* std::string is needed to quell warning */
   /* ISO C++ says that these are ambiguous, even though the worst conversion */
@@ -268,7 +268,7 @@ bool CE2STBData::SendCommandToSTB(const CStdString& strCommandURL, CStdString& s
     if (!XMLUtils::GetBoolean(pElement, "e2state", bTmp))
     {
       XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2state> from result", __FUNCTION__);
-      strResultText.Format("Could not parse e2state!");
+      strResultText = "Could not parse e2state!";
       return false;
     }
 
@@ -318,7 +318,7 @@ void *CE2STBData::Process()
       {
         std::string strTemp = "web/timercleanup?cleanup=true";
 
-        CStdString strResult;
+        std::string strResult;
         if (!SendCommandToSTB(strTemp, strResult))
         {
           XBMC->Log(ADDON::LOG_ERROR, "[%s] Automatic timer list cleanup failed", __FUNCTION__);
@@ -478,7 +478,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2service"))
   {
-    CStdString strTemp;
+    std::string strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
     {
@@ -624,7 +624,7 @@ bool CE2STBData::LoadChannelGroups()
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2service"))
   {
-    CStdString strTemp;
+    std::string strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
     {
@@ -749,7 +749,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2event"))
   {
-    CStdString strTemp;
+    std::string strTemp;
 
     int iTmpStart;
     int iTmp;
@@ -878,7 +878,7 @@ PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  CStdString strTemp;
+  std::string strTemp;
   *iTotal = 0;
   *iUsed = 0;
 
@@ -948,7 +948,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  CStdString strTemp;
+  std::string strTemp;
   if (!XMLUtils::GetString(pElement, "e2snrdb", strTemp))
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2snrdb> from result", __FUNCTION__);
@@ -988,7 +988,7 @@ PVR_ERROR CE2STBData::DeleteRecording(const PVR_RECORDING &recinfo)
 {
   std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils->URLEncode(recinfo.strRecordingId);
 
-  CStdString strResult;
+  std::string strResult;
   if (!SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_FAILED;
@@ -1068,7 +1068,7 @@ bool CE2STBData::LoadRecordingLocations()
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2location"))
   {
-    CStdString strTemp = pNode->GetText();
+    std::string strTemp = pNode->GetText();
     m_recordingsLocations.push_back(strTemp);
     iNumLocations++;
     XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added %s as a recording location", __FUNCTION__, strTemp.c_str());
@@ -1152,7 +1152,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2movie"))
   {
-    CStdString strTemp;
+    std::string strTemp;
     int iTmp;
 
     SE2STBRecording recording;
@@ -1202,8 +1202,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      strTemp.Format("%sfile?file=%s", m_strBackendBaseURLWeb.c_str(), m_e2stbutils->URLEncode(strTemp.c_str()));
-      recording.strStreamURL = strTemp;
+      recording.strStreamURL = m_strBackendBaseURLWeb + "file?file=" + m_e2stbutils->URLEncode(strTemp);
     }
     m_iNumRecordings++;
     iNumRecording++;
@@ -1309,7 +1308,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
     std::string strTemp = "web/zap?sRef=" + m_e2stbutils->URLEncode(strServiceReference);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
-    CStdString strResult;
+    std::string strResult;
     if (!SendCommandToSTB(strTemp, strResult))
     {
       return false;
@@ -1369,7 +1368,7 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
     strTemp += "&dirname=&" + m_e2stbutils->URLEncode(g_strBackendRecordingPath);
   }
 
-  CStdString strResult;
+  std::string strResult;
   if (!SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
@@ -1389,7 +1388,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
       + m_e2stbutils->IntToString(timer.startTime) + "&end="
       + m_e2stbutils->IntToString(timer.endTime);
 
-  CStdString strResult;
+  std::string strResult;
   if (!SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
@@ -1487,7 +1486,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
       + m_e2stbutils->IntToString(oldTimer.startTime) + "&endOld="
       + m_e2stbutils->IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
 
-  CStdString strResult;
+  std::string strResult;
   if (!SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
@@ -1620,7 +1619,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2timer"))
   {
-    CStdString strTemp;
+    std::string strTemp;
     /* TODO Check if's */
     int iTmp;
     bool bTmp;

@@ -219,7 +219,7 @@ class CE2STBData: public PLATFORM::CThread
      ***********************************************/
     /* Client creation and connection */
     bool GetDeviceInfo(); /*!< @brief Backend Interface */
-    bool SendCommandToSTB(const CStdString& strCommandURL, CStdString& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
+    bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
     virtual void *Process(void);
 
     /* Channels */

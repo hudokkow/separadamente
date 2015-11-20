@@ -19,7 +19,8 @@ include_directories(${kodiplatform_INCLUDE_DIRS}
 set(ENIGMA2_SOURCES src/client.cpp
                     src/E2STBData.cpp
                     src/E2STBTimeshift.cpp
-                    src/E2STBUtils.cpp)
+                    src/E2STBUtils.cpp
+                    src/E2STBXMLUtils.cpp)
 
 set(DEPLIBS ${kodiplatform_LIBRARIES}
             ${platform_LIBRARIES}
