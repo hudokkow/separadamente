@@ -316,8 +316,7 @@ void *CE2STBData::Process()
 
       if (g_bAutomaticTimerlistCleanup)
       {
-        std::string strTemp;
-        strTemp = "web/timercleanup?cleanup=true";
+        std::string strTemp = "web/timercleanup?cleanup=true";
 
         CStdString strResult;
         if (!SendCommandToSTB(strTemp, strResult))
