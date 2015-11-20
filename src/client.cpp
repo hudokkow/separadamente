@@ -754,8 +754,7 @@ extern "C"
     return E2STBData->GetChannelGroups(handle);
   }
 
-  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle,
-      const PVR_CHANNEL_GROUP &group)
+  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
   {
     if (group.bIsRadio)
     {
