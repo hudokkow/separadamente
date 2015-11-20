@@ -12,3 +12,6 @@
 #cmake
 build/
 build/*
+
+#build artifacts
+pvr.enigma2.stb/addon.xml
