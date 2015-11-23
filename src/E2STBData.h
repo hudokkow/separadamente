@@ -246,6 +246,6 @@ class CE2STBData: public PLATFORM::CThread
     CE2STBTimeshift *m_tsBuffer; /*!< @brief Time shifting class handler */
 
     /* Utils */
-    CE2STBUtils *m_e2stbutils; /*!< @brief Utils */
+    CE2STBUtils m_e2stbutils; /*!< @brief Utils */
 };
 
