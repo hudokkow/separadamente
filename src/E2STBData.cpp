@@ -170,7 +170,7 @@ void CE2STBData::SendPowerstate()
 bool CE2STBData::GetDeviceInfo()
 {
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -239,7 +239,7 @@ bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string&
   /* ISO C++ says that these are ambiguous, even though the worst conversion */
   /* for the first is better than the worst conversion for the second */
   std::string strURL = m_strBackendBaseURLWeb + std::string(strCommandURL);
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   if (!bIgnoreResult)
   {
@@ -438,7 +438,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 
   std::string strTemp = m_strBackendBaseURLWeb + "web/getservices?sRef="
       + m_e2stbutils.URLEncode(strServiceReference);
-  std::string strXML = m_e2stbutils.BackendConnection(strTemp);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strTemp);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -585,7 +585,7 @@ bool CE2STBData::LoadChannels()
 bool CE2STBData::LoadChannelGroups()
 {
   std::string strTemp = m_strBackendBaseURLWeb + "web/getservices";
-  std::string strXML = m_e2stbutils.BackendConnection(strTemp);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strTemp);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -710,7 +710,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 
   std::string strURL = m_strBackendBaseURLWeb + "web/epgservice?sRef="
       + m_e2stbutils.URLEncode(myChannel.strServiceReference);
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   int iNumEPG = 0;
 
@@ -855,7 +855,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
 {
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -926,7 +926,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   memset(&tag, 0, sizeof(tag));
 
   std::string strURL = m_strBackendBaseURLWeb + "web/signal";
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -1030,7 +1030,7 @@ bool CE2STBData::LoadRecordingLocations()
     strURL = m_strBackendBaseURLWeb + "web/getlocations";
   }
 
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -1114,7 +1114,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
     strURL = m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils.URLEncode(strRecordingFolder);
   }
 
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -1583,7 +1583,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
   std::vector<SE2STBTimer> timers;
 
   std::string strURL = m_strBackendBaseURLWeb + "web/timerlist";
-  std::string strXML = m_e2stbutils.BackendConnection(strURL);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))

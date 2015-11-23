@@ -83,21 +83,27 @@ std::string CE2STBUtils::URLEncode(const std::string& strURL)
   return escaped.str();
 }
 
-/********************************************//**
- * Generate URL
- ***********************************************/
-std::string CE2STBUtils::BackendConnection(std::string& url)
+std::string CE2STBUtils::ConnectToBackend(std::string& strURL)
 {
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Opening web interface with URL %s", __FUNCTION__, url.c_str());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Opening web interface with URL %s", __FUNCTION__, strURL.c_str());
 
-  std::string strTemp;
-  if (!GetXMLFromHTTP(url, strTemp))
+  std::string strResult;
+  void* fileHandle = XBMC->OpenFile(strURL.c_str(), 0);
+  if (fileHandle)
+  {
+    char buffer[1024];
+    while (XBMC->ReadFileString(fileHandle, buffer, 1024))
+    {
+      strResult.append(buffer);
+    }
+    XBMC->CloseFile(fileHandle);
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
+  }
+  else
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
-    return "";
   }
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strTemp.length());
-  return strTemp;
+  return strResult;
 }
 
 /********************************************//**
@@ -169,23 +175,4 @@ int CE2STBUtils::SplitString(const CStdString& input, const CStdString& delimite
     results.push_back(s);
   }
   return results.size();
-}
-
-/********************************************//**
- * Read backend data
- ***********************************************/
-bool CE2STBUtils::GetXMLFromHTTP(const std::string &strURL, std::string &strResult)
-{
-  void* fileHandle = XBMC->OpenFile(strURL.c_str(), 0);
-  if (fileHandle)
-  {
-    char buffer[1024];
-    while (XBMC->ReadFileString(fileHandle, buffer, 1024))
-    {
-      strResult.append(buffer);
-    }
-    XBMC->CloseFile(fileHandle);
-    return true;
-  }
-  return false;
 }

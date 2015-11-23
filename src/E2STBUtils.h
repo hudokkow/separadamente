@@ -33,11 +33,10 @@ class CE2STBUtils
     std::string IntToString (int a);
     static long TimeStringToSeconds(const CStdString& timeString);
     std::string URLEncode(const std::string& strURL);
-    std::string BackendConnection(std::string& url);
+    std::string ConnectToBackend(std::string& strURL);
 
   private:
     static int SplitString(const CStdString& input, const CStdString& delimiter, std::vector<CStdString>& results,
         unsigned int iMaxStrings = 0);
-    bool GetXMLFromHTTP(const std::string &strURL, std::string &strResult);
 };
 
