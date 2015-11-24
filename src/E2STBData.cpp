@@ -304,7 +304,7 @@ void *CE2STBData::Process()
     Sleep(5 * 1000);
     m_iUpdateIntervalTimer += 5;
 
-    if ((int) m_iUpdateIntervalTimer > (g_iClientUpdateInterval * 60))
+    if (static_cast<int>(m_iUpdateIntervalTimer) > (g_iClientUpdateInterval * 60))
     {
       m_iUpdateIntervalTimer = 0;
 
@@ -1274,7 +1274,7 @@ bool CE2STBData::OpenLiveStream(const PVR_CHANNEL &channel)
 {
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Opening channel %u", __FUNCTION__, channel.iUniqueId);
 
-  if ((int) channel.iUniqueId == m_iCurrentChannel)
+  if (static_cast<int>(channel.iUniqueId) == m_iCurrentChannel)
   {
     return true;
   }
@@ -1289,12 +1289,12 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Switching to channel %d", __FUNCTION__, channel.iUniqueId);
 
-  if ((int)channel.iUniqueId == m_iCurrentChannel)
+  if (static_cast<int>(channel.iUniqueId) == m_iCurrentChannel)
   {
     return true;
   }
   CloseLiveStream();
-  m_iCurrentChannel = (int)channel.iUniqueId;
+  m_iCurrentChannel = static_cast<int>(channel.iUniqueId);
 
 
   /* TODO: Check it works with single tuner STB. It doesn't for
