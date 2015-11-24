@@ -1190,8 +1190,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2length", strTemp))
     {
-      iTmp = m_e2stbutils.TimeStringToSeconds(strTemp.c_str());
-      recording.iDuration = iTmp;
+      recording.iDuration = m_e2stbutils.TimeStringToSeconds(strTemp);
     }
     else
     {

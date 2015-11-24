@@ -19,8 +19,6 @@
  *
  */
 
-#include "platform/util/StdString.h"
-
 #include <string>
 #include <vector>
 
@@ -31,12 +29,11 @@ class CE2STBUtils
     ~CE2STBUtils(void) {};
 
     std::string IntToString (int a);
-    static long TimeStringToSeconds(const CStdString& timeString);
+    static long TimeStringToSeconds(const std::string& timeString);
     std::string URLEncode(const std::string& strURL);
     std::string ConnectToBackend(std::string& strURL);
 
   private:
-    static int SplitString(const CStdString& input, const CStdString& delimiter, std::vector<CStdString>& results,
-        unsigned int iMaxStrings = 0);
+    static int TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results);
 };
 

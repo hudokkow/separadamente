@@ -22,8 +22,6 @@
 
 #include "client.h"
 
-#include "platform/util/StdString.h"
-
 #include <iterator>
 #include <iomanip>
 #include <string>
@@ -42,10 +40,10 @@ std::string CE2STBUtils::IntToString (int a)
 /********************************************//**
  * Convert time string to seconds
  ***********************************************/
-long CE2STBUtils::TimeStringToSeconds(const CStdString &timeString)
+long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
 {
-  std::vector<CStdString> secs;
-  SplitString(timeString, ":", secs);
+  std::vector<std::string> secs;
+  TokenizeString(timeString, ":", secs);
   int timeInSecs = 0;
   for (unsigned int i = 0; i < secs.size(); i++)
   {
@@ -104,73 +102,17 @@ std::string CE2STBUtils::ConnectToBackend(std::string& strURL)
   return strResult;
 }
 
-/********************************************//**
- * Split string using delimiter
- ***********************************************/
-int CE2STBUtils::SplitString(const CStdString& input, const CStdString& delimiter, std::vector<CStdString>& results,
-    unsigned int iMaxStrings)
+// adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
+int CE2STBUtils::TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results)
 {
-  int iPos = -1;
-  int newPos = -1;
-  int sizeS2 = delimiter.GetLength();
-  int isize = input.GetLength();
+  std::string::size_type start_pos = 0;
+  std::string::size_type delim_pos = 0;
 
-  results.clear();
-  std::vector<unsigned int> positions;
-
-  newPos = input.Find(delimiter, 0);
-
-  if (newPos < 0)
+  while (std::string::npos != delim_pos)
   {
-    results.push_back(input);
-    return 1;
-  }
-
-  while (newPos > iPos)
-  {
-    positions.push_back(newPos);
-    iPos = newPos;
-    newPos = input.Find(delimiter, iPos + sizeS2);
-  }
-
-  // numFound equals number of delimiters, one less than the number of substrings
-  unsigned int numFound = positions.size();
-  if (iMaxStrings > 0 && numFound >= iMaxStrings)
-  {
-    numFound = iMaxStrings - 1;
-  }
-
-  for (unsigned int i = 0; i <= numFound; i++)
-  {
-    std::string s;
-    if (i == 0)
-    {
-      if (i == numFound)
-      {
-        s = input;
-      }
-      else
-      {
-        s = input.Mid(i, positions[i]);
-      }
-    }
-    else
-    {
-      int offset = positions[i - 1] + sizeS2;
-      if (offset < isize)
-      {
-        if (i == numFound)
-        {
-          s = input.Mid(offset);
-        }
-        else if (i > 0)
-        {
-          s = input.Mid(positions[i - 1] + sizeS2,
-              positions[i] - positions[i - 1] - sizeS2);
-        }
-      }
-    }
-    results.push_back(s);
+    delim_pos = str.find_first_of(delimiter, start_pos);
+    results.push_back(str.substr(start_pos, delim_pos - start_pos));
+    start_pos = delim_pos + 1;
   }
   return results.size();
 }
