@@ -547,7 +547,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
     }
     m_channels.push_back(newChannel);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded channel %s with picon %s", __FUNCTION__,
-        newChannel.strChannelName.c_str(), newChannel.strIconPath.c_str());
+        newChannel.strChannelName, newChannel.strIconPath);
   }
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %d channels", __FUNCTION__, m_channels.size());
   return true;
