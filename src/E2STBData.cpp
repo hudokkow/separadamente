@@ -436,9 +436,9 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
-  std::string strTemp = m_strBackendBaseURLWeb + "web/getservices?sRef="
+  std::string strURL = m_strBackendBaseURLWeb + "web/getservices?sRef="
       + m_e2stbutils.URLEncode(strServiceReference);
-  std::string strXML = m_e2stbutils.ConnectToBackend(strTemp);
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -584,8 +584,8 @@ bool CE2STBData::LoadChannels()
  ***********************************************/
 bool CE2STBData::LoadChannelGroups()
 {
-  std::string strTemp = m_strBackendBaseURLWeb + "web/getservices";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strTemp);
+  std::string strURL = m_strBackendBaseURLWeb + "web/getservices";
+  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
