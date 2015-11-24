@@ -85,8 +85,6 @@ std::string CE2STBUtils::URLEncode(const std::string& strURL)
 
 std::string CE2STBUtils::ConnectToBackend(std::string& strURL)
 {
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Opening web interface with URL %s", __FUNCTION__, strURL.c_str());
-
   std::string strResult;
   void* fileHandle = XBMC->OpenFile(strURL.c_str(), 0);
   if (fileHandle)
