@@ -199,7 +199,7 @@ bool CE2STBData::GetDeviceInfo()
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2enigmaversion> from result", __FUNCTION__);
     return false;
   }
-  m_strEnigmaVersion = strTemp.c_str();
+  m_strEnigmaVersion = strTemp;
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 version is %s", __FUNCTION__, m_strEnigmaVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2imageversion", strTemp))
@@ -207,7 +207,7 @@ bool CE2STBData::GetDeviceInfo()
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2imageversion> from result", __FUNCTION__);
     return false;
   }
-  m_strImageVersion = strTemp.c_str();
+  m_strImageVersion = strTemp;
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 image version is %s", __FUNCTION__, m_strImageVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2webifversion", strTemp))
@@ -215,7 +215,7 @@ bool CE2STBData::GetDeviceInfo()
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2webifversion> from result", __FUNCTION__);
     return false;
   }
-  m_strWebIfVersion = strTemp.c_str();
+  m_strWebIfVersion = strTemp;
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 web interface version is %s", __FUNCTION__, m_strWebIfVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2devicename", strTemp))
@@ -506,7 +506,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
     newChannel.strChannelName = strTemp;
 
     std::string strPicon;
-    strPicon = newChannel.strServiceReference.c_str();
+    strPicon = newChannel.strServiceReference;
 
     int j = 0;
     std::string::iterator it = strPicon.begin();
@@ -531,7 +531,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
     std::string strTemp2 = strPicon;
 
     std::replace(strPicon.begin(), strPicon.end(), ':', '_');
-    strPicon = g_strPiconsLocationPath.c_str() + strPicon + ".png";
+    strPicon = g_strPiconsLocationPath + strPicon + ".png";
 
     newChannel.strIconPath = strPicon;
     /* Stop changing this! It is the STREAM port, dumbass */
@@ -646,7 +646,7 @@ bool CE2STBData::LoadChannelGroups()
 
     if (g_bSelectTVChannelGroups)
     {
-      if (!g_strTVChannelGroupNameOne.empty() && g_strTVChannelGroupNameOne.compare(strTemp.c_str()) == 0
+      if (!g_strTVChannelGroupNameOne.empty() && g_strTVChannelGroupNameOne.compare(strTemp) == 0
           && g_iNumTVChannelGroupsToLoad >= 1)
       {
         XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #1 %s", __FUNCTION__, strTemp.c_str(),
@@ -791,7 +791,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 
     entry.strTitle = strTemp;
 
-    entry.strServiceReference = myChannel.strServiceReference.c_str();
+    entry.strServiceReference = myChannel.strServiceReference;
 
     if (XMLUtils::GetString(pNode, "e2eventdescriptionextended", strTemp))
     {
@@ -951,7 +951,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2snrdb> from result", __FUNCTION__);
   }
-  std::string strSNRDB = strTemp.c_str();
+  std::string strSNRDB = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNRDB is %s", __FUNCTION__, strSNRDB.c_str());
   /* STB's API 100% = 17.00dB, hence SNRDB * 5.88235 */
   tag.iSNR = (std::stof(strTemp.c_str()) * 5.88235 * 655.35 + 0.5);
@@ -960,7 +960,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2snr> from result", __FUNCTION__);
   }
-  std::string strSNR = strTemp.c_str();
+  std::string strSNR = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNR is %s", __FUNCTION__, strSNR.c_str());
   tag.iSignal = (std::stoi(strTemp.c_str()) * 655.35);
 
@@ -968,7 +968,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2ber> from result", __FUNCTION__);
   }
-  std::string strBER = strTemp.c_str();
+  std::string strBER = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] BER is %s", __FUNCTION__, strBER.c_str());
   tag.iBER = std::stol(strTemp.c_str());
 
@@ -1181,7 +1181,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
       recording.strChannelName = strTemp;
     }
 
-    recording.strIconPath = GetChannelPiconPath(strTemp.c_str());
+    recording.strIconPath = GetChannelPiconPath(strTemp);
 
     if (XMLUtils::GetInt(pNode, "e2time", iTmp))
     {
@@ -1644,7 +1644,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 
     if (XMLUtils::GetString(pNode, "e2servicereference", strTemp))
     {
-      timer.iChannelId = GetTotalChannelNumber(strTemp.c_str());
+      timer.iChannelId = GetTotalChannelNumber(strTemp);
     }
 
     if (!XMLUtils::GetInt(pNode, "e2timebegin", iTmp))
@@ -1663,7 +1663,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 
     if (XMLUtils::GetString(pNode, "e2description", strTemp))
     {
-      timer.strPlot = strTemp.c_str();
+      timer.strPlot = strTemp;
     }
 
     if (XMLUtils::GetInt(pNode, "e2repeated", iTmp))
