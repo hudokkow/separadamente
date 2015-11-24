@@ -102,17 +102,19 @@ std::string CE2STBUtils::ConnectToBackend(std::string& strURL)
   return strResult;
 }
 
-// adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
+// http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
 int CE2STBUtils::TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results)
 {
-  std::string::size_type start_pos = 0;
-  std::string::size_type delim_pos = 0;
+  unsigned int start = str.find_first_not_of(delimiter), end = start;
 
-  while (std::string::npos != delim_pos)
+  while (start != std::string::npos)
   {
-    delim_pos = str.find_first_of(delimiter, start_pos);
-    results.push_back(str.substr(start_pos, delim_pos - start_pos));
-    start_pos = delim_pos + 1;
+    // Find next occurrence of delimiter
+    end = str.find(delimiter, start);
+    // Push back the token found into vector
+    results.push_back(str.substr(start, end - start));
+    // Skip all occurrences of the delimiter to find new start
+    start = str.find_first_not_of(delimiter, end);
   }
   return results.size();
 }
