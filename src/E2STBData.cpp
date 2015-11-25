@@ -22,7 +22,7 @@
 
 #include "client.h"
 
-#include "tinyxml.h"
+#include "tinyxml2/tinyxml2.h"
 #include "platform/util/util.h"
 #include "E2STBXMLUtils.h"
 
@@ -172,19 +172,18 @@ bool CE2STBData::GetDeviceInfo()
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
-  if (!xmlDoc.Parse(strXML.c_str()))
+  tinyxml2::XMLDocument xmlDoc;
+  if (xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return false;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2deviceinfo").Element();
+  pElement = hDoc.FirstChildElement("e2deviceinfo");
 
   if (!pElement)
   {
@@ -243,19 +242,18 @@ bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string&
 
   if (!bIgnoreResult)
   {
-    TiXmlDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc;
     if (!xmlDoc.Parse(strXML.c_str()))
     {
-      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-          xmlDoc.ErrorRow());
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
       return false;
     }
 
-    TiXmlHandle hDoc(&xmlDoc);
-    TiXmlElement* pElement;
-    TiXmlHandle hRoot(0);
+    tinyxml2::XMLHandle hDoc(&xmlDoc);
+    tinyxml2::XMLElement* pElement;
+    tinyxml2::XMLHandle hRoot(0);
 
-    pElement = hDoc.FirstChildElement("e2simplexmlresult").Element();
+    pElement = hDoc.FirstChildElement("e2simplexmlresult");
     if (!pElement)
     {
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2simplexmlresult> element", __FUNCTION__);
@@ -440,19 +438,18 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
       + m_e2stbutils.URLEncode(strServiceReference);
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return false;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2servicelist").Element();
+  pElement = hDoc.FirstChildElement("e2servicelist");
 
   if (!pElement)
   {
@@ -460,9 +457,9 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
     return false;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2service").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2service");
 
   if (!pNode)
   {
@@ -587,19 +584,18 @@ bool CE2STBData::LoadChannelGroups()
   std::string strURL = m_strBackendBaseURLWeb + "web/getservices";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return false;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2servicelist").Element();
+  pElement = hDoc.FirstChildElement("e2servicelist");
 
   if (!pElement)
   {
@@ -607,9 +603,9 @@ bool CE2STBData::LoadChannelGroups()
     return false;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2service").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2service");
 
   if (!pNode)
   {
@@ -714,19 +710,18 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 
   int iNumEPG = 0;
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2eventlist").Element();
+  pElement = hDoc.FirstChildElement("e2eventlist");
 
   if (!pElement)
   {
@@ -735,9 +730,9 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
     return PVR_ERROR_NO_ERROR;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2event").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2event");
 
   if (!pNode)
   {
@@ -857,18 +852,17 @@ PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2deviceinfo").FirstChildElement("e2hdds").FirstChildElement("e2hdd").Element();
+  pElement = hDoc.FirstChildElement("e2deviceinfo").FirstChildElement("e2hdds").FirstChildElement("e2hdd");
 
   if (!pElement)
   {
@@ -928,18 +922,17 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   std::string strURL = m_strBackendBaseURLWeb + "web/signal";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2frontendstatus").Element();
+  pElement = hDoc.FirstChildElement("e2frontendstatus");
   if (!pElement)
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't find <e2frontendstatus> element", __FUNCTION__);
@@ -1032,19 +1025,18 @@ bool CE2STBData::LoadRecordingLocations()
 
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return false;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2locations").Element();
+  pElement = hDoc.FirstChildElement("e2locations");
 
   if (!pElement)
   {
@@ -1052,9 +1044,9 @@ bool CE2STBData::LoadRecordingLocations()
     return false;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2location").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2location");
 
   if (!pNode)
   {
@@ -1116,19 +1108,18 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return false;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2movielist").Element();
+  pElement = hDoc.FirstChildElement("e2movielist");
 
   if (!pElement)
   {
@@ -1136,9 +1127,9 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
     return false;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2movie").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2movie");
 
   if (!pNode)
   {
@@ -1584,19 +1575,18 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
   std::string strURL = m_strBackendBaseURLWeb + "web/timerlist";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
-  TiXmlDocument xmlDoc;
+  tinyxml2::XMLDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
   {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML", __FUNCTION__);
     return timers;
   }
 
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
+  tinyxml2::XMLHandle hDoc(&xmlDoc);
+  tinyxml2::XMLElement* pElement;
+  tinyxml2::XMLHandle hRoot(0);
 
-  pElement = hDoc.FirstChildElement("e2timerlist").Element();
+  pElement = hDoc.FirstChildElement("e2timerlist");
 
   if (!pElement)
   {
@@ -1604,9 +1594,9 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
     return timers;
   }
 
-  hRoot = TiXmlHandle(pElement);
+  hRoot = tinyxml2::XMLHandle(pElement);
 
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2timer").Element();
+  tinyxml2::XMLElement* pNode = hRoot.FirstChildElement("e2timer");
 
   if (!pNode)
   {

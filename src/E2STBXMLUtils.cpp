@@ -20,25 +20,26 @@
 
 #include "E2STBXMLUtils.h"
 #include "platform/util/StringUtils.h"
+#include "tinyxml2/tinyxml2.h"
 
 #include <cstdlib>
 #include <string>
 
-bool XMLUtils::GetInt(const TiXmlNode* pRootNode, const char* strTag, int& iIntValue)
+bool XMLUtils::GetInt(const tinyxml2::XMLNode* pRootNode, const char* strTag, int& iIntValue)
 {
-  const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
+  const tinyxml2::XMLNode* pNode = pRootNode->FirstChildElement(strTag);
   if (!pNode || !pNode->FirstChild())
     return false;
   iIntValue = atoi(pNode->FirstChild()->Value());
   return true;
 }
 
-bool XMLUtils::GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& bBoolValue)
+bool XMLUtils::GetBoolean(const tinyxml2::XMLNode* pRootNode, const char* strTag, bool& bBoolValue)
 {
-  const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
+  const tinyxml2::XMLNode* pNode = pRootNode->FirstChildElement(strTag);
   if (!pNode || !pNode->FirstChild())
     return false;
-  std::string strEnabled = pNode->FirstChild()->ValueStr();
+  std::string strEnabled = pNode->FirstChild();
   StringUtils::ToLower(strEnabled);
   if (strEnabled == "off" || strEnabled == "no" || strEnabled == "disabled" || strEnabled == "false"
       || strEnabled == "0")
@@ -52,15 +53,15 @@ bool XMLUtils::GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& 
   return true;
 }
 
-bool XMLUtils::GetString(const TiXmlNode* pRootNode, const char* strTag, std::string& strStringValue)
+bool XMLUtils::GetString(const tinyxml2::XMLNode* pRootNode, const char* strTag, std::string& strStringValue)
 {
-  const TiXmlElement* pElement = pRootNode->FirstChildElement(strTag);
+  const tinyxml2::XMLElement* pElement = pRootNode->FirstChildElement(strTag);
   if (!pElement)
     return false;
-  const TiXmlNode* pNode = pElement->FirstChild();
+  const tinyxml2::XMLNode* pNode = pElement->FirstChild();
   if (pNode != NULL)
   {
-    strStringValue = pNode->ValueStr();
+    strStringValue = pNode;
     return true;
   }
   strStringValue.clear();

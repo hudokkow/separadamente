@@ -20,15 +20,15 @@
  *
  */
 
-#include "tinyxml.h"
+#include "tinyxml2/tinyxml2.h"
 
 #include <string>
 
 class XMLUtils
 {
 public:
-  static bool GetInt(const TiXmlNode* pRootNode, const char* strTag, int& iIntValue);
-  static bool GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& bBoolValue);
+  static bool GetInt(const tinyxml2::XMLNode* pRootNode, const char* strTag, int& iIntValue);
+  static bool GetBoolean(const tinyxml2::XMLNode* pRootNode, const char* strTag, bool& bBoolValue);
   
   /*! \brief Get a string value from the xml tag
    If the specified tag isn't found strStringvalue is not modified and will contain whatever
@@ -39,5 +39,5 @@ public:
    \param[in,out] strStringValue  where to store the read string
    \return true on success, false if the tag isn't found
    */
-  static bool GetString(const TiXmlNode* pRootNode, const char* strTag, std::string& strStringValue);
+  static bool GetString(const tinyxml2::XMLNode* pRootNode, const char* strTag, std::string& strStringValue);
 };

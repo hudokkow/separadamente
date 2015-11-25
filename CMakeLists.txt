@@ -9,18 +9,17 @@ enable_language(CXX)
 find_package(kodi REQUIRED)
 find_package(kodiplatform REQUIRED)
 find_package(platform REQUIRED)
-find_package(TinyXML REQUIRED)
 
 include_directories(${kodiplatform_INCLUDE_DIRS}
                     ${platform_INCLUDE_DIRS}
-                    ${TINYXML_INCLUDE_DIR}
                     ${KODI_INCLUDE_DIR})
 
 set(ENIGMA2_SOURCES src/client.cpp
                     src/E2STBData.cpp
                     src/E2STBTimeshift.cpp
                     src/E2STBUtils.cpp
-                    src/E2STBXMLUtils.cpp)
+                    src/E2STBXMLUtils.cpp
+                    src/tinyxml2/tinyxml2.cpp)
 
 set(DEPLIBS ${kodiplatform_LIBRARIES}
             ${platform_LIBRARIES}
