@@ -24,7 +24,6 @@
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
 
-#include "platform/util/StdString.h"
 #include "platform/threads/threads.h"
 
 #include <string>
