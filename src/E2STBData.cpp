@@ -38,9 +38,20 @@
  * Constructor
  ***********************************************/
 CE2STBData::CE2STBData()
+: m_bIsConnected{false}
+, m_strBackendBaseURLWeb{}
+, m_strBackendBaseURLStream{}
+, m_strEnigmaVersion{}
+, m_strImageVersion{}
+, m_strWebIfVersion{}
+, m_strServerName{"Enigma2 STB"}
+, m_iTimersIndexCounter{1}
+, m_iUpdateIntervalTimer{0}
+, m_iCurrentChannel{-1}
+, m_iNumChannelGroups{0}
+, m_iNumRecordings{0}
+, m_tsBuffer{nullptr}
 {
-  m_bIsConnected = false;
-  m_strServerName = "Enigma2 STB";
   std::string strURLAuthentication;
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
@@ -62,12 +73,6 @@ CE2STBData::CE2STBData()
     m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
         + m_e2stbutils.IntToString(g_iPortStream) + "/";
   }
-  m_iNumRecordings       = 0;
-  m_iNumChannelGroups    = 0;
-  m_iCurrentChannel      = -1;
-  m_iTimersIndexCounter  = 1;
-  m_iUpdateIntervalTimer = 0;
-  m_tsBuffer             = nullptr;
 }
 
 /********************************************//**
