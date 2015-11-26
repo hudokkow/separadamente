@@ -27,6 +27,7 @@
 
 #include <algorithm>  /* std::transform for GetDeviceInfo() */
 #include <cctype>     /* std::toupper for GetDeviceInfo() */
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -72,6 +73,7 @@ CE2STBData::CE2STBData()
     m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
         + m_e2stbutils.IntToString(g_iPortStream) + "/";
   }
+  Process();
 }
 
 /********************************************//**
@@ -79,9 +81,8 @@ CE2STBData::CE2STBData()
  ***********************************************/
 CE2STBData::~CE2STBData()
 {
-  PLATFORM::CLockObject lock(m_mutex);
+  std::unique_lock<std::mutex> lock(m_mutex);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping update thread", __FUNCTION__);
-  StopThread();
 
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels list", __FUNCTION__);
   m_channels.clear();
@@ -109,7 +110,7 @@ CE2STBData::~CE2STBData()
  ***********************************************/
 bool CE2STBData::Open()
 {
-  PLATFORM::CLockObject lock(m_mutex);
+  std::unique_lock<std::mutex> lock(m_mutex);
   m_bIsConnected = GetDeviceInfo();
 
   if (!m_bIsConnected)
@@ -133,9 +134,7 @@ bool CE2STBData::Open()
     }
   }
   TimerUpdates();
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting Enigma2 STB Client update thread", __FUNCTION__);
-  CreateThread();
-  return IsRunning();
+  return true;
 }
 
 /********************************************//**
@@ -156,7 +155,7 @@ void CE2STBData::SendPowerstate()
   {
     return;
   }
-  PLATFORM::CLockObject lock(m_mutex);
+  std::unique_lock<std::mutex> lock(m_mutex);
 
   /* TODO: Review power states functionality
   http://wiki.dbox2-tuning.net/wiki/Enigma2:WebInterface
@@ -292,20 +291,19 @@ bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string&
 /********************************************//**
  * Process
  ***********************************************/
-void *CE2STBData::Process()
+void CE2STBData::Process()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Starting", __FUNCTION__);
 
-  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size();
-      iChannelPtr++)
+  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Triggering EPG update for channel %d", __FUNCTION__, iChannelPtr);
     PVR->TriggerEpgUpdate(m_channels.at(iChannelPtr).iUniqueId);
   }
 
-  while (!IsStopped())
+  while (m_bIsConnected)
   {
-    Sleep(5 * 1000);
+    sleep(5);
     m_iUpdateIntervalTimer += 5;
 
     if (static_cast<int>(m_iUpdateIntervalTimer) > (g_iClientUpdateInterval * 60))
@@ -313,7 +311,7 @@ void *CE2STBData::Process()
       m_iUpdateIntervalTimer = 0;
 
       /* Trigger Timer and Recording updates according to client settings */
-      PLATFORM::CLockObject lock(m_mutex);
+      std::unique_lock<std::mutex> lock(m_mutex);
       XBMC->Log(ADDON::LOG_NOTICE, "[%s] Updating timers and recordings", __FUNCTION__);
 
       if (g_bAutomaticTimerlistCleanup)
@@ -330,8 +328,6 @@ void *CE2STBData::Process()
       PVR->TriggerRecordingUpdate();
     }
   }
-  m_started.Broadcast();
-  return NULL;
 }
 
 /**************************************************************************//**

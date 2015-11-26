@@ -24,8 +24,7 @@
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
 
-#include "platform/threads/threads.h"
-
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -139,7 +138,7 @@ struct SE2STBRecording
   std::string strIconPath;
 };
 
-class CE2STBData: public PLATFORM::CThread
+class CE2STBData
 {
   public:
     CE2STBData(void);
@@ -217,8 +216,6 @@ class CE2STBData: public PLATFORM::CThread
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
 
-    PLATFORM::CCondition<bool> m_started;
-
 
     /********************************************//**
      * Functions
@@ -226,7 +223,7 @@ class CE2STBData: public PLATFORM::CThread
     /* Client creation and connection */
     bool GetDeviceInfo(); /*!< @brief Backend Interface */
     bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
-    virtual void *Process(void);
+    void Process(void);
 
     /* Channels */
     int         GetTotalChannelNumber(std::string strServiceReference);
@@ -246,7 +243,7 @@ class CE2STBData: public PLATFORM::CThread
     std::vector<SE2STBTimer> LoadTimers(); /*!< @brief Backend Interface */
 
     /* Lock */
-    PLATFORM::CMutex m_mutex;    /*!< @brief CMutex class handler */
+    mutable std::mutex m_mutex;    /*!< @brief mutex class handler */
 
     /* Time shifting */
     CE2STBTimeshift *m_tsBuffer; /*!< @brief Time shifting class handler */
