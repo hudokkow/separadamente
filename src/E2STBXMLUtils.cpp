@@ -26,25 +26,28 @@
 
 bool XMLUtils::GetInt(const TiXmlNode* pRootNode, const char* strTag, int& iIntValue)
 {
-  const TiXmlNode* pNode = pRootNode->FirstChild(strTag );
-  if (!pNode || !pNode->FirstChild()) return false;
+  const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
+  if (!pNode || !pNode->FirstChild())
+    return false;
   iIntValue = atoi(pNode->FirstChild()->Value());
   return true;
 }
 
 bool XMLUtils::GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& bBoolValue)
 {
-  const TiXmlNode* pNode = pRootNode->FirstChild(strTag );
-  if (!pNode || !pNode->FirstChild()) return false;
+  const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
+  if (!pNode || !pNode->FirstChild())
+    return false;
   std::string strEnabled = pNode->FirstChild()->ValueStr();
   StringUtils::ToLower(strEnabled);
-  if (strEnabled == "off" || strEnabled == "no" || strEnabled == "disabled" || strEnabled == "false" || strEnabled == "0" )
+  if (strEnabled == "off" || strEnabled == "no" || strEnabled == "disabled" || strEnabled == "false"
+      || strEnabled == "0")
     bBoolValue = false;
   else
   {
     bBoolValue = true;
     if (strEnabled != "on" && strEnabled != "yes" && strEnabled != "enabled" && strEnabled != "true")
-      return false; // invalid bool switch - it's probably some other string.
+      return false;  // invalid bool switch - it's probably some other string.
   }
   return true;
 }
@@ -52,7 +55,8 @@ bool XMLUtils::GetBoolean(const TiXmlNode* pRootNode, const char* strTag, bool& 
 bool XMLUtils::GetString(const TiXmlNode* pRootNode, const char* strTag, std::string& strStringValue)
 {
   const TiXmlElement* pElement = pRootNode->FirstChildElement(strTag);
-  if (!pElement) return false;
+  if (!pElement)
+    return false;
   const TiXmlNode* pNode = pElement->FirstChild();
   if (pNode != NULL)
   {
