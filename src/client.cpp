@@ -24,7 +24,6 @@
 
 #include "kodi/libKODI_guilib.h"
 #include "kodi/xbmc_pvr_dll.h"
-#include "platform/util/util.h"
 
 #include <cstdlib>
 #include <string>
@@ -444,15 +443,15 @@ extern "C"
     XBMC = new ADDON::CHelper_libXBMC_addon;
     if (!XBMC->RegisterMe(hdl))
     {
-      SAFE_DELETE(XBMC);
+      delete XBMC;
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
     PVR = new CHelper_libXBMC_pvr;
     if (!PVR->RegisterMe(hdl))
     {
-      SAFE_DELETE(PVR);
-      SAFE_DELETE(XBMC);
+      delete PVR;
+      delete XBMC;
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
@@ -469,9 +468,9 @@ extern "C"
 
     if (!E2STBData->Open())
     {
-      SAFE_DELETE(E2STBData);
-      SAFE_DELETE(PVR);
-      SAFE_DELETE(XBMC);
+      delete E2STBData;
+      delete PVR;
+      delete XBMC;
       m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
       return m_CurStatus;
     }
@@ -500,17 +499,17 @@ extern "C"
     if (E2STBData)
     {
       E2STBData->SendPowerstate();
-      SAFE_DELETE(E2STBData);
+      delete E2STBData;
     }
 
     if (PVR)
     {
-      SAFE_DELETE(PVR);
+      delete PVR;
     }
 
     if (XBMC)
     {
-      SAFE_DELETE(XBMC);
+      delete XBMC;
     }
     m_CurStatus = ADDON_STATUS_UNKNOWN;
   }

@@ -23,7 +23,6 @@
 #include "client.h"
 
 #include "tinyxml.h"
-#include "platform/util/util.h"
 #include "E2STBXMLUtils.h"
 
 #include <algorithm>  /* std::transform for GetDeviceInfo() */
@@ -99,7 +98,7 @@ CE2STBData::~CE2STBData()
   if (m_tsBuffer)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal time shifting buffer", __FUNCTION__);
-    SAFE_DELETE(m_tsBuffer);
+    delete m_tsBuffer;
   }
 
   m_bIsConnected = false;
@@ -1324,7 +1323,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
 
   if (m_tsBuffer)
   {
-    SAFE_DELETE(m_tsBuffer);
+    delete m_tsBuffer;
   }
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting time shift buffer for channel %s", __FUNCTION__, GetLiveStreamURL(channel));
@@ -1340,7 +1339,7 @@ void CE2STBData::CloseLiveStream(void)
 
   if (m_tsBuffer)
   {
-    SAFE_DELETE(m_tsBuffer);
+    delete m_tsBuffer;
   }
 }
 
