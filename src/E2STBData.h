@@ -60,8 +60,6 @@ struct SE2STBChannelGroup
 struct SE2STBChannel
 {
     bool        bRadio;
-    /* TODO: Delete */
-    // bool        bInitialEPG;
     int         iUniqueId;
     int         iChannelNumber;
     std::string strGroupName;

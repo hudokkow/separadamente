@@ -495,8 +495,6 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 
     SE2STBChannel newChannel;
     newChannel.bRadio = bRadio;
-    /* TODO: Delete */
-    // newChannel.bInitialEPG = true;
     newChannel.strGroupName = strGroupName;
     newChannel.iUniqueId = m_channels.size() + 1;
     newChannel.iChannelNumber = m_channels.size() + 1;
