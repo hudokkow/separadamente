@@ -38,12 +38,6 @@
 #endif
 
 /*!
- * @brief Macros for string exchange
- */
-#define PVR_STRCPY(dest, source) do { strncpy(dest, source, sizeof(dest)-1); dest[sizeof(dest)-1] = '\0'; } while(0)
-#define PVR_STRCLR(dest) memset(dest, 0, sizeof(dest))
-
-/*!
  * @brief Default client settings. Only change defaults here.
  */
 #define DEFAULT_HOSTNAME                        "127.0.0.1"                                      /*!< @brief Hostname location */

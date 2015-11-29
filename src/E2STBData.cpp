@@ -353,18 +353,18 @@ PVR_ERROR CE2STBData::GetChannels(ADDON_HANDLE handle, bool bRadio)
       xbmcChannel.iUniqueId = channel.iUniqueId;
       xbmcChannel.bIsRadio = channel.bRadio;
       xbmcChannel.iChannelNumber = channel.iChannelNumber;
-      PVR_STRCPY(xbmcChannel.strChannelName, channel.strChannelName.c_str());
-      PVR_STRCPY(xbmcChannel.strInputFormat, ""); /* Unused */
+      strncpy(xbmcChannel.strChannelName, channel.strChannelName.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
+      strncpy(xbmcChannel.strInputFormat, "", 0); /* Unused */
 
       xbmcChannel.iEncryptionSystem = 0;
       xbmcChannel.bIsHidden = false;
 
-      PVR_STRCPY(xbmcChannel.strIconPath, channel.strIconPath.c_str());
+      strncpy(xbmcChannel.strIconPath, channel.strIconPath.c_str(), sizeof(xbmcChannel.strIconPath) - 1);
 
       if (!g_bUseTimeshift)
       {
         std::string strStream = "pvr://stream/tv/" + m_e2stbutils.IntToString(channel.iUniqueId) + ".ts";
-        PVR_STRCPY(xbmcChannel.strStreamURL, strStream.c_str());
+        strncpy(xbmcChannel.strStreamURL, strStream.c_str(), sizeof(xbmcChannel.strStreamURL) - 1);
       }
       PVR->TransferChannelEntry(handle, &xbmcChannel);
     }
@@ -384,7 +384,7 @@ PVR_ERROR CE2STBData::GetChannelGroups(ADDON_HANDLE handle)
 
     tag.bIsRadio  = false;
     tag.iPosition = 0; /* groups default order, unused */
-    PVR_STRCPY(tag.strGroupName, m_channelsGroups[iTagPtr].strGroupName.c_str());
+    strncpy(tag.strGroupName, m_channelsGroups[iTagPtr].strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
     PVR->TransferChannelGroup(handle, &tag);
   }
   return PVR_ERROR_NO_ERROR;
@@ -405,7 +405,7 @@ PVR_ERROR CE2STBData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHAN
       PVR_CHANNEL_GROUP_MEMBER tag;
       memset(&tag, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
 
-      PVR_STRCPY(tag.strGroupName, group.strGroupName);
+      strncpy(tag.strGroupName, group.strGroupName, sizeof(tag.strGroupName) - 1);
       tag.iChannelUniqueId = myChannel.iUniqueId;
       tag.iChannelNumber = myChannel.iChannelNumber;
 
@@ -1226,13 +1226,13 @@ void CE2STBData::TransferRecordings(ADDON_HANDLE handle)
     SE2STBRecording &recording = m_recordings.at(i);
     PVR_RECORDING tag;
     memset(&tag, 0, sizeof(PVR_RECORDING));
-    PVR_STRCPY(tag.strRecordingId, recording.strRecordingId.c_str());
-    PVR_STRCPY(tag.strTitle, recording.strTitle.c_str());
-    PVR_STRCPY(tag.strStreamURL, recording.strStreamURL.c_str());
-    PVR_STRCPY(tag.strPlotOutline, recording.strPlotOutline.c_str());
-    PVR_STRCPY(tag.strPlot, recording.strPlot.c_str());
-    PVR_STRCPY(tag.strChannelName, recording.strChannelName.c_str());
-    PVR_STRCPY(tag.strIconPath, recording.strIconPath.c_str());
+    strncpy(tag.strRecordingId, recording.strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
+    strncpy(tag.strTitle, recording.strTitle.c_str(), sizeof(tag.strTitle) - 1);
+    strncpy(tag.strStreamURL, recording.strStreamURL.c_str(), sizeof(tag.strStreamURL) - 1);
+    strncpy(tag.strPlotOutline, recording.strPlotOutline.c_str(), sizeof(tag.strPlotOutline) - 1);
+    strncpy(tag.strPlot, recording.strPlot.c_str(), sizeof(tag.strPlot) - 1);
+    strncpy(tag.strChannelName, recording.strChannelName.c_str(), sizeof(tag.strChannelName) - 1);
+    strncpy(tag.strIconPath, recording.strIconPath.c_str(), sizeof(tag.strIconPath) - 1);
 
     std::string strTemp;
 
@@ -1245,7 +1245,7 @@ void CE2STBData::TransferRecordings(ADDON_HANDLE handle)
       strTemp = "/";
     }
     recording.strDirectory = strTemp;
-    PVR_STRCPY(tag.strDirectory, recording.strDirectory.c_str());
+    strncpy(tag.strDirectory, recording.strDirectory.c_str(), sizeof(tag.strDirectory) - 1);
     tag.recordingTime = recording.startTime;
     tag.iDuration = recording.iDuration;
     PVR->TransferRecordingEntry(handle, &tag);
@@ -1424,9 +1424,9 @@ PVR_ERROR CE2STBData::GetTimers(ADDON_HANDLE handle)
     tag.iClientChannelUid = timer.iChannelId;
     tag.startTime         = timer.startTime;
     tag.endTime           = timer.endTime;
-    PVR_STRCPY(tag.strTitle, timer.strTitle.c_str());
-    PVR_STRCPY(tag.strDirectory, "/");                  /* Unused */
-    PVR_STRCPY(tag.strSummary, timer.strPlot.c_str());
+    strncpy(tag.strTitle, timer.strTitle.c_str(), sizeof(tag.strTitle) - 1);
+    strncpy(tag.strDirectory, "/", sizeof(tag.strDirectory) - 1);
+    strncpy(tag.strSummary, timer.strPlot.c_str(), sizeof(tag.strSummary) - 1);
     tag.state         = timer.state;
     tag.iPriority     = 0;                              /* Unused */
     tag.iLifetime     = 0;                              /* Unused */
