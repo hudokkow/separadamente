@@ -29,6 +29,7 @@
 #include <cctype>     /* std::toupper for GetDeviceInfo() */
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 /**************************************************************************//**
@@ -46,7 +47,6 @@ CE2STBData::CE2STBData()
 , m_strWebIfVersion{}
 , m_strServerName{"Enigma2 STB"}
 , m_iTimersIndexCounter{1}
-, m_iUpdateIntervalTimer{0}
 , m_iCurrentChannel{-1}
 , m_iNumChannelGroups{0}
 , m_iNumRecordings{0}
@@ -73,7 +73,13 @@ CE2STBData::CE2STBData()
     m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
         + m_e2stbutils.IntToString(g_iPortStream) + "/";
   }
-  Process();
+
+  /* Start the background update thread */
+  m_active = true;
+  m_backgroundThread = std::thread([this]()
+  {
+    BackgroundUpdate();
+  });
 }
 
 /********************************************//**
@@ -81,9 +87,13 @@ CE2STBData::CE2STBData()
  ***********************************************/
 CE2STBData::~CE2STBData()
 {
-  std::unique_lock<std::mutex> lock(m_mutex);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping update thread", __FUNCTION__);
+  /* Signal the background thread to stop */
+  m_active = false;
+  if (m_backgroundThread.joinable())
+    m_backgroundThread.join();
 
+  std::unique_lock<std::mutex> lock(m_mutex);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels list", __FUNCTION__);
   m_channels.clear();
 
@@ -291,9 +301,16 @@ bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string&
 /********************************************//**
  * Process
  ***********************************************/
-void CE2STBData::Process()
+void CE2STBData::BackgroundUpdate()
 {
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Starting", __FUNCTION__);
+  /* Keep count of how many times the loop has run so we can trigger
+   * updates according to g_iClientUpdateInterval client setting */
+  static unsigned int lapCounter = 1;
+
+  /* g_iClientUpdateInterval is set in minutes and there are 12 loops in each minute */
+  g_iClientUpdateInterval *= 12;
+
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Starting background update thread", __FUNCTION__);
 
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
@@ -301,18 +318,12 @@ void CE2STBData::Process()
     PVR->TriggerEpgUpdate(m_channels.at(iChannelPtr).iUniqueId);
   }
 
-  while (m_bIsConnected)
+  while (m_active)
   {
-    sleep(5);
-    m_iUpdateIntervalTimer += 5;
-
-    if (static_cast<int>(m_iUpdateIntervalTimer) > (g_iClientUpdateInterval * 60))
+    if (lapCounter % g_iClientUpdateInterval == 0)
     {
-      m_iUpdateIntervalTimer = 0;
-
-      /* Trigger Timer and Recording updates according to client settings */
       std::unique_lock<std::mutex> lock(m_mutex);
-      XBMC->Log(ADDON::LOG_NOTICE, "[%s] Updating timers and recordings", __FUNCTION__);
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Updating timers and recordings", __FUNCTION__);
 
       if (g_bAutomaticTimerlistCleanup)
       {
@@ -327,6 +338,8 @@ void CE2STBData::Process()
       TimerUpdates();
       PVR->TriggerRecordingUpdate();
     }
+    lapCounter++;
+    usleep(5000 * 1000);
   }
 }
 

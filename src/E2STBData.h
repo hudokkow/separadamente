@@ -24,8 +24,10 @@
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
 
+#include <atomic>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 typedef enum E2STB_UPDATE_STATE
@@ -200,7 +202,6 @@ class CE2STBData
     std::string m_strServerName;           /*!< @brief Backend name */
 
     unsigned int m_iTimersIndexCounter;    /*!< @brief Timers counter */
-    unsigned int m_iUpdateIntervalTimer;   /*!< @brief Client update interval */
 
     /* Channels */
     int                             m_iCurrentChannel;   /*!< @brief Current channel uniqueID */
@@ -216,6 +217,16 @@ class CE2STBData
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
 
+    /**
+     * Controls whether the background update thread should keep running or not
+     */
+    std::atomic<bool> m_active;
+
+    /**
+     * The background update thread
+     */
+    std::thread m_backgroundThread;
+
 
     /********************************************//**
      * Functions
@@ -223,7 +234,7 @@ class CE2STBData
     /* Client creation and connection */
     bool GetDeviceInfo(); /*!< @brief Backend Interface */
     bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
-    void Process(void);
+    void BackgroundUpdate();
 
     /* Channels */
     int         GetTotalChannelNumber(std::string strServiceReference);
