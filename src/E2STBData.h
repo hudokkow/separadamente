@@ -39,95 +39,104 @@ typedef enum E2STB_UPDATE_STATE
 
 struct SE2STBEPG
 {
-    int iEventId;
-    std::string strServiceReference;
-    std::string strTitle;
-    int         iChannelId;
-    time_t      startTime;
-    time_t      endTime;
-    std::string strPlotOutline;
-    std::string strPlot;
+  int         iEventId;
+  std::string strServiceReference;
+  std::string strTitle;
+  int         iChannelId;
+  time_t      startTime;
+  time_t      endTime;
+  std::string strPlotOutline;
+  std::string strPlot;
 };
 
 struct SE2STBChannelGroup
 {
-    std::string strServiceReference;
-    std::string strGroupName;
-    int         iGroupState;
-    std::vector<SE2STBEPG> EPG;
+  std::string strServiceReference;
+  std::string strGroupName;
+  int         iGroupState;
+  std::vector<SE2STBEPG> EPG;
 };
 
 struct SE2STBChannel
 {
-    bool        bRadio;
-    int         iUniqueId;
-    int         iChannelNumber;
-    std::string strGroupName;
-    std::string strChannelName;
-    std::string strServiceReference;
-    std::string strStreamURL;
-    std::string strIconPath;
+  bool        bRadio;
+  int         iUniqueId;
+  int         iChannelNumber;
+  std::string strGroupName;
+  std::string strChannelName;
+  std::string strServiceReference;
+  std::string strStreamURL;
+  std::string strIconPath;
 };
 
 struct SE2STBTimer
 {
-    std::string     strTitle;
-    std::string     strPlot;
-    int             iChannelId;
-    time_t          startTime;
-    time_t          endTime;
-    int             iWeekdays;
-    unsigned int    iEpgID;
-    PVR_TIMER_STATE state;
-    int             iUpdateState;
-    unsigned int    iClientIndex;
+  std::string     strTitle;
+  std::string     strPlot;
+  int             iChannelId;
+  time_t          startTime;
+  time_t          endTime;
+  int             iWeekdays;
+  unsigned int    iEpgID;
+  PVR_TIMER_STATE state;
+  int             iUpdateState;
+  unsigned int    iClientIndex;
 
-    SE2STBTimer()
+  SE2STBTimer()
     {
+      strTitle = "";
+      strPlot = "";
+      iChannelId = 0;
+      startTime = 0;
+      endTime = 0;
+      iWeekdays = 0;
+      iEpgID = 0;
+      state = PVR_TIMER_STATE_NEW;
       iUpdateState = E2STB_UPDATE_STATE_NEW;
+      iClientIndex = 0;
     }
 
-    bool like (const SE2STBTimer &right) const
-    {
-      bool bChanged = true;
-      bChanged = bChanged && (startTime  == right.startTime);
-      bChanged = bChanged && (endTime    == right.endTime);
-      bChanged = bChanged && (iChannelId == right.iChannelId);
-      bChanged = bChanged && (iWeekdays  == right.iWeekdays);
-      bChanged = bChanged && (iEpgID     == right.iEpgID);
+  bool like(const SE2STBTimer &right) const
+  {
+    bool bChanged = true;
+    bChanged = bChanged && (startTime  == right.startTime);
+    bChanged = bChanged && (endTime    == right.endTime);
+    bChanged = bChanged && (iChannelId == right.iChannelId);
+    bChanged = bChanged && (iWeekdays  == right.iWeekdays);
+    bChanged = bChanged && (iEpgID     == right.iEpgID);
 
-      return bChanged;
-    }
+    return bChanged;
+  }
 
-    bool operator == (const SE2STBTimer &right) const
-    {
-      bool bChanged = true;
-      bChanged = bChanged && (startTime  == right.startTime);
-      bChanged = bChanged && (endTime    == right.endTime);
-      bChanged = bChanged && (iChannelId == right.iChannelId);
-      bChanged = bChanged && (iWeekdays  == right.iWeekdays);
-      bChanged = bChanged && (iEpgID     == right.iEpgID);
-      bChanged = bChanged && (state      == right.state);
-      bChanged = bChanged && (!strTitle.compare(right.strTitle));
-      bChanged = bChanged && (!strPlot.compare(right.strPlot));
+  bool operator ==(const SE2STBTimer &right) const
+  {
+    bool bChanged = true;
+    bChanged = bChanged && (startTime  == right.startTime);
+    bChanged = bChanged && (endTime    == right.endTime);
+    bChanged = bChanged && (iChannelId == right.iChannelId);
+    bChanged = bChanged && (iWeekdays  == right.iWeekdays);
+    bChanged = bChanged && (iEpgID     == right.iEpgID);
+    bChanged = bChanged && (state      == right.state);
+    bChanged = bChanged && (!strTitle.compare(right.strTitle));
+    bChanged = bChanged && (!strPlot.compare(right.strPlot));
 
-      return bChanged;
-    }
+    return bChanged;
+  }
 };
 
 struct SE2STBRecording
 {
-    std::string strRecordingId;
-    time_t      startTime;
-    int         iDuration;
-    int         iLastPlayedPosition;
-    std::string strTitle;
-    std::string strStreamURL;
-    std::string strPlot;
-    std::string strPlotOutline;
-    std::string strChannelName;
-    std::string strDirectory;
-    std::string strIconPath;
+  std::string strRecordingId;
+  time_t      startTime;
+  int         iDuration;
+  int         iLastPlayedPosition;
+  std::string strTitle;
+  std::string strStreamURL;
+  std::string strPlot;
+  std::string strPlotOutline;
+  std::string strChannelName;
+  std::string strDirectory;
+  std::string strIconPath;
 };
 
 class CE2STBData: public PLATFORM::CThread
