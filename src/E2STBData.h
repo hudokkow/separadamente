@@ -83,20 +83,6 @@ struct SE2STBTimer
   int             iUpdateState;
   unsigned int    iClientIndex;
 
-  SE2STBTimer()
-    {
-      strTitle = "";
-      strPlot = "";
-      iChannelId = 0;
-      startTime = 0;
-      endTime = 0;
-      iWeekdays = 0;
-      iEpgID = 0;
-      state = PVR_TIMER_STATE_NEW;
-      iUpdateState = E2STB_UPDATE_STATE_NEW;
-      iClientIndex = 0;
-    }
-
   bool like(const SE2STBTimer &right) const
   {
     bool bChanged = true;
