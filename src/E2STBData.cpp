@@ -388,13 +388,13 @@ PVR_ERROR CE2STBData::GetChannelGroups(ADDON_HANDLE handle)
 {
   for (unsigned int iTagPtr = 0; iTagPtr < m_channelsGroups.size(); iTagPtr++)
   {
-    PVR_CHANNEL_GROUP tag;
-    memset(&tag, 0, sizeof(PVR_CHANNEL_GROUP));
+    PVR_CHANNEL_GROUP channelsGroups;
+    memset(&channelsGroups, 0, sizeof(PVR_CHANNEL_GROUP));
 
-    tag.bIsRadio  = false;
-    tag.iPosition = 0; /* groups default order, unused */
-    strncpy(tag.strGroupName, m_channelsGroups[iTagPtr].strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
-    PVR->TransferChannelGroup(handle, &tag);
+    channelsGroups.bIsRadio  = false;
+    channelsGroups.iPosition = 0; /* groups default order, unused */
+    strncpy(channelsGroups.strGroupName, m_channelsGroups[iTagPtr].strGroupName.c_str(), sizeof(channelsGroups.strGroupName) - 1);
+    PVR->TransferChannelGroup(handle, &channelsGroups);
   }
   return PVR_ERROR_NO_ERROR;
 }
@@ -411,17 +411,17 @@ PVR_ERROR CE2STBData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHAN
     SE2STBChannel &myChannel = m_channels.at(i);
     if (!strTemp.compare(myChannel.strGroupName))
     {
-      PVR_CHANNEL_GROUP_MEMBER tag;
-      memset(&tag, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
+      PVR_CHANNEL_GROUP_MEMBER channelGroupMembers;
+      memset(&channelGroupMembers, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
 
-      strncpy(tag.strGroupName, group.strGroupName, sizeof(tag.strGroupName) - 1);
-      tag.iChannelUniqueId = myChannel.iUniqueId;
-      tag.iChannelNumber = myChannel.iChannelNumber;
+      strncpy(channelGroupMembers.strGroupName, group.strGroupName, sizeof(channelGroupMembers.strGroupName) - 1);
+      channelGroupMembers.iChannelUniqueId = myChannel.iUniqueId;
+      channelGroupMembers.iChannelNumber = myChannel.iChannelNumber;
 
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Added channel %s with unique ID %d to group %s and channel number %d",
-          __FUNCTION__, myChannel.strChannelName.c_str(), tag.iChannelUniqueId, group.strGroupName,
+          __FUNCTION__, myChannel.strChannelName.c_str(), channelGroupMembers.iChannelUniqueId, group.strGroupName,
           myChannel.iChannelNumber);
-      PVR->TransferChannelGroupMember(handle, &tag);
+      PVR->TransferChannelGroupMember(handle, &channelGroupMembers);
     }
   }
   return PVR_ERROR_NO_ERROR;
@@ -814,42 +814,42 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
       entry.strPlotOutline = strTemp;
     }
 
-    EPG_TAG tag;
-    memset(&tag, 0, sizeof(EPG_TAG));
+    EPG_TAG channelEPG;
+    memset(&channelEPG, 0, sizeof(EPG_TAG));
 
-    tag.iUniqueBroadcastId  = entry.iEventId;
-    tag.strTitle            = entry.strTitle.c_str();
-    tag.iChannelNumber      = channel.iChannelNumber;
-    tag.startTime           = entry.startTime;
-    tag.endTime             = entry.endTime;
-    tag.strPlotOutline      = entry.strPlotOutline.c_str();
-    tag.strPlot             = entry.strPlot.c_str();
-    tag.strOriginalTitle    = "";    /* Unused */
-    tag.strCast             = "";    /* Unused */
-    tag.strDirector         = "";    /* Unused */
-    tag.strWriter           = "";    /* Unused */
-    tag.iYear               = 0;     /* Unused */
-    tag.strIMDBNumber       = "";    /* Unused */
-    tag.strIconPath         = "";    /* Unused */
-    tag.iGenreType          = 0;     /* Unused */
-    tag.iGenreSubType       = 0;     /* Unused */
-    tag.strGenreDescription = "";    /* Unused */
-    tag.firstAired          = 0;     /* Unused */
-    tag.iParentalRating     = 0;     /* Unused */
-    tag.iStarRating         = 0;     /* Unused */
-    tag.bNotify             = false; /* Unused */
-    tag.iSeriesNumber       = 0;     /* Unused */
-    tag.iEpisodeNumber      = 0;     /* Unused */
-    tag.iEpisodePartNumber  = 0;     /* Unused */
-    tag.strEpisodeName      = "";    /* Unused */
-    tag.iFlags              = EPG_TAG_FLAG_UNDEFINED;
+    channelEPG.iUniqueBroadcastId  = entry.iEventId;
+    channelEPG.strTitle            = entry.strTitle.c_str();
+    channelEPG.iChannelNumber      = channel.iChannelNumber;
+    channelEPG.startTime           = entry.startTime;
+    channelEPG.endTime             = entry.endTime;
+    channelEPG.strPlotOutline      = entry.strPlotOutline.c_str();
+    channelEPG.strPlot             = entry.strPlot.c_str();
+    channelEPG.strOriginalTitle    = "";    /* Unused */
+    channelEPG.strCast             = "";    /* Unused */
+    channelEPG.strDirector         = "";    /* Unused */
+    channelEPG.strWriter           = "";    /* Unused */
+    channelEPG.iYear               = 0;     /* Unused */
+    channelEPG.strIMDBNumber       = "";    /* Unused */
+    channelEPG.strIconPath         = "";    /* Unused */
+    channelEPG.iGenreType          = 0;     /* Unused */
+    channelEPG.iGenreSubType       = 0;     /* Unused */
+    channelEPG.strGenreDescription = "";    /* Unused */
+    channelEPG.firstAired          = 0;     /* Unused */
+    channelEPG.iParentalRating     = 0;     /* Unused */
+    channelEPG.iStarRating         = 0;     /* Unused */
+    channelEPG.bNotify             = false; /* Unused */
+    channelEPG.iSeriesNumber       = 0;     /* Unused */
+    channelEPG.iEpisodeNumber      = 0;     /* Unused */
+    channelEPG.iEpisodePartNumber  = 0;     /* Unused */
+    channelEPG.strEpisodeName      = "";    /* Unused */
+    channelEPG.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
-    PVR->TransferEpgEntry(handle, &tag);
+    PVR->TransferEpgEntry(handle, &channelEPG);
 
     iNumEPG++;
 
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded EPG entry %d - %s for channel %d starting at %d and ending at %d",
-        __FUNCTION__, tag.iUniqueBroadcastId, tag.strTitle, entry.iChannelId, entry.startTime,
+        __FUNCTION__, channelEPG.iUniqueBroadcastId, channelEPG.strTitle, entry.iChannelId, entry.startTime,
         entry.endTime);
   }
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded %u EPG entries for channel %s", __FUNCTION__, iNumEPG,
@@ -933,8 +933,8 @@ PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
  ***********************************************/
 PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
-  static PVR_SIGNAL_STATUS tag;
-  memset(&tag, 0, sizeof(tag));
+  static PVR_SIGNAL_STATUS signalStat;
+  memset(&signalStat, 0, sizeof(signalStat));
 
   std::string strURL = m_strBackendBaseURLWeb + "web/signal";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
@@ -965,7 +965,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   std::string strSNRDB = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNRDB is %s", __FUNCTION__, strSNRDB.c_str());
   /* STB's API 100% = 17.00dB, hence SNRDB * 5.88235 */
-  tag.iSNR = (std::stof(strTemp.c_str()) * 5.88235 * 655.35 + 0.5);
+  signalStat.iSNR = (std::stof(strTemp.c_str()) * 5.88235 * 655.35 + 0.5);
 
   if (!XMLUtils::GetString(pElement, "e2snr", strTemp))
   {
@@ -973,7 +973,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   }
   std::string strSNR = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNR is %s", __FUNCTION__, strSNR.c_str());
-  tag.iSignal = (std::stoi(strTemp.c_str()) * 655.35);
+  signalStat.iSignal = (std::stoi(strTemp.c_str()) * 655.35);
 
   if (!XMLUtils::GetString(pElement, "e2ber", strTemp))
   {
@@ -981,9 +981,9 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   }
   std::string strBER = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] BER is %s", __FUNCTION__, strBER.c_str());
-  tag.iBER = std::stol(strTemp.c_str());
+  signalStat.iBER = std::stol(strTemp.c_str());
 
-  signalStatus = tag;
+  signalStatus = signalStat;
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1231,15 +1231,15 @@ void CE2STBData::TransferRecordings(ADDON_HANDLE handle)
   for (unsigned int i = 0; i < m_recordings.size(); i++)
   {
     SE2STBRecording &recording = m_recordings.at(i);
-    PVR_RECORDING tag;
-    memset(&tag, 0, sizeof(PVR_RECORDING));
-    strncpy(tag.strRecordingId, recording.strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
-    strncpy(tag.strTitle, recording.strTitle.c_str(), sizeof(tag.strTitle) - 1);
-    strncpy(tag.strStreamURL, recording.strStreamURL.c_str(), sizeof(tag.strStreamURL) - 1);
-    strncpy(tag.strPlotOutline, recording.strPlotOutline.c_str(), sizeof(tag.strPlotOutline) - 1);
-    strncpy(tag.strPlot, recording.strPlot.c_str(), sizeof(tag.strPlot) - 1);
-    strncpy(tag.strChannelName, recording.strChannelName.c_str(), sizeof(tag.strChannelName) - 1);
-    strncpy(tag.strIconPath, recording.strIconPath.c_str(), sizeof(tag.strIconPath) - 1);
+    PVR_RECORDING recordings;
+    memset(&recordings, 0, sizeof(PVR_RECORDING));
+    strncpy(recordings.strRecordingId, recording.strRecordingId.c_str(), sizeof(recordings.strRecordingId) - 1);
+    strncpy(recordings.strTitle, recording.strTitle.c_str(), sizeof(recordings.strTitle) - 1);
+    strncpy(recordings.strStreamURL, recording.strStreamURL.c_str(), sizeof(recordings.strStreamURL) - 1);
+    strncpy(recordings.strPlotOutline, recording.strPlotOutline.c_str(), sizeof(recordings.strPlotOutline) - 1);
+    strncpy(recordings.strPlot, recording.strPlot.c_str(), sizeof(recordings.strPlot) - 1);
+    strncpy(recordings.strChannelName, recording.strChannelName.c_str(), sizeof(recordings.strChannelName) - 1);
+    strncpy(recordings.strIconPath, recording.strIconPath.c_str(), sizeof(recordings.strIconPath) - 1);
 
     std::string strTemp;
 
@@ -1252,10 +1252,10 @@ void CE2STBData::TransferRecordings(ADDON_HANDLE handle)
       strTemp = "/";
     }
     recording.strDirectory = strTemp;
-    strncpy(tag.strDirectory, recording.strDirectory.c_str(), sizeof(tag.strDirectory) - 1);
-    tag.recordingTime = recording.startTime;
-    tag.iDuration = recording.iDuration;
-    PVR->TransferRecordingEntry(handle, &tag);
+    strncpy(recordings.strDirectory, recording.strDirectory.c_str(), sizeof(recordings.strDirectory) - 1);
+    recordings.recordingTime = recording.startTime;
+    recordings.iDuration = recording.iDuration;
+    PVR->TransferRecordingEntry(handle, &recordings);
   }
 }
 
@@ -1422,31 +1422,31 @@ PVR_ERROR CE2STBData::GetTimers(ADDON_HANDLE handle)
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Transferring timer %s with client index %d", __FUNCTION__,
         timer.strTitle.c_str(), timer.iClientIndex);
 
-    PVR_TIMER tag;
-    memset(&tag, 0, sizeof(PVR_TIMER));
+    PVR_TIMER timers;
+    memset(&timers, 0, sizeof(PVR_TIMER));
 
     /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
-    tag.iTimerType = PVR_TIMER_TYPE_NONE;
+    timers.iTimerType = PVR_TIMER_TYPE_NONE;
 
-    tag.iClientChannelUid = timer.iChannelId;
-    tag.startTime         = timer.startTime;
-    tag.endTime           = timer.endTime;
-    strncpy(tag.strTitle, timer.strTitle.c_str(), sizeof(tag.strTitle) - 1);
-    strncpy(tag.strDirectory, "/", sizeof(tag.strDirectory) - 1);
-    strncpy(tag.strSummary, timer.strPlot.c_str(), sizeof(tag.strSummary) - 1);
-    tag.state         = timer.state;
-    tag.iPriority     = 0;                              /* Unused */
-    tag.iLifetime     = 0;                              /* Unused */
-    tag.firstDay      = 0;                              /* Unused */
-    tag.iWeekdays     = timer.iWeekdays;
-    tag.iEpgUid       = timer.iEpgID;
-    tag.iMarginStart  = 0;                              /* Unused */
-    tag.iMarginEnd    = 0;                              /* Unused */
-    tag.iGenreType    = 0;                              /* Unused */
-    tag.iGenreSubType = 0;                              /* Unused */
-    tag.iClientIndex  = timer.iClientIndex;
+    timers.iClientChannelUid = timer.iChannelId;
+    timers.startTime         = timer.startTime;
+    timers.endTime           = timer.endTime;
+    strncpy(timers.strTitle, timer.strTitle.c_str(), sizeof(timers.strTitle) - 1);
+    strncpy(timers.strDirectory, "/", sizeof(timers.strDirectory) - 1);
+    strncpy(timers.strSummary, timer.strPlot.c_str(), sizeof(timers.strSummary) - 1);
+    timers.state         = timer.state;
+    timers.iPriority     = 0;                              /* Unused */
+    timers.iLifetime     = 0;                              /* Unused */
+    timers.firstDay      = 0;                              /* Unused */
+    timers.iWeekdays     = timer.iWeekdays;
+    timers.iEpgUid       = timer.iEpgID;
+    timers.iMarginStart  = 0;                              /* Unused */
+    timers.iMarginEnd    = 0;                              /* Unused */
+    timers.iGenreType    = 0;                              /* Unused */
+    timers.iGenreSubType = 0;                              /* Unused */
+    timers.iClientIndex  = timer.iClientIndex;
 
-    PVR->TransferTimerEntry(handle, &tag);
+    PVR->TransferTimerEntry(handle, &timers);
   }
   return PVR_ERROR_NO_ERROR;
 }
