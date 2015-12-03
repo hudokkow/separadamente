@@ -110,6 +110,7 @@ CE2STBData::~CE2STBData()
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal time shifting buffer", __FUNCTION__);
     delete m_tsBuffer;
+    m_tsBuffer = nullptr;
   }
 
   m_bIsConnected = false;
@@ -1331,6 +1332,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   if (m_tsBuffer)
   {
     delete m_tsBuffer;
+    m_tsBuffer = nullptr;
   }
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting time shift buffer for channel %s", __FUNCTION__, GetLiveStreamURL(channel));
@@ -1347,6 +1349,7 @@ void CE2STBData::CloseLiveStream(void)
   if (m_tsBuffer)
   {
     delete m_tsBuffer;
+    m_tsBuffer = nullptr;
   }
 }
 

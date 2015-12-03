@@ -444,6 +444,7 @@ extern "C"
     if (!XBMC->RegisterMe(hdl))
     {
       delete XBMC;
+      XBMC = NULL;
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
@@ -451,7 +452,9 @@ extern "C"
     if (!PVR->RegisterMe(hdl))
     {
       delete PVR;
+      PVR = NULL;
       delete XBMC;
+      XBMC = NULL;
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
@@ -469,8 +472,11 @@ extern "C"
     if (!E2STBData->Open())
     {
       delete E2STBData;
+      E2STBData = NULL;
       delete PVR;
+      PVR = NULL;
       delete XBMC;
+      XBMC = NULL;
       m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
       return m_CurStatus;
     }
@@ -500,16 +506,19 @@ extern "C"
     {
       E2STBData->SendPowerstate();
       delete E2STBData;
+      E2STBData = NULL;
     }
 
     if (PVR)
     {
       delete PVR;
+      PVR = NULL;
     }
 
     if (XBMC)
     {
       delete XBMC;
+      XBMC = NULL;
     }
     m_CurStatus = ADDON_STATUS_UNKNOWN;
   }
