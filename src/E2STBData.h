@@ -21,13 +21,12 @@
 
 #include "client.h"
 
+#include "E2STBConnection.h"
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
 
-#include <atomic>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
 typedef enum E2STB_UPDATE_STATE
@@ -134,9 +133,6 @@ class CE2STBData
 
     /* Client creation and connection */
     bool        Open();
-    bool        IsConnected();
-    void        SendPowerstate();
-    const char* GetServerName() { return m_strServerName.c_str(); }
 
     /* Channels */
     int          GetChannelsAmount(void) { return m_channels.size(); }
@@ -178,15 +174,6 @@ class CE2STBData
     /********************************************//**
      * Members
      ***********************************************/
-    /* Client creation and connection */
-    bool        m_bIsConnected;            /*!< @brief Backend connection check */
-    std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
-    std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
-    std::string m_strEnigmaVersion;        /*!< @brief Backend Enigma2 version */
-    std::string m_strImageVersion;         /*!< @brief Backend Image version */
-    std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
-    std::string m_strServerName;           /*!< @brief Backend name */
-
     unsigned int m_iTimersIndexCounter;    /*!< @brief Timers counter */
 
     /* Channels */
@@ -203,23 +190,9 @@ class CE2STBData
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
 
-    /**
-     * Controls whether the background update thread should keep running or not
-     */
-    std::atomic<bool> m_active;
-
-    /**
-     * The background update thread
-     */
-    std::thread m_backgroundThread;
-
-
     /********************************************//**
      * Functions
      ***********************************************/
-    /* Client creation and connection */
-    bool GetDeviceInfo(); /*!< @brief Backend Interface */
-    bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
     void BackgroundUpdate();
 
     /* Channels */
@@ -247,5 +220,18 @@ class CE2STBData
 
     /* Utils */
     CE2STBUtils m_e2stbutils; /*!< @brief Utils */
+
+    /* Utils */
+    CE2STBConnection m_e2stbconnection; /*!< @brief Connection */
+
+    /**
+     * Controls whether the background update thread should keep running or not
+     */
+    std::atomic<bool> m_active;
+
+    /**
+     * The background update thread
+     */
+    std::thread m_backgroundThread;
 };
 

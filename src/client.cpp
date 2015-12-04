@@ -21,6 +21,7 @@
 #include "client.h"
 
 #include "E2STBData.h"
+#include "E2STBConnection.h"
 
 #include "kodi/libKODI_guilib.h"
 #include "kodi/xbmc_pvr_dll.h"
@@ -63,6 +64,7 @@ std::string g_strPiconsLocationPath  = DEFAULT_PICONS_LOCATION_PATH;
 int g_iClientUpdateInterval          = DEFAULT_UPDATE_INTERVAL;
 bool g_bSendDeepStanbyToSTB          = DEFAULT_SEND_DEEP_STANBY_TO_STB;
 
+CE2STBConnection             *E2STBConnection = NULL;
 CE2STBData                   *E2STBData = NULL;
 CHelper_libXBMC_pvr          *PVR       = NULL;
 ADDON::CHelper_libXBMC_addon *XBMC      = NULL;
@@ -467,7 +469,14 @@ extern "C"
 
     ADDON_ReadSettings();
 
+    E2STBConnection = new CE2STBConnection;
     E2STBData = new CE2STBData;
+
+    if (!E2STBConnection->Open())
+    {
+      delete E2STBConnection;
+      E2STBConnection = NULL;
+    }
 
     if (!E2STBData->Open())
     {
@@ -488,7 +497,7 @@ extern "C"
 
   ADDON_STATUS ADDON_GetStatus()
   {
-    if (m_CurStatus == ADDON_STATUS_OK && !E2STBData->IsConnected())
+    if (m_CurStatus == ADDON_STATUS_OK && !E2STBConnection->IsConnected())
     {
       m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
     }
@@ -502,9 +511,15 @@ extern "C"
       m_bCreated = false;
     }
 
+    if (E2STBConnection)
+    {
+      E2STBConnection->SendPowerstate();
+      delete E2STBData;
+      E2STBData = NULL;
+    }
+
     if (E2STBData)
     {
-      E2STBData->SendPowerstate();
       delete E2STBData;
       E2STBData = NULL;
     }
@@ -688,7 +703,7 @@ extern "C"
    ***********************************************/
   const char *GetBackendName(void)
   {
-    static const char *strBackendName = E2STBData ? E2STBData->GetServerName() : "Unknown Backend Name";
+    static const char *strBackendName = E2STBConnection ? E2STBConnection->GetServerName() : "Unknown Backend Name";
     return strBackendName;
   }
 
@@ -704,7 +719,7 @@ extern "C"
   {
     if (E2STBData)
     {
-      strConnectionString.Format("%s%s", g_strHostname.c_str(), E2STBData->IsConnected() ? "" : "Not connected!");
+      strConnectionString.Format("%s%s", g_strHostname.c_str(), E2STBConnection->IsConnected() ? "" : "Not connected!");
     }
     else
     {
@@ -723,7 +738,7 @@ extern "C"
    ***********************************************/
   int GetChannelsAmount(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return 0;
     }
@@ -732,7 +747,7 @@ extern "C"
 
   int GetCurrentClientChannel(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -741,7 +756,7 @@ extern "C"
 
   PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -755,7 +770,7 @@ extern "C"
       return PVR_ERROR_NO_ERROR;
     }
 
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -769,7 +784,7 @@ extern "C"
       return PVR_ERROR_NO_ERROR;
     }
 
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -778,7 +793,7 @@ extern "C"
 
   int GetChannelGroupsAmount(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -790,7 +805,7 @@ extern "C"
    ***********************************************/
   PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -815,7 +830,7 @@ extern "C"
    ***********************************************/
   int GetRecordingsAmount(bool deleted)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -824,7 +839,7 @@ extern "C"
 
   PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -833,7 +848,7 @@ extern "C"
 
   PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -850,7 +865,7 @@ extern "C"
    ***********************************************/
   bool OpenLiveStream(const PVR_CHANNEL &channel)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return false;
     }
@@ -859,7 +874,7 @@ extern "C"
 
   bool SwitchChannel(const PVR_CHANNEL &channel)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return false;
     }
@@ -872,7 +887,7 @@ extern "C"
   }
   const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return "";
     }
@@ -890,7 +905,7 @@ extern "C"
 
   int GetTimersAmount(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return 0;
     }
@@ -899,7 +914,7 @@ extern "C"
 
   PVR_ERROR GetTimers(ADDON_HANDLE handle)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -909,7 +924,7 @@ extern "C"
 
   PVR_ERROR AddTimer(const PVR_TIMER &timer)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -918,7 +933,7 @@ extern "C"
 
   PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool _UNUSED(bForceDelete))
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -927,7 +942,7 @@ extern "C"
 
   PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return PVR_ERROR_SERVER_ERROR;
     }
@@ -939,7 +954,7 @@ extern "C"
    ***********************************************/
   bool CanPauseStream(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return false;
     }
@@ -948,7 +963,7 @@ extern "C"
 
   bool CanSeekStream(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected())
+    if (!E2STBData || !E2STBConnection->IsConnected())
     {
       return false;
     }
@@ -957,7 +972,7 @@ extern "C"
 
   int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return 0;
     }
@@ -966,7 +981,7 @@ extern "C"
 
   long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */)
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return -1;
     }
@@ -975,7 +990,7 @@ extern "C"
 
   long long PositionLiveStream(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return -1;
     }
@@ -984,7 +999,7 @@ extern "C"
 
   long long LengthLiveStream(void)
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return 0;
     }
@@ -993,7 +1008,7 @@ extern "C"
 
   time_t GetBufferTimeStart()
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return 0;
     }
@@ -1002,7 +1017,7 @@ extern "C"
 
   time_t GetBufferTimeEnd()
   {
-    if (!E2STBData || !E2STBData->IsConnected() || !E2STBData->GetTimeshiftBuffer())
+    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
     {
       return 0;
     }

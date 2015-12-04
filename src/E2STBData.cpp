@@ -25,8 +25,6 @@
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
-#include <algorithm>  /* std::transform for GetDeviceInfo() */
-#include <cctype>     /* std::toupper for GetDeviceInfo() */
 #include <mutex>
 #include <string>
 #include <thread>
@@ -39,41 +37,12 @@
  * Constructor
  ***********************************************/
 CE2STBData::CE2STBData()
-: m_bIsConnected{false}
-, m_strBackendBaseURLWeb{}
-, m_strBackendBaseURLStream{}
-, m_strEnigmaVersion{}
-, m_strImageVersion{}
-, m_strWebIfVersion{}
-, m_strServerName{"Enigma2 STB"}
-, m_iTimersIndexCounter{1}
+: m_iTimersIndexCounter{1}
 , m_iCurrentChannel{-1}
 , m_iNumChannelGroups{0}
 , m_iNumRecordings{0}
 , m_tsBuffer{nullptr}
 {
-  std::string strURLAuthentication;
-
-  if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-  {
-    strURLAuthentication = g_strUsername + ":" + g_strPassword + "@";
-  }
-
-  if (!g_bUseSecureHTTP)
-  {
-    m_strBackendBaseURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortWebHTTP) + "/";
-    m_strBackendBaseURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortStream) + "/";
-  }
-  else
-  {
-    m_strBackendBaseURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortWebHTTPS) + "/";
-    m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortStream) + "/";
-  }
-
   /* Start the background update thread */
   m_active = true;
   m_backgroundThread = std::thread([this]()
@@ -112,8 +81,6 @@ CE2STBData::~CE2STBData()
     delete m_tsBuffer;
     m_tsBuffer = nullptr;
   }
-
-  m_bIsConnected = false;
 }
 
 /********************************************//**
@@ -122,12 +89,8 @@ CE2STBData::~CE2STBData()
 bool CE2STBData::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
-  m_bIsConnected = GetDeviceInfo();
-
-  if (!m_bIsConnected)
+  if (!m_e2stbconnection.GetDeviceInfo())
   {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Web interface can't be reached. Make sure connection options are correct",
-        __FUNCTION__);
     return false;
   }
   LoadRecordingLocations();
@@ -145,157 +108,6 @@ bool CE2STBData::Open()
     }
   }
   TimerUpdates();
-  return true;
-}
-
-/********************************************//**
- * Check client is connected
- ***********************************************/
-bool CE2STBData::IsConnected()
-{
-  return m_bIsConnected;
-}
-
-/********************************************//**
- * Send deep standby command to STB if Enigma2
- * STB client is deactivated or Kodi is closed
- ***********************************************/
-void CE2STBData::SendPowerstate()
-{
-  if (!g_bSendDeepStanbyToSTB)
-  {
-    return;
-  }
-  std::unique_lock<std::mutex> lock(m_mutex);
-
-  /* TODO: Review power states functionality
-  http://wiki.dbox2-tuning.net/wiki/Enigma2:WebInterface
-   */
-  std::string strTemp = "web/powerstate?newstate=1";
-
-  std::string strResult;
-  SendCommandToSTB(strTemp, strResult, true);
-}
-
-/********************************************//**
- * Get STB backend information. Image version,
- * Enigma version, WebIf version, Device name
- ***********************************************/
-bool CE2STBData::GetDeviceInfo()
-{
-  std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
-
-  TiXmlDocument xmlDoc;
-  if (!xmlDoc.Parse(strXML.c_str()))
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
-    return false;
-  }
-
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
-
-  pElement = hDoc.FirstChildElement("e2deviceinfo").Element();
-
-  if (!pElement)
-  {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't find <e2deviceinfo> element", __FUNCTION__);
-    return false;
-  }
-
-  std::string strTemp;
-
-  if (!XMLUtils::GetString(pElement, "e2enigmaversion", strTemp))
-  {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2enigmaversion> from result", __FUNCTION__);
-    return false;
-  }
-  m_strEnigmaVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 version is %s", __FUNCTION__, m_strEnigmaVersion.c_str());
-
-  if (!XMLUtils::GetString(pElement, "e2imageversion", strTemp))
-  {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2imageversion> from result", __FUNCTION__);
-    return false;
-  }
-  m_strImageVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 image version is %s", __FUNCTION__, m_strImageVersion.c_str());
-
-  if (!XMLUtils::GetString(pElement, "e2webifversion", strTemp))
-  {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2webifversion> from result", __FUNCTION__);
-    return false;
-  }
-  m_strWebIfVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 web interface version is %s", __FUNCTION__, m_strWebIfVersion.c_str());
-
-  if (!XMLUtils::GetString(pElement, "e2devicename", strTemp))
-  {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2devicename> from result", __FUNCTION__);
-    return false;
-  }
-  /* http://stackoverflow.com/questions/7131858/stdtransform-and-toupper-no-matching-function */
-  std::transform(strTemp.begin(), strTemp.end(), strTemp.begin(), (int (*)(int))std::toupper);
-  m_strServerName += " " + strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 device name is %s", __FUNCTION__, m_strServerName.c_str());
-  return true;
-}
-
-/********************************************//**
- * Send command to backend STB
- ***********************************************/
-bool CE2STBData::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
-{
-  /* std::string is needed to quell warning */
-  /* ISO C++ says that these are ambiguous, even though the worst conversion */
-  /* for the first is better than the worst conversion for the second */
-  std::string strURL = m_strBackendBaseURLWeb + std::string(strCommandURL);
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
-
-  if (!bIgnoreResult)
-  {
-    TiXmlDocument xmlDoc;
-    if (!xmlDoc.Parse(strXML.c_str()))
-    {
-      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-          xmlDoc.ErrorRow());
-      return false;
-    }
-
-    TiXmlHandle hDoc(&xmlDoc);
-    TiXmlElement* pElement;
-    TiXmlHandle hRoot(0);
-
-    pElement = hDoc.FirstChildElement("e2simplexmlresult").Element();
-    if (!pElement)
-    {
-      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2simplexmlresult> element", __FUNCTION__);
-      return false;
-    }
-
-    bool bTmp;
-    if (!XMLUtils::GetBoolean(pElement, "e2state", bTmp))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2state> from result", __FUNCTION__);
-      strResultText = "Could not parse e2state!";
-      return false;
-    }
-
-    if (!XMLUtils::GetString(pElement, "e2statetext", strResultText))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "[%s] Could not parse <e2state> from result!", __FUNCTION__);
-      return false;
-    }
-
-    if (!bTmp)
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "[%s] Backend sent error message %s", __FUNCTION__, strResultText.c_str());
-    }
-    return bTmp;
-  }
   return true;
 }
 
@@ -331,7 +143,7 @@ void CE2STBData::BackgroundUpdate()
         std::string strTemp = "web/timercleanup?cleanup=true";
 
         std::string strResult;
-        if (!SendCommandToSTB(strTemp, strResult))
+        if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
         {
           XBMC->Log(ADDON::LOG_ERROR, "[%s] Automatic timer list cleanup failed", __FUNCTION__);
         }
@@ -450,7 +262,7 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
-  std::string strURL = m_strBackendBaseURLWeb + "web/getservices?sRef="
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices?sRef="
       + m_e2stbutils.URLEncode(strServiceReference);
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
@@ -547,14 +359,14 @@ bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGr
 
     newChannel.strIconPath = strPicon;
     /* Stop changing this! It is the STREAM port, dumbass */
-    std::string strURL = m_strBackendBaseURLStream + strTemp2;
+    std::string strURL = m_e2stbconnection.m_strBackendBaseURLStream + strTemp2;
 
     newChannel.strStreamURL = strURL;
 
     if (g_bLoadWebInterfacePicons)
     {
       std::replace(strTemp2.begin(), strTemp2.end(), ':', '_');
-      strURL = m_strBackendBaseURLWeb + "picon/" + strTemp2 + ".png";
+      strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "picon/" + strTemp2 + ".png";
       newChannel.strIconPath = strURL;
     }
     m_channels.push_back(newChannel);
@@ -596,7 +408,7 @@ bool CE2STBData::LoadChannels()
  ***********************************************/
 bool CE2STBData::LoadChannelGroups()
 {
-  std::string strURL = m_strBackendBaseURLWeb + "web/getservices";
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -720,7 +532,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
 
   SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
 
-  std::string strURL = m_strBackendBaseURLWeb + "web/epgservice?sRef="
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/epgservice?sRef="
       + m_e2stbutils.URLEncode(myChannel.strServiceReference);
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
@@ -866,7 +678,7 @@ PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &c
  ***********************************************/
 PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-  std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/deviceinfo";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -937,7 +749,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   static PVR_SIGNAL_STATUS signalStat;
   memset(&signalStat, 0, sizeof(signalStat));
 
-  std::string strURL = m_strBackendBaseURLWeb + "web/signal";
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/signal";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -999,7 +811,7 @@ PVR_ERROR CE2STBData::DeleteRecording(const PVR_RECORDING &recinfo)
   std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils.URLEncode(recinfo.strRecordingId);
 
   std::string strResult;
-  if (!SendCommandToSTB(strTemp, strResult))
+  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_FAILED;
   }
@@ -1035,11 +847,11 @@ bool CE2STBData::LoadRecordingLocations()
   std::string strURL;
   if (g_bUseOnlyCurrentRecordingPath)
   {
-    strURL = m_strBackendBaseURLWeb + "web/getcurrlocation";
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getcurrlocation";
   }
   else
   {
-    strURL = m_strBackendBaseURLWeb + "web/getlocations";
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getlocations";
   }
 
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
@@ -1119,11 +931,11 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
   std::string strURL;
   if (!strRecordingFolder.compare("default"))
   {
-    strURL = m_strBackendBaseURLWeb + "web/movielist";
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist";
   }
   else
   {
-    strURL = m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils.URLEncode(strRecordingFolder);
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils.URLEncode(strRecordingFolder);
   }
 
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
@@ -1211,7 +1023,7 @@ bool CE2STBData::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      recording.strStreamURL = m_strBackendBaseURLWeb + "file?file=" + m_e2stbutils.URLEncode(strTemp);
+      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb + "file?file=" + m_e2stbutils.URLEncode(strTemp);
     }
     m_iNumRecordings++;
     iNumRecording++;
@@ -1318,7 +1130,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
     std::string strResult;
-    if (!SendCommandToSTB(strTemp, strResult))
+    if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
     {
       return false;
     }
@@ -1380,7 +1192,7 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   }
 
   std::string strResult;
-  if (!SendCommandToSTB(strTemp, strResult))
+  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -1400,7 +1212,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
       + m_e2stbutils.IntToString(timer.endTime);
 
   std::string strResult;
-  if (!SendCommandToSTB(strTemp, strResult))
+  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -1498,7 +1310,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
       + m_e2stbutils.IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
 
   std::string strResult;
-  if (!SendCommandToSTB(strTemp, strResult))
+  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
   {
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -1595,7 +1407,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 {
   std::vector<SE2STBTimer> timers;
 
-  std::string strURL = m_strBackendBaseURLWeb + "web/timerlist";
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/timerlist";
   std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
