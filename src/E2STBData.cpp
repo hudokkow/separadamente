@@ -56,7 +56,7 @@ CE2STBData::CE2STBData()
  ***********************************************/
 CE2STBData::~CE2STBData()
 {
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping update thread", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping background update thread", __FUNCTION__);
   /* Signal the background thread to stop */
   m_active = false;
   if (m_backgroundThread.joinable())
@@ -89,7 +89,7 @@ CE2STBData::~CE2STBData()
 bool CE2STBData::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
-  if (!m_e2stbconnection.GetDeviceInfo())
+  if (!m_e2stbconnection.m_bIsConnected)
   {
     return false;
   }

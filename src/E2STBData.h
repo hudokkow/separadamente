@@ -25,8 +25,10 @@
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
 
+#include <atomic>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 typedef enum E2STB_UPDATE_STATE
@@ -190,6 +192,17 @@ class CE2STBData
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
 
+    /**
+     * Controls whether the background update thread should keep running or not
+     */
+    std::atomic<bool> m_active;
+
+    /**
+     * The background update thread
+     */
+    std::thread m_backgroundThread;
+
+
     /********************************************//**
      * Functions
      ***********************************************/
@@ -221,17 +234,7 @@ class CE2STBData
     /* Utils */
     CE2STBUtils m_e2stbutils; /*!< @brief Utils */
 
-    /* Utils */
+    /* Connection */
     CE2STBConnection m_e2stbconnection; /*!< @brief Connection */
-
-    /**
-     * Controls whether the background update thread should keep running or not
-     */
-    std::atomic<bool> m_active;
-
-    /**
-     * The background update thread
-     */
-    std::thread m_backgroundThread;
 };
 

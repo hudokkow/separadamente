@@ -23,11 +23,8 @@
 
 #include "E2STBUtils.h"
 
-#include <atomic>
 #include <mutex>
 #include <string>
-#include <thread>
-#include <vector>
 
 class CE2STBConnection
 {
@@ -38,29 +35,39 @@ class CE2STBConnection
     std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
     std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
 
-    /* Client creation and connection */
-    bool        Open();
-    bool        IsConnected();
-    void        SendPowerstate();
+    /*!
+     * @brief Returns backend connection status
+     */
+    bool Open();
+    /*!
+     * @brief Returns backend connection status
+     */
+    bool IsConnected();
+    /*!
+     * @brief Signal backend to shutdown
+     */
+    void SendPowerstate();
+    /*!
+     * @brief Get backend device info
+     */
+    bool GetDeviceInfo();
+    /*!
+     * @brief Send command to backend STB
+     */
+    bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
+    /*!
+     * @brief Returns backend name for identification on Kodi's PVR frontend
+     */
     const char* GetServerName() { return m_strServerName.c_str(); }
 
-    bool GetDeviceInfo(); /*!< @brief Backend Interface */
-    bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false); /*!< @brief Backend Interface */
-
   private:
-    /********************************************//**
-     * Members
-     ***********************************************/
-    /* Client creation and connection */
-    bool        m_bIsConnected;            /*!< @brief Backend connection check */
-    std::string m_strEnigmaVersion;        /*!< @brief Backend Enigma2 version */
-    std::string m_strImageVersion;         /*!< @brief Backend Image version */
-    std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
-    std::string m_strServerName;           /*!< @brief Backend name */
+    /* Members */
+    bool        m_bIsConnected;     /*!< @brief Backend connection check */
+    std::string m_strEnigmaVersion; /*!< @brief Backend Enigma2 version */
+    std::string m_strImageVersion;  /*!< @brief Backend Image version */
+    std::string m_strWebIfVersion;  /*!< @brief Backend web interface version */
+    std::string m_strServerName;    /*!< @brief Backend name */
 
-    /* Lock */
-    mutable std::mutex m_mutex;    /*!< @brief mutex class handler */
-
-    /* Utils */
-    CE2STBUtils m_e2stbutils; /*!< @brief Utils */
+    mutable std::mutex m_mutex;  /*!< @brief mutex class handler */
+    CE2STBUtils m_e2stbutils;    /*!< @brief CE2STBUtils class handler */
 };

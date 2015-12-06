@@ -29,7 +29,6 @@
 #include <cctype>     /* std::toupper for GetDeviceInfo() */
 #include <mutex>
 #include <string>
-#include <vector>
 
 CE2STBConnection::CE2STBConnection()
 : m_strBackendBaseURLWeb{}
@@ -68,9 +67,6 @@ CE2STBConnection::~CE2STBConnection()
   m_bIsConnected = false;
 }
 
-/********************************************//**
- * Open client
- ***********************************************/
 bool CE2STBConnection::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
@@ -85,18 +81,11 @@ bool CE2STBConnection::Open()
   return true;
 }
 
-/********************************************//**
- * Check client is connected
- ***********************************************/
 bool CE2STBConnection::IsConnected()
 {
   return m_bIsConnected;
 }
 
-/********************************************//**
- * Send deep standby command to STB if Enigma2
- * STB client is deactivated or Kodi is closed
- ***********************************************/
 void CE2STBConnection::SendPowerstate()
 {
   if (!g_bSendDeepStanbyToSTB)
@@ -114,10 +103,6 @@ void CE2STBConnection::SendPowerstate()
   SendCommandToSTB(strTemp, strResult, true);
 }
 
-/********************************************//**
- * Get STB backend information. Image version,
- * Enigma version, WebIf version, Device name
- ***********************************************/
 bool CE2STBConnection::GetDeviceInfo()
 {
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
@@ -181,9 +166,6 @@ bool CE2STBConnection::GetDeviceInfo()
   return true;
 }
 
-/********************************************//**
- * Send command to backend STB
- ***********************************************/
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
   /* std::string is needed to quell warning */
