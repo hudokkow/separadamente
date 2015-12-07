@@ -1180,14 +1180,13 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   timer_t endTime = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timeradd?sRef="
-      + m_e2stbutils.URLEncode(strServiceReference) + "&repeated="
-      + m_e2stbutils.IntToString(timer.iWeekdays) + "&begin="
-      + startTime + "&end="
-      + endTime + "&name="
-      + m_e2stbutils.URLEncode(timer.strTitle) + "&description="
-      + m_e2stbutils.URLEncode(timer.strSummary) + "&eit="
-      + m_e2stbutils.IntToString(timer.iEpgUid);
+  std::string strTemp = "web/timeradd?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
+      + "&repeated=" + m_e2stbutils.IntToString(timer.iWeekdays)
+      + "&begin=" + startTime
+      + "&end=" + endTime
+      + "&name=" + m_e2stbutils.URLEncode(timer.strTitle)
+      + "&description=" + m_e2stbutils.URLEncode(timer.strSummary)
+      + "&eit=" + m_e2stbutils.IntToString(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
@@ -1212,10 +1211,9 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   timer_t endTime = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timerdelete?sRef="
-      + m_e2stbutils.URLEncode(strServiceReference) + "&begin="
-      + startTime + "&end="
-      + endTime;
+  std::string strTemp = "web/timerdelete?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
+      + "&begin=" + startTime
+      + "&end=" + endTime;
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
