@@ -1193,6 +1193,8 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
     strTemp += "&dirname=&" + m_e2stbutils.URLEncode(g_strBackendRecordingPath);
   }
 
+  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added timer %s", __FUNCTION__, strTemp.c_str());
+
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
   {
@@ -1220,6 +1222,8 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   {
     return PVR_ERROR_SERVER_ERROR;
   }
+
+  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Deleted timer %s", __FUNCTION__, strTemp.c_str());
 
   if (timer.state == PVR_TIMER_STATE_RECORDING)
   {
