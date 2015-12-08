@@ -1176,14 +1176,14 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Channel UID is %d with title %s and EPG ID %d", __FUNCTION__,
       timer.iClientChannelUid, timer.strTitle, timer.iEpgUid);
 
-  timer_t startTime = timer.startTime - (timer.iMarginStart * 60);
-  timer_t endTime = timer.endTime + (timer.iMarginEnd * 60);
+  unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
+  unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
       + "&repeated=" + m_e2stbutils.IntToString(timer.iWeekdays)
-      + "&begin=" + startTime
-      + "&end=" + endTime
+      + "&begin=" + m_e2stbutils.IntToString(marginBefore)
+      + "&end=" + m_e2stbutils.IntToString(marginAfter)
       + "&name=" + m_e2stbutils.URLEncode(timer.strTitle)
       + "&description=" + m_e2stbutils.URLEncode(timer.strSummary)
       + "&eit=" + m_e2stbutils.IntToString(timer.iEpgUid);
@@ -1207,13 +1207,13 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
  ***********************************************/
 PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
 {
-  timer_t startTime = timer.startTime - (timer.iMarginStart * 60);
-  timer_t endTime = timer.endTime + (timer.iMarginEnd * 60);
+  unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
+  unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
-      + "&begin=" + startTime
-      + "&end=" + endTime;
+      + "&begin=" + m_e2stbutils.IntToString(marginBefore)
+      + "&end=" + m_e2stbutils.IntToString(marginAfter);
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
