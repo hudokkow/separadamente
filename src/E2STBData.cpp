@@ -89,7 +89,7 @@ CE2STBData::~CE2STBData()
 bool CE2STBData::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
-  if (!m_e2stbconnection.m_bIsConnected)
+  if (!m_e2stbconnection.GetDeviceInfo())
   {
     return false;
   }
