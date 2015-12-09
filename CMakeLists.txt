@@ -20,6 +20,7 @@ set(ENIGMA2_SOURCES src/client.cpp
                     src/compat.h
                     src/E2STBConnection.cpp
                     src/E2STBData.cpp
+                    src/E2STBRecordings.cpp
                     src/E2STBTimeshift.cpp
                     src/E2STBUtils.cpp
                     src/E2STBXMLUtils.cpp)

@@ -112,21 +112,6 @@ struct SE2STBTimer
   }
 };
 
-struct SE2STBRecording
-{
-  std::string strRecordingId;
-  time_t      startTime;
-  int         iDuration;
-  int         iLastPlayedPosition;
-  std::string strTitle;
-  std::string strStreamURL;
-  std::string strPlot;
-  std::string strPlotOutline;
-  std::string strChannelName;
-  std::string strDirectory;
-  std::string strIconPath;
-};
-
 class CE2STBData
 {
   public:
@@ -150,11 +135,6 @@ class CE2STBData
     /* Information */
     PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed); /*!< @brief Backend Interface */
     PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);      /*!< @brief Backend Interface */
-
-    /* Recordings */
-    PVR_ERROR    DeleteRecording(const PVR_RECORDING &recinfo);
-    PVR_ERROR    GetRecordings(ADDON_HANDLE handle);
-    unsigned int GetRecordingsAmount() { return m_iNumRecordings; }
 
     /* Stream handling */
     bool        OpenLiveStream(const PVR_CHANNEL &channel);
@@ -184,11 +164,6 @@ class CE2STBData
     std::vector<SE2STBChannel>      m_channels;          /*!< @brief Backend channels */
     std::vector<SE2STBChannelGroup> m_channelsGroups;    /*!< @brief Backend channel groups */
 
-    /* Recordings */
-    int                          m_iNumRecordings;
-    std::vector<std::string>     m_recordingsLocations;
-    std::vector<SE2STBRecording> m_recordings;
-
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
 
@@ -213,13 +188,6 @@ class CE2STBData
     bool        LoadChannels(std::string strServerReference, std::string strGroupName); /*!< @brief Backend Interface */
     bool        LoadChannels();
     bool        LoadChannelGroups(); /*!< @brief Backend Interface */
-
-    /* Recordings */
-    bool        LoadRecordingLocations(); /*!< @brief Backend Interface */
-    bool        IsInRecordingFolder(std::string);
-    bool        GetRecordingFromLocation(std::string strRecordingFolder);
-    void        TransferRecordings(ADDON_HANDLE handle);
-    std::string GetChannelPiconPath(std::string strChannelName);
 
     /* Timers */
     void TimerUpdates();
