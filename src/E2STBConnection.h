@@ -34,6 +34,8 @@ class CE2STBConnection
 
     std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
     std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
+    std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
+    std::string m_strServerName;           /*!< @brief Backend name */
 
     /*!
      * @brief Returns backend connection status
@@ -55,18 +57,11 @@ class CE2STBConnection
      * @brief Send command to backend STB
      */
     bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
-    /*!
-     * @brief Returns backend name for identification on Kodi's PVR frontend
-     */
-    const char* GetServerName() { return m_strServerName.c_str(); }
 
   private:
-    /* Members */
     bool        m_bIsConnected;     /*!< @brief Backend connection check */
     std::string m_strEnigmaVersion; /*!< @brief Backend Enigma2 version */
     std::string m_strImageVersion;  /*!< @brief Backend Image version */
-    std::string m_strWebIfVersion;  /*!< @brief Backend web interface version */
-    std::string m_strServerName;    /*!< @brief Backend name */
 
     mutable std::mutex m_mutex;  /*!< @brief mutex class handler */
     CE2STBUtils m_e2stbutils;    /*!< @brief CE2STBUtils class handler */

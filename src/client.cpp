@@ -23,1053 +23,772 @@
 #include "E2STBData.h"
 #include "E2STBConnection.h"
 
+#include "platform/util/util.h"
 #include "kodi/libKODI_guilib.h"
 #include "kodi/xbmc_pvr_dll.h"
 
 #include <cstdlib>
 #include <string>
 
-ADDON_STATUS m_CurStatus   = ADDON_STATUS_UNKNOWN;
-bool m_bCreated            = false;
-std::string g_szUserPath;
-std::string g_szClientPath;
+/*!
+ * @brief Initialize helpers
+ */
+CHelper_libXBMC_pvr          *PVR  = NULL;
+ADDON::CHelper_libXBMC_addon *XBMC = NULL;
 
-std::string g_strHostname = DEFAULT_HOSTNAME;
-int g_iPortStream         = DEFAULT_STREAM_PORT;
-int g_iPortWebHTTP        = DEFAULT_WEB_PORT_HTTP;
-bool g_bUseAuthentication = DEFAULT_USE_AUTHENTICATION;
-std::string g_strUsername = DEFAULT_USERNAME;
-std::string g_strPassword = DEFAULT_PASSWORD;
-bool g_bUseSecureHTTP     = DEFAULT_USE_HTTPS;
-int g_iPortWebHTTPS       = DEFAULT_WEB_PORT_HTTPS;
+/*!
+ * @brief Initialize globals
+ */
+ADDON_STATUS      g_currentStatus   = ADDON_STATUS_UNKNOWN;
+CE2STBConnection *g_E2STBConnection = nullptr;
+CE2STBData       *g_E2STBData       = nullptr;
 
-bool g_bSelectTVChannelGroups            = DEFAULT_SELECT_TV_CHANNEL_GROUPS;
-int g_iNumTVChannelGroupsToLoad          = DEFAULT_NUM_TV_CHANNEL_GROUPS_TO_LOAD;
-std::string g_strTVChannelGroupNameOne   = DEFAULT_TV_CHANNEL_GROUP_NAME_1;
-std::string g_strTVChannelGroupNameTwo   = DEFAULT_TV_CHANNEL_GROUP_NAME_2;
-std::string g_strTVChannelGroupNameThree = DEFAULT_TV_CHANNEL_GROUP_NAME_3;
-std::string g_strTVChannelGroupNameFour  = DEFAULT_TV_CHANNEL_GROUP_NAME_4;
-std::string g_strTVChannelGroupNameFive  = DEFAULT_TV_CHANNEL_GROUP_NAME_5;
-bool g_bLoadRadioChannelsGroup           = DEFAULT_LOAD_RADIO_CHANNELS_GROUP;
-bool g_bZapBeforeChannelChange           = DEFAULT_ZAP_BEFORE_CHANNEL_CHANGE;
+/*!
+ * @brief Connection client settings
+ */
+std::string g_strHostname  = "127.0.0.1";
+int g_iPortWebHTTP         = 80;
+int g_iPortStream          = 8001;
+bool g_bUseAuthentication  = false;
+std::string g_strUsername;
+std::string g_strPassword;
+bool g_bUseSecureHTTP      = false;
+int g_iPortWebHTTPS        = 443;
 
-std::string g_strBackendRecordingPath = DEFAULT_BACKEND_RECORDING_PATH;
-bool g_bUseOnlyCurrentRecordingPath   = DEFAULT_USE_ONLY_CURRENT_RECORDING_PATH;
-bool g_bAutomaticTimerlistCleanup     = DEFAULT_AUTOMATIC_TIMERLIST_CLEANUP;
+/*!
+ * @brief Channels client settings
+ */
+bool g_bSelectTVChannelGroups             = false;
+int g_iNumTVChannelGroupsToLoad           = 0;
+std::string g_strTVChannelGroupNameOne;
+std::string g_strTVChannelGroupNameTwo;
+std::string g_strTVChannelGroupNameThree;
+std::string g_strTVChannelGroupNameFour;
+std::string g_strTVChannelGroupNameFive;
+bool g_bLoadRadioChannelsGroup            = false;
+bool g_bZapBeforeChannelChange            = false;
 
-bool g_bUseTimeshift                 = DEFAULT_USE_TIMESHIFT;
-std::string g_strTimeshiftBufferPath = DEFAULT_TSBUFFER_PATH;
-bool g_bLoadWebInterfacePicons       = DEFAULT_LOAD_WEB_INTERFACE_PICONS;
-std::string g_strPiconsLocationPath  = DEFAULT_PICONS_LOCATION_PATH;
-int g_iClientUpdateInterval          = DEFAULT_UPDATE_INTERVAL;
-bool g_bSendDeepStanbyToSTB          = DEFAULT_SEND_DEEP_STANBY_TO_STB;
+/*!
+ * @brief Recordings/Timers client settings
+ */
+std::string g_strBackendRecordingPath;
+bool g_bUseOnlyCurrentRecordingPath    = false;
+bool g_bAutomaticTimerlistCleanup      = true;
 
-CE2STBConnection             *E2STBConnection = NULL;
-CE2STBData                   *E2STBData = NULL;
-CHelper_libXBMC_pvr          *PVR       = NULL;
-ADDON::CHelper_libXBMC_addon *XBMC      = NULL;
+/*!
+ * @brief Advanced client settings
+ */
+bool g_bUseTimeshift                 = false;
+std::string g_strTimeshiftBufferPath = "special://userdata/addon_data/pvr.enigma2.stb";
+bool g_bLoadWebInterfacePicons       = true;
+std::string g_strPiconsLocationPath;
+int g_iClientUpdateInterval          = 120;
+bool g_bSendDeepStanbyToSTB          = false;
 
 extern "C"
 {
-  /********************************************//**
-   * Read settings from settings.xml, generate a
-   * new file if it's not found / new install
-   ***********************************************/
-  void ADDON_ReadSettings(void)
+void ADDON_ReadSettings(void)
+{
+  /*!
+   * @brief Read settings from settings.xml. Generate a new file if it's not found / new install
+   */
+  char * buffer = (char*) malloc(1024);
+  if (XBMC->GetSetting("hostname", buffer))
+    g_strHostname = buffer;
+
+  if (!XBMC->GetSetting("webporthttp", &g_iPortWebHTTP))
+    g_iPortWebHTTP = 80;
+
+  if (!XBMC->GetSetting("streamport", &g_iPortStream))
+    g_iPortStream = 8001;
+
+  if (!XBMC->GetSetting("useauthentication", &g_bUseAuthentication))
+    g_bUseAuthentication = false;
+
+  if (XBMC->GetSetting("username", buffer))
+    g_strUsername = buffer;
+
+  if (XBMC->GetSetting("password", buffer))
+    g_strPassword = buffer;
+
+  if (!XBMC->GetSetting("usesecurehttp", &g_bUseSecureHTTP))
+    g_bUseSecureHTTP = false;
+
+  if (!XBMC->GetSetting("webporthttps", &g_iPortWebHTTPS))
+    g_iPortWebHTTPS = 443;
+
+  if (!XBMC->GetSetting("selecttvchannelgroups", &g_bSelectTVChannelGroups))
+    g_bSelectTVChannelGroups = false;
+
+  if (!XBMC->GetSetting("tvchannelgroupstoload", &g_iNumTVChannelGroupsToLoad))
+    g_iNumTVChannelGroupsToLoad = 0;
+
+  if (XBMC->GetSetting("tvchannelgroupone", buffer))
+    g_strTVChannelGroupNameOne = buffer;
+
+  if (XBMC->GetSetting("tvchannelgrouptwo", buffer))
+    g_strTVChannelGroupNameTwo = buffer;
+
+  if (XBMC->GetSetting("tvchannelgroupthree", buffer))
+    g_strTVChannelGroupNameThree = buffer;
+
+  if (XBMC->GetSetting("tvchannelgroupfour", buffer))
+    g_strTVChannelGroupNameFour = buffer;
+
+  if (XBMC->GetSetting("tvchannelgroupfive", buffer))
+    g_strTVChannelGroupNameFive = buffer;
+
+  if (!XBMC->GetSetting("loadradiochannelsgroup", &g_bLoadRadioChannelsGroup))
+    g_bLoadRadioChannelsGroup = false;
+
+  if (!XBMC->GetSetting("zap", &g_bZapBeforeChannelChange))
+    g_bZapBeforeChannelChange = false;
+
+  if (XBMC->GetSetting("recordingpath", buffer))
+    g_strBackendRecordingPath = buffer;
+
+  if (!XBMC->GetSetting("onlycurrentrecordingpath", &g_bUseOnlyCurrentRecordingPath))
+    g_bUseOnlyCurrentRecordingPath = false;
+
+  if (!XBMC->GetSetting("timerlistcleanup", &g_bAutomaticTimerlistCleanup))
+    g_bAutomaticTimerlistCleanup = true;
+
+  if (!XBMC->GetSetting("usetimeshift", &g_bUseTimeshift))
+    g_bUseTimeshift = false;
+
+  if (XBMC->GetSetting("timeshiftpath", buffer))
+    g_strTimeshiftBufferPath = buffer;
+
+  if (!XBMC->GetSetting("onlinepicons", &g_bLoadWebInterfacePicons))
+    g_bLoadWebInterfacePicons = true;
+
+  if (XBMC->GetSetting("piconspath", buffer))
+    g_strPiconsLocationPath = buffer;
+
+  if (!XBMC->GetSetting("updateinterval", &g_iClientUpdateInterval))
+    g_iClientUpdateInterval = 120;
+
+  if (!XBMC->GetSetting("sendpowerstate", &g_bSendDeepStanbyToSTB))
+    g_bSendDeepStanbyToSTB = false;
+
+  free(buffer);
+
+  /*!
+   * @brief Log the crap out of client settings for debugging purposes
+   */
+  XBMC->Log(ADDON::LOG_DEBUG, "Hostname: %s", g_strHostname.c_str());
+
+  if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
   {
-    /********************************************//**
-     * Read Connection Settings
-     ***********************************************/
-    /* Read setting "hostname" from settings.xml */
-    char * buffer = (char*) malloc(128);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("hostname", buffer))
-    {
-      g_strHostname = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get hostname setting. Default: %s", DEFAULT_HOSTNAME);
-      g_strHostname = DEFAULT_HOSTNAME;
-    }
-    free(buffer);
+    XBMC->Log(ADDON::LOG_DEBUG, "Username: %s", g_strUsername.c_str());
+    XBMC->Log(ADDON::LOG_DEBUG, "Password: %s", g_strPassword.c_str());
 
-    /* Read setting "webporthttp" from settings.xml */
-    if (!XBMC->GetSetting("webporthttp", &g_iPortWebHTTP))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get HTTP web interface port setting. Default: %d", DEFAULT_WEB_PORT_HTTP);
-      g_iPortWebHTTP = DEFAULT_WEB_PORT_HTTP;
-    }
+    if ((g_strUsername.find("@") != std::string::npos))
+      XBMC->Log(ADDON::LOG_ERROR, "The '@' character isn't supported in the username field");
 
-    /* Read setting "streamport" from settings.xml */
-    if (!XBMC->GetSetting("streamport", &g_iPortStream))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get stream port setting. Default: %d", DEFAULT_STREAM_PORT);
-      g_iPortStream = DEFAULT_STREAM_PORT;
-    }
-
-    /* Read setting "useauthentication" from settings.xml */
-    if (!XBMC->GetSetting("useauthentication", &g_bUseAuthentication))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get authentication setting. Default: false");
-      g_bUseAuthentication = DEFAULT_USE_AUTHENTICATION;
-    }
-
-    /* Read setting "username" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("username", buffer))
-    {
-      g_strUsername = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get username setting. Default: (empty)");
-      g_strUsername = DEFAULT_USERNAME;
-    }
-    free(buffer);
-
-    /* Read setting "password" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("password", buffer))
-    {
-      g_strPassword = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get password setting. Default: (empty)");
-      g_strPassword = DEFAULT_PASSWORD;
-    }
-    free(buffer);
-
-    /* Read setting "usesecurehttp" from settings.xml */
-    if (!XBMC->GetSetting("usesecurehttp", &g_bUseSecureHTTP))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get secure HTTP setting. Default: false");
-      g_bUseSecureHTTP = DEFAULT_USE_HTTPS;
-    }
-
-    /* Read setting "webporthttps" from settings.xml */
-    if (!XBMC->GetSetting("webporthttps", &g_iPortWebHTTPS))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get HTTPS web interface port setting. Default: %d", DEFAULT_WEB_PORT_HTTPS);
-      g_iPortWebHTTPS = DEFAULT_WEB_PORT_HTTPS;
-    }
-
-    /********************************************//**
-     * Read Channel Settings
-     ***********************************************/
-    /* Read setting "selecttvchannelgroups" from settings.xml */
-    if (!XBMC->GetSetting("selecttvchannelgroups", &g_bSelectTVChannelGroups))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get select TV channels setting. Default: false");
-      g_bSelectTVChannelGroups = DEFAULT_SELECT_TV_CHANNEL_GROUPS;
-    }
-
-    /* Read setting "tvchannelgroupstoload" from settings.xml */
-    if (!XBMC->GetSetting("tvchannelgroupstoload", &g_iNumTVChannelGroupsToLoad))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get number of TV channel groups setting. Default: %d",
-          DEFAULT_NUM_TV_CHANNEL_GROUPS_TO_LOAD);
-      g_iNumTVChannelGroupsToLoad = DEFAULT_NUM_TV_CHANNEL_GROUPS_TO_LOAD;
-    }
-
-    /* Read setting "tvchannelgroupone" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("tvchannelgroupone", buffer))
-    {
-      g_strTVChannelGroupNameOne = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get TV channel group #1 setting. Default: %s",
-          DEFAULT_TV_CHANNEL_GROUP_NAME_1);
-      g_strTVChannelGroupNameOne = DEFAULT_TV_CHANNEL_GROUP_NAME_1;
-    }
-    free(buffer);
-
-    /* Read setting "tvchannelgrouptwo" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("tvchannelgrouptwo", buffer))
-    {
-      g_strTVChannelGroupNameTwo = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get TV channel group #2 setting. Default: %s",
-          DEFAULT_TV_CHANNEL_GROUP_NAME_2);
-      g_strTVChannelGroupNameTwo = DEFAULT_TV_CHANNEL_GROUP_NAME_2;
-    }
-    free(buffer);
-
-    /* Read setting "tvchannelgroupthree" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("tvchannelgroupthree", buffer))
-    {
-      g_strTVChannelGroupNameThree = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get TV channel group #3 setting. Default: %s",
-          DEFAULT_TV_CHANNEL_GROUP_NAME_3);
-      g_strTVChannelGroupNameThree = DEFAULT_TV_CHANNEL_GROUP_NAME_3;
-    }
-    free(buffer);
-
-    /* Read setting "tvchannelgroupfour" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("tvchannelgroupfour", buffer))
-    {
-      g_strTVChannelGroupNameFour = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get TV channel group #4 setting. Default: %s",
-          DEFAULT_TV_CHANNEL_GROUP_NAME_4);
-      g_strTVChannelGroupNameFour = DEFAULT_TV_CHANNEL_GROUP_NAME_4;
-    }
-    free(buffer);
-
-    /* Read setting "tvchannelgroupfive" from settings.xml */
-    buffer = (char*) malloc(64);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("tvchannelgroupfive", buffer))
-    {
-      g_strTVChannelGroupNameFive = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get TV channel group #5 setting. Default: %s",
-          DEFAULT_TV_CHANNEL_GROUP_NAME_5);
-      g_strTVChannelGroupNameFive = DEFAULT_TV_CHANNEL_GROUP_NAME_5;
-    }
-    free(buffer);
-
-    /* Read setting "loadradiochannelsgroup" from settings.xml */
-    if (!XBMC->GetSetting("loadradiochannelsgroup", &g_bLoadRadioChannelsGroup))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get load Radio channels group setting. Default: false");
-      g_bLoadRadioChannelsGroup = DEFAULT_LOAD_RADIO_CHANNELS_GROUP;
-    }
-
-    /* Read setting "zap" from settings.xml */
-    if (!XBMC->GetSetting("zap", &g_bZapBeforeChannelChange))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get zap before channel change setting. Default: false");
-      g_bZapBeforeChannelChange = DEFAULT_ZAP_BEFORE_CHANNEL_CHANGE;
-    }
-
-    /********************************************//**
-     * Read Recordings/Timers Settings
-     ***********************************************/
-    /* Read setting "recordingpath" from settings.xml */
-    buffer = (char*) malloc(512);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("recordingpath", buffer))
-    {
-      g_strBackendRecordingPath = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get recording path setting. Default: %s", DEFAULT_BACKEND_RECORDING_PATH);
-      g_strBackendRecordingPath = DEFAULT_BACKEND_RECORDING_PATH;
-    }
-    free(buffer);
-
-    /* Read setting "onlycurrentrecordingpath" from settings.xml */
-    if (!XBMC->GetSetting("onlycurrentrecordingpath", &g_bUseOnlyCurrentRecordingPath))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get use only current recording path setting. Default: false");
-      g_bUseOnlyCurrentRecordingPath = DEFAULT_USE_ONLY_CURRENT_RECORDING_PATH;
-    }
-
-    /* Read setting "timerlistcleanup" from settings.xml */
-    if (!XBMC->GetSetting("timerlistcleanup", &g_bAutomaticTimerlistCleanup))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get automatic timer list cleanup setting. Default: true");
-      g_bAutomaticTimerlistCleanup = DEFAULT_AUTOMATIC_TIMERLIST_CLEANUP;
-    }
-
-    /********************************************//**
-     * Read Advanced Settings
-     ***********************************************/
-
-    /* Read setting "usetimeshift" from settings.xml */
-    if (!XBMC->GetSetting("usetimeshift", &g_bUseTimeshift))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get use only current recording path setting. Default: false");
-      g_bUseTimeshift = DEFAULT_USE_TIMESHIFT;
-    }
-
-    /* Read setting "timeshiftpath" from settings.xml */
-    buffer = (char*) malloc(512);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("timeshiftpath", buffer))
-    {
-      g_strTimeshiftBufferPath = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get time shift buffer path setting. Default: %s", DEFAULT_TSBUFFER_PATH);
-      g_strTimeshiftBufferPath = DEFAULT_TSBUFFER_PATH;
-    }
-    free(buffer);
-
-    /* Read setting "onlinepicons" from settings.xml */
-    if (!XBMC->GetSetting("onlinepicons", &g_bLoadWebInterfacePicons))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get use online picons setting. Default: true");
-      g_bLoadWebInterfacePicons = DEFAULT_LOAD_WEB_INTERFACE_PICONS;
-    }
-
-    /* Read setting "piconspath" from settings.xml */
-    buffer = (char*) malloc(512);
-    buffer[0] = 0; /* Set the end of string */
-    if (XBMC->GetSetting("piconspath", buffer))
-    {
-      g_strPiconsLocationPath = buffer;
-    }
-    else
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get picons location path setting. Default: %s",
-          DEFAULT_PICONS_LOCATION_PATH);
-      g_strPiconsLocationPath = DEFAULT_PICONS_LOCATION_PATH;
-    }
-    free(buffer);
-
-    /* Read setting "updateinterval" from settings.xml */
-    if (!XBMC->GetSetting("updateinterval", &g_iClientUpdateInterval))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get update interval setting. Default: %dm", DEFAULT_UPDATE_INTERVAL);
-      g_iClientUpdateInterval = DEFAULT_UPDATE_INTERVAL;
-    }
-
-    /* Read setting "sendpowerstate" from settings.xml */
-    if (!XBMC->GetSetting("sendpowerstate", &g_bSendDeepStanbyToSTB))
-    {
-      XBMC->Log(ADDON::LOG_ERROR, "Couldn't get send deep standby to STB setting. Default: false");
-      g_bSendDeepStanbyToSTB = DEFAULT_SEND_DEEP_STANBY_TO_STB;
-    }
-
-    /********************************************//**
-     * Debug block
-     * Log the crap out of client settings for
-     * debugging purposes
-     ***********************************************/
-    XBMC->Log(ADDON::LOG_DEBUG, "Configuration options");
-    XBMC->Log(ADDON::LOG_DEBUG, "Hostname: %s", g_strHostname.c_str());
-
-    if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-    {
-      XBMC->Log(ADDON::LOG_DEBUG, "Username: %s", g_strUsername.c_str());
-      XBMC->Log(ADDON::LOG_DEBUG, "Password: %s", g_strPassword.c_str());
-
-      if ((g_strUsername.find("@") != std::string::npos))
-      {
-        XBMC->Log(ADDON::LOG_ERROR, "The '@' character isn't supported in the username field");
-      }
-
-      if ((g_strPassword.find("@") != std::string::npos))
-      {
-        XBMC->Log(ADDON::LOG_ERROR, "The '@' character isn't supported in the password field");
-      }
-    }
-
-    XBMC->Log(ADDON::LOG_DEBUG, "Web interface port: %d", (g_bUseSecureHTTP) ? g_iPortWebHTTPS : g_iPortWebHTTP);
-    XBMC->Log(ADDON::LOG_DEBUG, "Streaming port: %d", g_iPortStream);
-    XBMC->Log(ADDON::LOG_DEBUG, "Use authentication: %s", (g_bUseAuthentication) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Use HTTPS: %s", (g_bUseSecureHTTP) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Select TV channel groups: %s", (g_bSelectTVChannelGroups) ? "yes" : "no");
-
-    if (g_bSelectTVChannelGroups)
-    {
-      XBMC->Log(ADDON::LOG_DEBUG, "TV channel groups to load: %d", g_iNumTVChannelGroupsToLoad);
-
-      if (!g_strTVChannelGroupNameOne.empty() && g_iNumTVChannelGroupsToLoad >= 1)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #1: %s", g_strTVChannelGroupNameOne.c_str());
-      }
-
-      if (!g_strTVChannelGroupNameTwo.empty() && g_iNumTVChannelGroupsToLoad >= 2)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #2: %s", g_strTVChannelGroupNameTwo.c_str());
-      }
-
-      if (!g_strTVChannelGroupNameThree.empty() && g_iNumTVChannelGroupsToLoad >= 3)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #3: %s", g_strTVChannelGroupNameThree.c_str());
-      }
-
-      if (!g_strTVChannelGroupNameFour.empty() && g_iNumTVChannelGroupsToLoad >= 4)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #4: %s", g_strTVChannelGroupNameFour.c_str());
-      }
-
-      if (!g_strTVChannelGroupNameFive.empty() && g_iNumTVChannelGroupsToLoad == 5)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #5: %s", g_strTVChannelGroupNameFive.c_str());
-      }
-    }
-    XBMC->Log(ADDON::LOG_DEBUG, "Load Radio channels group: %s", (g_bLoadRadioChannelsGroup) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Use time shifting: %s", (g_bUseTimeshift) ? "yes" : "no");
-
-    if (g_bUseTimeshift)
-    {
-      XBMC->Log(ADDON::LOG_DEBUG, "Time shift buffer path: %s", g_strTimeshiftBufferPath.c_str());
-    }
-
-    XBMC->Log(ADDON::LOG_DEBUG, "Use online picons: %s", (g_bLoadWebInterfacePicons) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Send deep standby to STB: %s", (g_bSendDeepStanbyToSTB) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Zap before channel change: %s", (g_bZapBeforeChannelChange) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Automatic timer list cleanup: %s", (g_bAutomaticTimerlistCleanup) ? "yes" : "no");
-    XBMC->Log(ADDON::LOG_DEBUG, "Update interval: %dm", g_iClientUpdateInterval);
+    if ((g_strPassword.find("@") != std::string::npos))
+      XBMC->Log(ADDON::LOG_ERROR, "The '@' character isn't supported in the password field");
   }
 
-  /********************************************//**
-   * Create
-   * Called after loading. All steps to make
-   * client functional must be performed here.
-   ***********************************************/
-  ADDON_STATUS ADDON_Create(void* hdl, void* props)
+  XBMC->Log(ADDON::LOG_DEBUG, "Web interface port: %d", (g_bUseSecureHTTP) ? g_iPortWebHTTPS : g_iPortWebHTTP);
+  XBMC->Log(ADDON::LOG_DEBUG, "Streaming port: %d", g_iPortStream);
+  XBMC->Log(ADDON::LOG_DEBUG, "Use authentication: %s", (g_bUseAuthentication) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Use HTTPS: %s", (g_bUseSecureHTTP) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Select TV channel groups: %s", (g_bSelectTVChannelGroups) ? "yes" : "no");
+
+  if (g_bSelectTVChannelGroups)
   {
-    if (!hdl || !props)
-      return ADDON_STATUS_UNKNOWN;
+    XBMC->Log(ADDON::LOG_DEBUG, "TV channel groups to load: %d", g_iNumTVChannelGroupsToLoad);
 
-    PVR_PROPERTIES* pvrprops = (PVR_PROPERTIES*) props;
+    if (!g_strTVChannelGroupNameOne.empty() && g_iNumTVChannelGroupsToLoad >= 1)
+      XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #1: %s", g_strTVChannelGroupNameOne.c_str());
 
-    XBMC = new ADDON::CHelper_libXBMC_addon;
-    if (!XBMC->RegisterMe(hdl))
-    {
-      delete XBMC;
-      XBMC = NULL;
-      return ADDON_STATUS_PERMANENT_FAILURE;
-    }
+    if (!g_strTVChannelGroupNameTwo.empty() && g_iNumTVChannelGroupsToLoad >= 2)
+      XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #2: %s", g_strTVChannelGroupNameTwo.c_str());
 
-    PVR = new CHelper_libXBMC_pvr;
-    if (!PVR->RegisterMe(hdl))
-    {
-      delete PVR;
-      PVR = NULL;
-      delete XBMC;
-      XBMC = NULL;
-      return ADDON_STATUS_PERMANENT_FAILURE;
-    }
+    if (!g_strTVChannelGroupNameThree.empty() && g_iNumTVChannelGroupsToLoad >= 3)
+      XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #3: %s", g_strTVChannelGroupNameThree.c_str());
 
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Creating Enigma2 STB Client",
-        __FUNCTION__);
+    if (!g_strTVChannelGroupNameFour.empty() && g_iNumTVChannelGroupsToLoad >= 4)
+      XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #4: %s", g_strTVChannelGroupNameFour.c_str());
 
-    m_CurStatus = ADDON_STATUS_UNKNOWN;
-    g_szUserPath = pvrprops->strUserPath;
-    g_szClientPath = pvrprops->strClientPath;
-
-    ADDON_ReadSettings();
-
-    E2STBConnection = new CE2STBConnection;
-    E2STBData = new CE2STBData;
-
-    if (!E2STBConnection->Open())
-    {
-      delete E2STBConnection;
-      E2STBConnection = NULL;
-    }
-
-    if (!E2STBData->Open())
-    {
-      delete E2STBData;
-      E2STBData = NULL;
-      delete PVR;
-      PVR = NULL;
-      delete XBMC;
-      XBMC = NULL;
-      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-      return m_CurStatus;
-    }
-
-    m_CurStatus = ADDON_STATUS_OK;
-    m_bCreated = true;
-    return m_CurStatus;
+    if (!g_strTVChannelGroupNameFive.empty() && g_iNumTVChannelGroupsToLoad == 5)
+      XBMC->Log(ADDON::LOG_DEBUG, "TV channel group #5: %s", g_strTVChannelGroupNameFive.c_str());
   }
 
-  ADDON_STATUS ADDON_GetStatus()
+  XBMC->Log(ADDON::LOG_DEBUG, "Load Radio channels group: %s", (g_bLoadRadioChannelsGroup) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Use time shifting: %s", (g_bUseTimeshift) ? "yes" : "no");
+
+  if (g_bUseTimeshift)
+    XBMC->Log(ADDON::LOG_DEBUG, "Time shift buffer located at: %s", g_strTimeshiftBufferPath.c_str());
+
+  XBMC->Log(ADDON::LOG_DEBUG, "Use online picons: %s", (g_bLoadWebInterfacePicons) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Send deep standby to STB: %s", (g_bSendDeepStanbyToSTB) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Zap before channel change: %s", (g_bZapBeforeChannelChange) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Automatic timer list cleanup: %s", (g_bAutomaticTimerlistCleanup) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Update interval: %dm", g_iClientUpdateInterval);
+}
+
+/*!
+ * @brief Called after loading. All steps to make client functional must be performed here
+ */
+ADDON_STATUS ADDON_Create(void* hdl, void* props)
+{
+  if (!hdl || !props)
+    return ADDON_STATUS_UNKNOWN;
+
+  /* Instantiate helpers */
+  PVR  = new CHelper_libXBMC_pvr;
+  XBMC = new ADDON::CHelper_libXBMC_addon;
+
+  if (!PVR->RegisterMe(hdl) || !XBMC->RegisterMe(hdl))
   {
-    if (m_CurStatus == ADDON_STATUS_OK && !E2STBConnection->IsConnected())
-    {
-      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-    }
-    return m_CurStatus;
+    SAFE_DELETE(PVR);
+    SAFE_DELETE(XBMC);
+    return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  void ADDON_Destroy()
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Creating Enigma2 STB Client", __FUNCTION__);
+  g_currentStatus = ADDON_STATUS_UNKNOWN;
+
+  ADDON_ReadSettings();
+
+  /* Instantiate globals */
+  g_E2STBConnection = new CE2STBConnection;
+  g_E2STBData = new CE2STBData;
+
+  if (!g_E2STBConnection->Open())
+    SAFE_DELETE(g_E2STBConnection);
+
+  if (!g_E2STBData->Open())
   {
-    if (m_bCreated)
-    {
-      m_bCreated = false;
-    }
-
-    if (E2STBConnection)
-    {
-      E2STBConnection->SendPowerstate();
-      delete E2STBData;
-      E2STBData = NULL;
-    }
-
-    if (E2STBData)
-    {
-      delete E2STBData;
-      E2STBData = NULL;
-    }
-
-    if (PVR)
-    {
-      delete PVR;
-      PVR = NULL;
-    }
-
-    if (XBMC)
-    {
-      delete XBMC;
-      XBMC = NULL;
-    }
-    m_CurStatus = ADDON_STATUS_UNKNOWN;
+    SAFE_DELETE(g_E2STBData);
+    SAFE_DELETE(PVR);
+    SAFE_DELETE(XBMC);
+    g_currentStatus = ADDON_STATUS_LOST_CONNECTION;
+    return g_currentStatus;
   }
+  g_currentStatus = ADDON_STATUS_OK;
+  return g_currentStatus;
+}
 
-  bool ADDON_HasSettings()
+ADDON_STATUS ADDON_GetStatus()
+{
+  return g_currentStatus;
+}
+
+void ADDON_Destroy()
+{
+  g_E2STBConnection->SendPowerstate();
+  SAFE_DELETE(g_E2STBConnection);
+  SAFE_DELETE(g_E2STBData);
+  SAFE_DELETE(PVR);
+  SAFE_DELETE(XBMC);
+  g_currentStatus = ADDON_STATUS_UNKNOWN;
+}
+
+bool ADDON_HasSettings()
+{
+  return true;
+}
+
+unsigned int ADDON_GetSettings(ADDON_StructSetting ***_UNUSED(sSet))
+{
+  return 0;
+}
+
+/********************************************//**
+ * Read settings from settings.xml, compare to
+ * UI settings, update settings.xml accordingly
+ ***********************************************/
+ADDON_STATUS ADDON_SetSetting(const char *settingName,
+    const void *settingValue)
+{
+  std::string str = settingName;
+  if (str == "hostname")
   {
-    return true;
+    std::string tmp_sHostname;
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed hostname from %s to %s", __FUNCTION__, g_strHostname.c_str(),
+        (const char*) settingValue);
+    tmp_sHostname = g_strHostname;
+    g_strHostname = (const char*) settingValue;
+    if (tmp_sHostname != g_strHostname)
+    {
+      return ADDON_STATUS_NEED_RESTART;
+    }
   }
-
-  unsigned int ADDON_GetSettings(ADDON_StructSetting ***_UNUSED(sSet))
+  else if (str == "webporthttp")
   {
+    int iNewValue = *(int*) settingValue + 1;
+    if (g_iPortWebHTTP != iNewValue)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed HTTP web interface port from %u to %u", __FUNCTION__,
+          g_iPortWebHTTP, iNewValue);
+      g_iPortWebHTTP = iNewValue;
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  else if (str == "streamport")
+  {
+    int iNewValue = *(int*) settingValue + 1;
+    if (g_iPortStream != iNewValue)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed streaming port from %u to %u", __FUNCTION__,
+          g_iPortStream, iNewValue);
+      g_iPortStream = iNewValue;
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  else if (str == "username")
+  {
+    std::string tmp_sUsername = g_strUsername;
+    g_strUsername = (const char*) settingValue;
+    if (tmp_sUsername != g_strUsername)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed username ", __FUNCTION__);
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  else if (str == "password")
+  {
+    std::string tmp_sPassword = g_strPassword;
+    g_strPassword = (const char*) settingValue;
+    if (tmp_sPassword != g_strPassword)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed password ", __FUNCTION__);
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  else if (str == "usesecurehttp")
+  {
+    XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed use HTTPS from %u to %u",
+        __FUNCTION__, g_bUseSecureHTTP, *(int*) settingValue);
+    g_bUseSecureHTTP = *(bool*) settingValue;
+    return ADDON_STATUS_NEED_RESTART;
+  }
+  else if (str == "webporthttps")
+  {
+    int iNewValue = *(int*) settingValue + 1;
+    if (g_iPortWebHTTPS != iNewValue)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed HTTPS web interface port from %u to %u", __FUNCTION__,
+          g_iPortWebHTTPS, iNewValue);
+      g_iPortWebHTTPS = iNewValue;
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  else if (str == "usetimeshift")
+  {
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed use time shifting from %u to %u", __FUNCTION__,
+        g_bUseTimeshift, *(int*) settingValue);
+    g_bUseTimeshift = *(bool*) settingValue;
+    return ADDON_STATUS_NEED_RESTART;
+  }
+  else if (str == "timeshiftpath")
+  {
+    std::string tmp_sTimeshiftBufferPath = g_strTimeshiftBufferPath;
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed time shifting buffer from %s to %s", __FUNCTION__,
+        g_strTimeshiftBufferPath.c_str(), (const char*) settingValue);
+    g_strTimeshiftBufferPath = (const char*) settingValue;
+    if (tmp_sTimeshiftBufferPath != g_strTimeshiftBufferPath)
+    {
+      return ADDON_STATUS_NEED_RESTART;
+    }
+  }
+  return ADDON_STATUS_OK;
+}
+
+void ADDON_Stop()
+{
+}
+
+void ADDON_FreeSettings()
+{
+}
+
+void ADDON_Announce(const char *_UNUSED(flag), const char *_UNUSED(sender), const char *_UNUSED(message),
+    const void *_UNUSED(data))
+{
+}
+
+/*!
+ * @brief PVR client addon specific public library functions (API and capabilities)
+ */
+const char* GetPVRAPIVersion(void)
+{
+  static const char *strApiVersion = XBMC_PVR_API_VERSION;
+  return strApiVersion;
+}
+
+const char* GetMininumPVRAPIVersion(void)
+{
+  static const char *strMinApiVersion = XBMC_PVR_MIN_API_VERSION;
+  return strMinApiVersion;
+}
+
+const char* GetGUIAPIVersion(void)
+{
+  static const char *strGuiApiVersion = KODI_GUILIB_API_VERSION;
+  return strGuiApiVersion;
+}
+
+const char* GetMininumGUIAPIVersion(void)
+{
+  static const char *strMinGuiApiVersion = KODI_GUILIB_MIN_API_VERSION;
+  return strMinGuiApiVersion;
+}
+
+PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
+{
+  pCapabilities->bSupportsEPG                = true;
+  pCapabilities->bSupportsTV                 = true;
+  pCapabilities->bSupportsRadio              = g_bLoadRadioChannelsGroup;
+  pCapabilities->bSupportsRecordings         = true;
+  pCapabilities->bSupportsRecordingsUndelete = false;
+  pCapabilities->bSupportsTimers             = true;
+  pCapabilities->bSupportsChannelGroups      = true;
+  pCapabilities->bSupportsChannelScan        = false;
+  pCapabilities->bHandlesInputStream         = true;
+  pCapabilities->bHandlesDemuxing            = false;
+  pCapabilities->bSupportsLastPlayedPosition = false;
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+/*!
+ * @brief PVR client addon backend identification
+ */
+const char *GetBackendName(void)
+{
+  static std::string strBackendName = g_E2STBConnection->m_strServerName;
+  return strBackendName.c_str();
+}
+
+const char *GetBackendVersion(void)
+{
+  static std::string strBackendVersion = g_E2STBConnection->m_strWebIfVersion;
+  return strBackendVersion.c_str();
+}
+
+const char *GetConnectionString(void)
+{
+  return g_strHostname.c_str();
+}
+
+const char *GetBackendHostname(void)
+{
+  return g_strHostname.c_str();
+}
+
+/*!
+ * @brief PVR client addon channels handling
+ */
+int GetChannelsAmount(void)
+{
+  if (!g_E2STBConnection->IsConnected())
     return 0;
-  }
 
-  /********************************************//**
-   * Read settings from settings.xml, compare to
-   * UI settings, update settings.xml accordingly
-   ***********************************************/
-  ADDON_STATUS ADDON_SetSetting(const char *settingName,
-      const void *settingValue)
-  {
-    std::string str = settingName;
-    if (str == "hostname")
-    {
-      std::string tmp_sHostname;
-      XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed hostname from %s to %s", __FUNCTION__, g_strHostname.c_str(),
-          (const char*) settingValue);
-      tmp_sHostname = g_strHostname;
-      g_strHostname = (const char*) settingValue;
-      if (tmp_sHostname != g_strHostname)
-      {
-        return ADDON_STATUS_NEED_RESTART;
-      }
-    }
-    else if (str == "webporthttp")
-    {
-      int iNewValue = *(int*) settingValue + 1;
-      if (g_iPortWebHTTP != iNewValue)
-      {
-        XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed HTTP web interface port from %u to %u", __FUNCTION__,
-            g_iPortWebHTTP, iNewValue);
-        g_iPortWebHTTP = iNewValue;
-        return ADDON_STATUS_OK;
-      }
-    }
-    else if (str == "streamport")
-    {
-      int iNewValue = *(int*) settingValue + 1;
-      if (g_iPortStream != iNewValue)
-      {
-        XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed streaming port from %u to %u", __FUNCTION__,
-            g_iPortStream, iNewValue);
-        g_iPortStream = iNewValue;
-        return ADDON_STATUS_OK;
-      }
-    }
-    else if (str == "username")
-    {
-      std::string tmp_sUsername = g_strUsername;
-      g_strUsername = (const char*) settingValue;
-      if (tmp_sUsername != g_strUsername)
-      {
-        XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed username ", __FUNCTION__);
-        return ADDON_STATUS_NEED_RESTART;
-      }
-    }
-    else if (str == "password")
-    {
-      std::string tmp_sPassword = g_strPassword;
-      g_strPassword = (const char*) settingValue;
-      if (tmp_sPassword != g_strPassword)
-      {
-        XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed password ", __FUNCTION__);
-        return ADDON_STATUS_NEED_RESTART;
-      }
-    }
-    else if (str == "usesecurehttp")
-    {
-      XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed use HTTPS from %u to %u",
-          __FUNCTION__, g_bUseSecureHTTP, *(int*) settingValue);
-      g_bUseSecureHTTP = *(bool*) settingValue;
-      return ADDON_STATUS_NEED_RESTART;
-    }
-    else if (str == "webporthttps")
-    {
-      int iNewValue = *(int*) settingValue + 1;
-      if (g_iPortWebHTTPS != iNewValue)
-      {
-        XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed HTTPS web interface port from %u to %u", __FUNCTION__,
-            g_iPortWebHTTPS, iNewValue);
-        g_iPortWebHTTPS = iNewValue;
-        return ADDON_STATUS_OK;
-      }
-    }
-    else if (str == "usetimeshift")
-    {
-      XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed use time shifting from %u to %u", __FUNCTION__,
-          g_bUseTimeshift, *(int*) settingValue);
-      g_bUseTimeshift = *(bool*) settingValue;
-      return ADDON_STATUS_NEED_RESTART;
-    }
-    else if (str == "timeshiftpath")
-    {
-      std::string tmp_sTimeshiftBufferPath = g_strTimeshiftBufferPath;
-      XBMC->Log(ADDON::LOG_NOTICE, "[%s] Changed time shifting buffer from %s to %s", __FUNCTION__,
-          g_strTimeshiftBufferPath.c_str(), (const char*) settingValue);
-      g_strTimeshiftBufferPath = (const char*) settingValue;
-      if (tmp_sTimeshiftBufferPath != g_strTimeshiftBufferPath)
-      {
-        return ADDON_STATUS_NEED_RESTART;
-      }
-    }
-    return ADDON_STATUS_OK;
-  }
-  void ADDON_Stop() {}
-  void ADDON_FreeSettings() {}
-  void ADDON_Announce(const char *_UNUSED(flag), const char *_UNUSED(sender), const char *_UNUSED(message),
-      const void *_UNUSED(data)) {}
+  return g_E2STBData->GetChannelsAmount();
+}
 
-  /**************************************************************************//**
-   * PVR Client Addon specific public library functions
-   *****************************************************************************/
-  /********************************************//**
-   * Capabilities and API
-   ***********************************************/
-  const char* GetPVRAPIVersion(void)
-  {
-    static const char *strApiVersion = XBMC_PVR_API_VERSION;
-    return strApiVersion;
-  }
+int GetCurrentClientChannel(void)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  const char* GetMininumPVRAPIVersion(void)
-  {
-    static const char *strMinApiVersion = XBMC_PVR_MIN_API_VERSION;
-    return strMinApiVersion;
-  }
+  return g_E2STBData->GetCurrentClientChannel();
+}
 
-  const char* GetGUIAPIVersion(void)
-  {
-    return KODI_GUILIB_API_VERSION;
-  }
+PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  const char* GetMininumGUIAPIVersion(void)
-  {
-    return KODI_GUILIB_MIN_API_VERSION;
-  }
+  return g_E2STBData->GetChannels(handle, bRadio);
+}
 
-  PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
-  {
-    pCapabilities->bSupportsEPG                = true;
-    pCapabilities->bSupportsTV                 = true;
-    pCapabilities->bSupportsRadio              = g_bLoadRadioChannelsGroup;
-    pCapabilities->bSupportsRecordings         = true;
-    pCapabilities->bSupportsRecordingsUndelete = false;
-    pCapabilities->bSupportsTimers             = true;
-    pCapabilities->bSupportsChannelGroups      = true;
-    pCapabilities->bSupportsChannelScan        = false;
-    pCapabilities->bHandlesInputStream         = true;
-    pCapabilities->bHandlesDemuxing            = false;
-    pCapabilities->bSupportsLastPlayedPosition = false;
-
+PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
+{
+  if (bRadio)
     return PVR_ERROR_NO_ERROR;
-  }
 
-  /********************************************//**
-   * Client creation and connection
-   ***********************************************/
-  const char *GetBackendName(void)
-  {
-    static const char *strBackendName = E2STBConnection ? E2STBConnection->GetServerName() : "Unknown Backend Name";
-    return strBackendName;
-  }
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  const char *GetBackendVersion(void)
-  {
-    static const char *strBackendVersion = XBMC_PVR_API_VERSION;
-    return strBackendVersion;
-  }
+  return g_E2STBData->GetChannelGroups(handle);
+}
 
-  static CStdString strConnectionString;
+PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
+{
+  if (group.bIsRadio)
+    return PVR_ERROR_NO_ERROR;
 
-  const char *GetConnectionString(void)
-  {
-    if (E2STBData)
-    {
-      strConnectionString.Format("%s%s", g_strHostname.c_str(), E2STBConnection->IsConnected() ? "" : "Not connected!");
-    }
-    else
-    {
-      strConnectionString.Format("%s addon error!", g_strHostname.c_str());
-    }
-    return strConnectionString.c_str();
-  }
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  const char *GetBackendHostname(void)
-  {
-    return g_strHostname.c_str();
-  }
+  return g_E2STBData->GetChannelGroupMembers(handle, group);
+}
 
-  /********************************************//**
-   * Channels
-   ***********************************************/
-  int GetChannelsAmount(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return 0;
-    }
-    return E2STBData->GetChannelsAmount();
-  }
+int GetChannelGroupsAmount(void)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  int GetCurrentClientChannel(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetCurrentClientChannel();
-  }
+  return g_E2STBData->GetChannelGroupsAmount();
+}
 
-  PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetChannels(handle, bRadio);
-  }
+/*!
+ * @brief PVR client addon EPG handling
+ */
+PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
-  {
-    if (bRadio)
-    {
-      return PVR_ERROR_NO_ERROR;
-    }
+  return g_E2STBData->GetEPGForChannel(handle, channel, iStart, iEnd);
+}
 
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetChannelGroups(handle);
-  }
+/*!
+ * @brief PVR client addon information handling
+ */
+PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
+{
+  return g_E2STBData->GetDriveSpace(iTotal, iUsed);
+}
 
-  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
-  {
-    if (group.bIsRadio)
-    {
-      return PVR_ERROR_NO_ERROR;
-    }
+PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
+{
+  return g_E2STBData->SignalStatus(signalStatus);
+}
 
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetChannelGroupMembers(handle, group);
-  }
+/*!
+ * @brief PVR client addon recordings handling
+ */
+int GetRecordingsAmount(bool deleted)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  int GetChannelGroupsAmount(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetChannelGroupsAmount();
-  }
+  return g_E2STBData->GetRecordingsAmount();
+}
 
-  /********************************************//**
-   * EPG
-   ***********************************************/
-  PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetEPGForChannel(handle, channel, iStart, iEnd);
-  }
+PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  /********************************************//**
-   * Information
-   ***********************************************/
-  PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
-  {
-    return E2STBData->GetDriveSpace(iTotal, iUsed);
-  }
+  return g_E2STBData->GetRecordings(handle);
+}
 
-  PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
-  {
-    return E2STBData->SignalStatus(signalStatus);
-  }
+PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  /********************************************//**
-   * Recordings
-   ***********************************************/
-  int GetRecordingsAmount(bool deleted)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetRecordingsAmount();
-  }
+  return g_E2STBData->DeleteRecording(recording);
+}
 
-  PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->GetRecordings(handle);
-  }
+PVR_ERROR RenameRecording(const PVR_RECORDING &_UNUSED(recording))
+{
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
 
-  PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->DeleteRecording(recording);
-  }
+/*!
+ * @brief PVR client addon stream handling
+ */
+bool OpenLiveStream(const PVR_CHANNEL &channel)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return false;
 
-  PVR_ERROR RenameRecording(const PVR_RECORDING &_UNUSED(recording))
-  {
-    return PVR_ERROR_NOT_IMPLEMENTED;
-  }
+  return g_E2STBData->OpenLiveStream(channel);
+}
 
-  /********************************************//**
-   * Stream handling
-   ***********************************************/
-  bool OpenLiveStream(const PVR_CHANNEL &channel)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return false;
-    }
-    return E2STBData->OpenLiveStream(channel);
-  }
+bool SwitchChannel(const PVR_CHANNEL &channel)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return false;
 
-  bool SwitchChannel(const PVR_CHANNEL &channel)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return false;
-    }
-    return E2STBData->SwitchChannel(channel);
-  }
+  return g_E2STBData->SwitchChannel(channel);
+}
 
-  void CloseLiveStream(void)
-  {
-    E2STBData->CloseLiveStream();
-  }
-  const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return "";
-    }
-    return E2STBData->GetLiveStreamURL(channel);
-  }
+void CloseLiveStream(void)
+{
+  g_E2STBData->CloseLiveStream();
+}
 
-  /********************************************//**
-   * Timers
-   ***********************************************/
-  PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
-  {
-    /* TODO: Implement this to get support for the timer features introduced with PVR API 1.9.7 */
-    return PVR_ERROR_NOT_IMPLEMENTED;
-  }
+const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return "";
 
-  int GetTimersAmount(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return 0;
-    }
-    return E2STBData->GetTimersAmount();
-  }
+  return g_E2STBData->GetLiveStreamURL(channel);
+}
 
-  PVR_ERROR GetTimers(ADDON_HANDLE handle)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
-    return E2STBData->GetTimers(handle);
-  }
+/*!
+ * @brief PVR client addon timers handling
+ */
+PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
+{
+  /* TODO: Implement this to get support for the timer features introduced with PVR API 1.9.7 */
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
 
-  PVR_ERROR AddTimer(const PVR_TIMER &timer)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->AddTimer(timer);
-  }
+int GetTimersAmount(void)
+{
+  if (!!g_E2STBConnection->IsConnected())
+    return 0;
 
-  PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool _UNUSED(bForceDelete))
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->DeleteTimer(timer);
-  }
+  return g_E2STBData->GetTimersAmount();
+}
 
-  PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return PVR_ERROR_SERVER_ERROR;
-    }
-    return E2STBData->UpdateTimer(timer);
-  }
+PVR_ERROR GetTimers(ADDON_HANDLE handle)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  /********************************************//**
-   * Time shifting
-   ***********************************************/
-  bool CanPauseStream(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return false;
-    }
-    return g_bUseTimeshift;
-  }
+  /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
+  return g_E2STBData->GetTimers(handle);
+}
 
-  bool CanSeekStream(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected())
-    {
-      return false;
-    }
-    return g_bUseTimeshift;
-  }
+PVR_ERROR AddTimer(const PVR_TIMER &timer)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return 0;
-    }
-    return E2STBData->GetTimeshiftBuffer()->ReadData(pBuffer, iBufferSize);
-  }
+  return g_E2STBData->AddTimer(timer);
+}
 
-  long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return -1;
-    }
-    return E2STBData->GetTimeshiftBuffer()->Seek(iPosition, iWhence);
-  }
+PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool _UNUSED(bForceDelete))
+{
+  if (!g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  long long PositionLiveStream(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return -1;
-    }
-    return E2STBData->GetTimeshiftBuffer()->Position();
-  }
+  return g_E2STBData->DeleteTimer(timer);
+}
 
-  long long LengthLiveStream(void)
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return 0;
-    }
-    return E2STBData->GetTimeshiftBuffer()->Length();
-  }
+PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
+{
+  if (!g_E2STBData || !g_E2STBConnection->IsConnected())
+    return PVR_ERROR_SERVER_ERROR;
 
-  time_t GetBufferTimeStart()
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return 0;
-    }
-    return E2STBData->GetTimeshiftBuffer()->TimeStart();
-  }
+  return g_E2STBData->UpdateTimer(timer);
+}
 
-  time_t GetBufferTimeEnd()
-  {
-    if (!E2STBData || !E2STBConnection->IsConnected() || !E2STBData->GetTimeshiftBuffer())
-    {
-      return 0;
-    }
-    return E2STBData->GetTimeshiftBuffer()->TimeEnd();
-  }
+/*!
+ * @brief PVR client addon time shifting handling
+ */
+bool CanPauseStream(void)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return false;
 
-  time_t GetPlayingTime()
-  {
-    /* FIXME: this should return the time of the *current* position */
-    return GetBufferTimeEnd();
-  }
+  return g_bUseTimeshift;
+}
 
-  /**************************************************************************//**
-   * Unused API functions
-   *****************************************************************************/
-  /* Channel handling */
-  PVR_ERROR    OpenDialogChannelAdd(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR    OpenDialogChannelScan(void) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR    OpenDialogChannelSettings(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR    DeleteChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR    MoveChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR    RenameChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  unsigned int GetChannelSwitchDelay(void) { return 0; }
+bool CanSeekStream(void)
+{
+  if (!g_E2STBConnection->IsConnected())
+    return false;
 
-  /* Demuxer */
-  bool         SeekTime(int _UNUSED(time), bool _UNUSED(backwards), double *_UNUSED(startpts)) { return false; }
-  void         DemuxAbort(void) { return; }
-  void         DemuxFlush(void) {}
-  PVR_ERROR    GetStreamProperties(PVR_STREAM_PROPERTIES *_UNUSED(pProperties)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  DemuxPacket* DemuxRead(void) { return NULL; }
-  void         DemuxReset(void) {}
-  void         PauseStream(bool _UNUSED(bPaused)) {}
-  void         SetSpeed(int) {}
+  return g_bUseTimeshift;
+}
 
-  /* Recordings */
-  int       ReadRecordedStream(unsigned char *_UNUSED(pBuffer), unsigned int _UNUSED(iBufferSize)) { return 0; }
-  int       GetRecordingLastPlayedPosition(const PVR_RECORDING &_UNUSED(recording)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  bool      OpenRecordedStream(const PVR_RECORDING &_UNUSED(recording)) { return false; }
-  void      CloseRecordedStream(void) {}
-  long long LengthRecordedStream(void) { return 0; }
-  long long PositionRecordedStream(void) { return -1; }
-  long long SeekRecordedStream(long long _UNUSED(iPosition), int _UNUSED(iWhence) /* = SEEK_SET */) { return 0; }
-  PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY[], int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &_UNUSED(recording), int _UNUSED(count)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &_UNUSED(recording), int _UNUSED(lastplayedposition)) { return PVR_ERROR_NOT_IMPLEMENTED; }
-  PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return 0;
 
-  /* Time shifting */
-  /* TODO: implement */
-  bool IsTimeshifting(void) { return false; }
+  return g_E2STBData->GetTimeshiftBuffer()->ReadData(pBuffer, iBufferSize);
+}
 
-  /* Menu hook */
-  PVR_ERROR CallMenuHook(const PVR_MENUHOOK &_UNUSED(menuhook), const PVR_MENUHOOK_DATA &_UNUSED(item)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */)
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return -1;
+
+  return g_E2STBData->GetTimeshiftBuffer()->Seek(iPosition, iWhence);
+}
+
+long long PositionLiveStream(void)
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return -1;
+
+  return g_E2STBData->GetTimeshiftBuffer()->Position();
+}
+
+long long LengthLiveStream(void)
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return 0;
+
+  return g_E2STBData->GetTimeshiftBuffer()->Length();
+}
+
+time_t GetBufferTimeStart()
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return 0;
+
+  return g_E2STBData->GetTimeshiftBuffer()->TimeStart();
+}
+
+time_t GetBufferTimeEnd()
+{
+  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+    return 0;
+
+  return g_E2STBData->GetTimeshiftBuffer()->TimeEnd();
+}
+
+time_t GetPlayingTime()
+{
+  /* FIXME: this should return the time of the *current* position */
+  return GetBufferTimeEnd();
+}
+
+/*!
+ * @brief Unused API functions
+ */
+
+/* Channel handling */
+PVR_ERROR    OpenDialogChannelAdd(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR    OpenDialogChannelScan(void) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR    OpenDialogChannelSettings(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR    DeleteChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR    MoveChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR    RenameChannel(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+unsigned int GetChannelSwitchDelay(void) { return 0; }
+
+/* Demuxer */
+bool         SeekTime(int _UNUSED(time), bool _UNUSED(backwards), double *_UNUSED(startpts)) { return false; }
+void         DemuxAbort(void) { return; }
+void         DemuxFlush(void) {}
+PVR_ERROR    GetStreamProperties(PVR_STREAM_PROPERTIES *_UNUSED(pProperties)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+DemuxPacket* DemuxRead(void) { return NULL; }
+void         DemuxReset(void) {}
+void         PauseStream(bool _UNUSED(bPaused)) {}
+void         SetSpeed(int) {}
+
+/* Recordings */
+int       ReadRecordedStream(unsigned char *_UNUSED(pBuffer), unsigned int _UNUSED(iBufferSize)) { return 0; }
+int       GetRecordingLastPlayedPosition(const PVR_RECORDING &_UNUSED(recording)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+bool      OpenRecordedStream(const PVR_RECORDING &_UNUSED(recording)) { return false; }
+void      CloseRecordedStream(void) {}
+long long LengthRecordedStream(void) { return 0; }
+long long PositionRecordedStream(void) { return -1; }
+long long SeekRecordedStream(long long _UNUSED(iPosition), int _UNUSED(iWhence) /* = SEEK_SET */) { return 0; }
+PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY[], int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &_UNUSED(recording), int _UNUSED(count)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &_UNUSED(recording), int _UNUSED(lastplayedposition)) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+
+/* Time shifting */
+/* TODO: implement */
+bool IsTimeshifting(void) { return false; }
+
+/* Menu hook */
+PVR_ERROR CallMenuHook(const PVR_MENUHOOK &_UNUSED(menuhook), const PVR_MENUHOOK_DATA &_UNUSED(item)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 }
