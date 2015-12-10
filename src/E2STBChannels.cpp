@@ -25,6 +25,7 @@
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 

@@ -33,7 +33,7 @@ struct SE2STBChannelGroup
   std::string strServiceReference;
   std::string strGroupName;
   int         iGroupState;
-  std::vector<SE2STBEPG> EPG;
+//  std::vector<SE2STBEPG> EPG;
 };
 
 struct SE2STBChannel
@@ -54,8 +54,8 @@ class CE2STBChannels
     CE2STBChannels(void);
     ~CE2STBChannels(void);
 
+    std::vector<SE2STBChannel> m_channels;
     bool         Open();
-
     int          GetChannelsAmount(void) { return m_channels.size(); }
     PVR_ERROR    GetChannels(ADDON_HANDLE handle, bool bRadio);
     PVR_ERROR    GetChannelGroups(ADDON_HANDLE handle);
@@ -65,7 +65,6 @@ class CE2STBChannels
 
   private:
     int                             m_iNumChannelGroups;
-    std::vector<SE2STBChannel>      m_channels;
     std::vector<SE2STBChannelGroup> m_channelsGroups;
 
     bool        LoadChannels(std::string strServerReference, std::string strGroupName);
