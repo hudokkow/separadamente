@@ -21,13 +21,11 @@
 
 #include "client.h"
 
+#include "E2STBChannels.h"
 #include "E2STBConnection.h"
 #include "E2STBUtils.h"
 
-#include <atomic>
-#include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
 struct SE2STBRecording
@@ -51,24 +49,24 @@ class CE2STBRecordings
     CE2STBRecordings(void);
     ~CE2STBRecordings(void);
 
-    /* Recordings */
-    PVR_ERROR    DeleteRecording(const PVR_RECORDING &recinfo);
+    bool         Open();
     PVR_ERROR    GetRecordings(ADDON_HANDLE handle);
+    PVR_ERROR    DeleteRecording(const PVR_RECORDING &recinfo);
     unsigned int GetRecordingsAmount() { return m_iNumRecordings; }
 
   private:
-    /* Recordings */
     int                          m_iNumRecordings;
     std::vector<std::string>     m_recordingsLocations;
     std::vector<SE2STBRecording> m_recordings;
 
-    /* Recordings */
-    bool        LoadRecordingLocations(); /*!< @brief Backend Interface */
-    bool        IsInRecordingFolder(std::string);
-    bool        GetRecordingFromLocation(std::string strRecordingFolder);
-    void        TransferRecordings(ADDON_HANDLE handle);
-    std::string GetChannelPiconPath(std::string strChannelName);
 
+    bool         LoadRecordingLocations();
+    bool         IsInRecordingFolder(std::string);
+    bool         GetRecordingFromLocation(std::string strRecordingFolder);
+    void         TransferRecordings(ADDON_HANDLE handle);
+    std::string  GetChannelPiconPath(std::string strChannelName);
+
+    CE2STBChannels   m_e2stbchannels;   /*!< @brief CE2STBChannels class handler */
     CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
     CE2STBUtils      m_e2stbutils;      /*!< @brief CE2STBUtils class handler */
 };

@@ -25,9 +25,7 @@
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
-#include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
 CE2STBRecordings::CE2STBRecordings()
@@ -41,22 +39,14 @@ CE2STBRecordings::~CE2STBRecordings()
   m_recordings.clear();
 }
 
-PVR_ERROR CE2STBRecordings::DeleteRecording(const PVR_RECORDING &recinfo)
+bool CE2STBRecordings::Open()
 {
-  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils.URLEncode(recinfo.strRecordingId);
+  if (!LoadRecordingLocations())
+    return false;
 
-  std::string strResult;
-  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-  {
-    return PVR_ERROR_FAILED;
-  }
-  PVR->TriggerRecordingUpdate();
-  return PVR_ERROR_NO_ERROR;
+  return true;
 }
 
-/********************************************//**
- * Get recordings
- ***********************************************/
 PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)
 {
   m_iNumRecordings = 0;
@@ -74,9 +64,19 @@ PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-/********************************************//**
- * Load recording locations from backend
- ***********************************************/
+PVR_ERROR CE2STBRecordings::DeleteRecording(const PVR_RECORDING &recinfo)
+{
+  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils.URLEncode(recinfo.strRecordingId);
+
+  std::string strResult;
+  if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
+  {
+    return PVR_ERROR_FAILED;
+  }
+  PVR->TriggerRecordingUpdate();
+  return PVR_ERROR_NO_ERROR;
+}
+
 bool CE2STBRecordings::LoadRecordingLocations()
 {
   std::string strURL;
@@ -134,9 +134,6 @@ bool CE2STBRecordings::LoadRecordingLocations()
   return true;
 }
 
-/********************************************//**
- * Check if recording exists
- ***********************************************/
 bool CE2STBRecordings::IsInRecordingFolder(std::string strRecordingFolder)
 {
   int iMatches = 0;
@@ -158,9 +155,6 @@ bool CE2STBRecordings::IsInRecordingFolder(std::string strRecordingFolder)
   return false;
 }
 
-/********************************************//**
- * Get recordings from loaded location(s)
- ***********************************************/
 bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 {
   std::string strURL;
@@ -271,9 +265,6 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
   return true;
 }
 
-/********************************************//**
- * Transfer recordings
- ***********************************************/
 void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
 {
   for (unsigned int i = 0; i < m_recordings.size(); i++)
@@ -307,16 +298,13 @@ void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
   }
 }
 
-/********************************************//**
- * Get Picons location for recordings
- ***********************************************/
 std::string CE2STBRecordings::GetChannelPiconPath(std::string strChannelName)
 {
-  for (unsigned int i = 0; i < m_channels.size(); i++)
+  for (unsigned int i = 0; i < m_e2stbchannels.m_channels.size(); i++)
   {
-    if (!strChannelName.compare(m_channels[i].strChannelName))
+    if (!strChannelName.compare(m_e2stbchannels.m_channels[i].strChannelName))
     {
-      return m_channels[i].strIconPath;
+      return m_e2stbchannels.m_channels[i].strIconPath;
     }
   }
   return "";

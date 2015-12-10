@@ -39,7 +39,6 @@
 CE2STBData::CE2STBData()
 : m_iTimersIndexCounter{1}
 , m_iCurrentChannel{-1}
-, m_iNumChannelGroups{0}
 , m_tsBuffer{nullptr}
 {
   /* Start the background update thread */
@@ -62,14 +61,8 @@ CE2STBData::~CE2STBData()
     m_backgroundThread.join();
 
   std::unique_lock<std::mutex> lock(m_mutex);
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels list", __FUNCTION__);
-  m_channels.clear();
-
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal timers list", __FUNCTION__);
   m_timers.clear();
-
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels groups list", __FUNCTION__);
-  m_channelsGroups.clear();
 
   if (m_tsBuffer)
   {
@@ -89,20 +82,6 @@ bool CE2STBData::Open()
   {
     return false;
   }
-  LoadRecordingLocations();
-
-  if (m_channels.size() == 0)
-  {
-    if (!LoadChannelGroups())
-    {
-      return false;
-    }
-
-    if (!LoadChannels())
-    {
-      return false;
-    }
-  }
   TimerUpdates();
   return true;
 }
@@ -121,10 +100,10 @@ void CE2STBData::BackgroundUpdate()
 
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Starting background update thread", __FUNCTION__);
 
-  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
+  for (unsigned int iChannelPtr = 0; iChannelPtr < m_e2stbchannels.m_channels.size(); iChannelPtr++)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Triggering EPG update for channel %d", __FUNCTION__, iChannelPtr);
-    PVR->TriggerEpgUpdate(m_channels.at(iChannelPtr).iUniqueId);
+    PVR->TriggerEpgUpdate(m_e2stbchannels.m_channels.at(iChannelPtr).iUniqueId);
   }
 
   while (m_active)
@@ -153,365 +132,6 @@ void CE2STBData::BackgroundUpdate()
 }
 
 /**************************************************************************//**
- * Channels // Channels // Channels // Channels // Channels // Channels
- *****************************************************************************/
-/********************************************//**
- * Load channels
- ***********************************************/
-PVR_ERROR CE2STBData::GetChannels(ADDON_HANDLE handle, bool bRadio)
-{
-  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
-  {
-    SE2STBChannel &channel = m_channels.at(iChannelPtr);
-    if (channel.bRadio == bRadio)
-    {
-      PVR_CHANNEL xbmcChannel;
-      memset(&xbmcChannel, 0, sizeof(PVR_CHANNEL));
-
-      xbmcChannel.iUniqueId = channel.iUniqueId;
-      xbmcChannel.bIsRadio = channel.bRadio;
-      xbmcChannel.iChannelNumber = channel.iChannelNumber;
-      strncpy(xbmcChannel.strChannelName, channel.strChannelName.c_str(), sizeof(xbmcChannel.strChannelName) - 1);
-      strncpy(xbmcChannel.strInputFormat, "", 0); /* Unused */
-
-      xbmcChannel.iEncryptionSystem = 0;
-      xbmcChannel.bIsHidden = false;
-
-      strncpy(xbmcChannel.strIconPath, channel.strIconPath.c_str(), sizeof(xbmcChannel.strIconPath) - 1);
-
-      if (!g_bUseTimeshift)
-      {
-        std::string strStream = "pvr://stream/tv/" + m_e2stbutils.IntToString(channel.iUniqueId) + ".ts";
-        strncpy(xbmcChannel.strStreamURL, strStream.c_str(), sizeof(xbmcChannel.strStreamURL) - 1);
-      }
-      PVR->TransferChannelEntry(handle, &xbmcChannel);
-    }
-  }
-  return PVR_ERROR_NO_ERROR;
-}
-
-/********************************************//**
- * Load channel groups
- ***********************************************/
-PVR_ERROR CE2STBData::GetChannelGroups(ADDON_HANDLE handle)
-{
-  for (unsigned int iTagPtr = 0; iTagPtr < m_channelsGroups.size(); iTagPtr++)
-  {
-    PVR_CHANNEL_GROUP channelsGroups;
-    memset(&channelsGroups, 0, sizeof(PVR_CHANNEL_GROUP));
-
-    channelsGroups.bIsRadio  = false;
-    channelsGroups.iPosition = 0; /* groups default order, unused */
-    strncpy(channelsGroups.strGroupName, m_channelsGroups[iTagPtr].strGroupName.c_str(), sizeof(channelsGroups.strGroupName) - 1);
-    PVR->TransferChannelGroup(handle, &channelsGroups);
-  }
-  return PVR_ERROR_NO_ERROR;
-}
-
-/********************************************//**
- * Get channel groups members
- ***********************************************/
-PVR_ERROR CE2STBData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
-{
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Adding channels from group %s", __FUNCTION__, group.strGroupName);
-  std::string strTemp = group.strGroupName;
-  for (unsigned int i = 0; i < m_channels.size(); i++)
-  {
-    SE2STBChannel &myChannel = m_channels.at(i);
-    if (!strTemp.compare(myChannel.strGroupName))
-    {
-      PVR_CHANNEL_GROUP_MEMBER channelGroupMembers;
-      memset(&channelGroupMembers, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
-
-      strncpy(channelGroupMembers.strGroupName, group.strGroupName, sizeof(channelGroupMembers.strGroupName) - 1);
-      channelGroupMembers.iChannelUniqueId = myChannel.iUniqueId;
-      channelGroupMembers.iChannelNumber = myChannel.iChannelNumber;
-
-      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Added channel %s with unique ID %d to group %s and channel number %d",
-          __FUNCTION__, myChannel.strChannelName.c_str(), channelGroupMembers.iChannelUniqueId, group.strGroupName,
-          myChannel.iChannelNumber);
-      PVR->TransferChannelGroupMember(handle, &channelGroupMembers);
-    }
-  }
-  return PVR_ERROR_NO_ERROR;
-}
-
-/********************************************//**
- * Get number of channels
- ***********************************************/
-int CE2STBData::GetTotalChannelNumber(std::string strServiceReference)
-{
-  for (unsigned int i = 0; i < m_channels.size(); i++)
-  {
-    if (!strServiceReference.compare(m_channels[i].strServiceReference))
-    {
-      return i + 1;
-    }
-  }
-  return -1;
-}
-
-/********************************************//**
- * Load channels from backend
- ***********************************************/
-bool CE2STBData::LoadChannels(std::string strServiceReference, std::string strGroupName)
-{
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
-
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices?sRef="
-      + m_e2stbutils.URLEncode(strServiceReference);
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
-
-  TiXmlDocument xmlDoc;
-  if (!xmlDoc.Parse(strXML.c_str()))
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
-    return false;
-  }
-
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
-
-  pElement = hDoc.FirstChildElement("e2servicelist").Element();
-
-  if (!pElement)
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2servicelist> element", __FUNCTION__);
-    return false;
-  }
-
-  hRoot = TiXmlHandle(pElement);
-
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2service").Element();
-
-  if (!pNode)
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2service> element", __FUNCTION__);
-    return false;
-  }
-
-  bool bRadio;
-
-  bRadio = !strGroupName.compare("radio");
-
-  for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2service"))
-  {
-    std::string strTemp;
-
-    if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-    {
-      continue;
-    }
-
-    /* Discard label elements */
-    if (strTemp.compare(0, 5, "1:64:") == 0)
-    {
-      continue;
-    }
-
-    SE2STBChannel newChannel;
-    newChannel.bRadio = bRadio;
-    newChannel.strGroupName = strGroupName;
-    newChannel.iUniqueId = m_channels.size() + 1;
-    newChannel.iChannelNumber = m_channels.size() + 1;
-    newChannel.strServiceReference = strTemp;
-
-    if (!XMLUtils::GetString(pNode, "e2servicename", strTemp))
-    {
-      continue;
-    }
-
-    newChannel.strChannelName = strTemp;
-
-    std::string strPicon;
-    strPicon = newChannel.strServiceReference;
-
-    int j = 0;
-    std::string::iterator it = strPicon.begin();
-
-    while (j < 10 && it != strPicon.end())
-    {
-      if (*it == ':')
-      {
-        j++;
-      }
-      it++;
-    }
-    std::string::size_type index = it - strPicon.begin();
-
-    strPicon = strPicon.substr(0, index);
-
-    it = strPicon.end() - 1;
-    if (*it == ':')
-    {
-      strPicon.erase(it);
-    }
-    std::string strTemp2 = strPicon;
-
-    std::replace(strPicon.begin(), strPicon.end(), ':', '_');
-    strPicon = g_strPiconsLocationPath + strPicon + ".png";
-
-    newChannel.strIconPath = strPicon;
-    /* Stop changing this! It is the STREAM port, dumbass */
-    std::string strURL = m_e2stbconnection.m_strBackendBaseURLStream + strTemp2;
-
-    newChannel.strStreamURL = strURL;
-
-    if (g_bLoadWebInterfacePicons)
-    {
-      std::replace(strTemp2.begin(), strTemp2.end(), ':', '_');
-      strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "picon/" + strTemp2 + ".png";
-      newChannel.strIconPath = strURL;
-    }
-    m_channels.push_back(newChannel);
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded channel %s with picon %s", __FUNCTION__,
-        newChannel.strChannelName.c_str(), newChannel.strIconPath.c_str());
-  }
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %d channels", __FUNCTION__, m_channels.size());
-  return true;
-}
-
-/********************************************//**
- * Load channels
- ***********************************************/
-bool CE2STBData::LoadChannels()
-{
-  bool bOk = false;
-  m_channels.clear();
-  for (int i = 0; i < m_iNumChannelGroups; i++)
-  {
-    SE2STBChannelGroup &myGroup = m_channelsGroups.at(i);
-    if (LoadChannels(myGroup.strServiceReference, myGroup.strGroupName))
-    {
-      bOk = true;
-    }
-  }
-  /* TODO: Check another way to load Radio channels in API. Currently there's
-  no way one can request a Radio bouquets list, like we do for TV bouquets.
-   */
-  if (g_bLoadRadioChannelsGroup)
-  {
-    std::string strTemp = "1:7:1:0:0:0:0:0:0:0:FROM BOUQUET \"userbouquet.favourites.radio\" ORDER BY bouquet";
-    LoadChannels(strTemp, "radio");
-  }
-  return bOk;
-}
-
-/********************************************//**
- * Load channel groups from backend
- ***********************************************/
-bool CE2STBData::LoadChannelGroups()
-{
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
-
-  TiXmlDocument xmlDoc;
-  if (!xmlDoc.Parse(strXML.c_str()))
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Unable to parse XML %s at line %d", __FUNCTION__, xmlDoc.ErrorDesc(),
-        xmlDoc.ErrorRow());
-    return false;
-  }
-
-  TiXmlHandle hDoc(&xmlDoc);
-  TiXmlElement* pElement;
-  TiXmlHandle hRoot(0);
-
-  pElement = hDoc.FirstChildElement("e2servicelist").Element();
-
-  if (!pElement)
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2servicelist> element", __FUNCTION__);
-    return false;
-  }
-
-  hRoot = TiXmlHandle(pElement);
-
-  TiXmlElement* pNode = hRoot.FirstChildElement("e2service").Element();
-
-  if (!pNode)
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't find <e2service> element", __FUNCTION__);
-    return false;
-  }
-
-  m_channelsGroups.clear();
-  m_iNumChannelGroups = 0;
-
-  for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2service"))
-  {
-    std::string strTemp;
-
-    if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-    {
-      continue;
-    }
-
-    SE2STBChannelGroup newGroup;
-    newGroup.strServiceReference = strTemp;
-
-    if (!XMLUtils::GetString(pNode, "e2servicename", strTemp))
-    {
-      continue;
-    }
-
-    if (strTemp.compare(0, 3, "---") == 0)
-    {
-      continue;
-    }
-
-    newGroup.strGroupName = strTemp;
-
-    if (g_bSelectTVChannelGroups)
-    {
-      if (!g_strTVChannelGroupNameOne.empty() && g_strTVChannelGroupNameOne.compare(strTemp) == 0
-          && g_iNumTVChannelGroupsToLoad >= 1)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #1 %s", __FUNCTION__, strTemp.c_str(),
-            g_strTVChannelGroupNameOne.c_str());
-      }
-      else if (!g_strTVChannelGroupNameTwo.empty() && g_strTVChannelGroupNameTwo.compare(strTemp.c_str()) == 0
-          && g_iNumTVChannelGroupsToLoad >= 2)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #2 %s", __FUNCTION__, strTemp.c_str(),
-            g_strTVChannelGroupNameTwo.c_str());
-      }
-      else if (!g_strTVChannelGroupNameThree.empty() && g_strTVChannelGroupNameThree.compare(strTemp.c_str()) == 0
-          && g_iNumTVChannelGroupsToLoad >= 3)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #3 %s", __FUNCTION__, strTemp.c_str(),
-            g_strTVChannelGroupNameThree.c_str());
-      }
-      else if (!g_strTVChannelGroupNameFour.empty() && g_strTVChannelGroupNameFour.compare(strTemp.c_str()) == 0
-          && g_iNumTVChannelGroupsToLoad >= 4)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #4 %s", __FUNCTION__, strTemp.c_str(),
-            g_strTVChannelGroupNameFour.c_str());
-      }
-      else if (!g_strTVChannelGroupNameFive.empty() && g_strTVChannelGroupNameFive.compare(strTemp.c_str()) == 0
-          && g_iNumTVChannelGroupsToLoad == 5)
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] %s matches requested TV channel group #5 %s", __FUNCTION__, strTemp.c_str(),
-            g_strTVChannelGroupNameFive.c_str());
-      }
-      else
-      {
-        XBMC->Log(ADDON::LOG_DEBUG, "[%s] TV channel group %s doesn't match any requested group", __FUNCTION__,
-            strTemp.c_str());
-        continue;
-      }
-    }
-    m_channelsGroups.push_back(newGroup);
-    XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded TV channel group %s", __FUNCTION__, newGroup.strGroupName.c_str());
-    m_iNumChannelGroups++;
-  }
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %d TV channel groups", __FUNCTION__, m_iNumChannelGroups);
-  return true;
-}
-
-/**************************************************************************//**
  * EPG // EPG // EPG // EPG // EPG // EPG // EPG // EPG // EPG // EPG // EPG
  *****************************************************************************/
 /********************************************//**
@@ -519,14 +139,14 @@ bool CE2STBData::LoadChannelGroups()
  ***********************************************/
 PVR_ERROR CE2STBData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
-  if (channel.iUniqueId - 1 > m_channels.size())
+  if (channel.iUniqueId - 1 > m_e2stbchannels.m_channels.size())
   {
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't fetch EPG for channel with unique ID %d", __FUNCTION__,
         channel.iUniqueId);
     return PVR_ERROR_NO_ERROR;
   }
 
-  SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
+  SE2STBChannel myChannel = m_e2stbchannels.m_channels.at(channel.iUniqueId - 1);
 
   std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/epgservice?sRef="
       + m_e2stbutils.URLEncode(myChannel.strServiceReference);
@@ -836,7 +456,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
    */
   if (g_bZapBeforeChannelChange)
   {
-    std::string strServiceReference = m_channels.at(channel.iUniqueId - 1).strServiceReference;
+    std::string strServiceReference = m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strServiceReference;
     std::string strTemp = "web/zap?sRef=" + m_e2stbutils.URLEncode(strServiceReference);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
@@ -890,7 +510,7 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
-  std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
       + "&repeated=" + m_e2stbutils.IntToString(timer.iWeekdays)
       + "&begin=" + m_e2stbutils.IntToString(marginBefore)
@@ -923,7 +543,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
-  std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
       + "&begin=" + m_e2stbutils.IntToString(marginBefore)
       + "&end=" + m_e2stbutils.IntToString(marginAfter);
@@ -993,7 +613,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   /* TODO Check it works */
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timer channel ID %d", __FUNCTION__, timer.iClientChannelUid);
 
-  std::string strServiceReference = m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
 
   unsigned int i = 0;
   while (i < m_timers.size())
@@ -1008,7 +628,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
     }
   }
   SE2STBTimer &oldTimer = m_timers.at(i);
-  std::string strOldServiceReference = m_channels.at(oldTimer.iChannelId - 1).strServiceReference;
+  std::string strOldServiceReference = m_e2stbchannels.m_channels.at(oldTimer.iChannelId - 1).strServiceReference;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Old timer channel ID %d", __FUNCTION__, oldTimer.iChannelId);
 
   int iDisabled = 0;
@@ -1188,7 +808,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 
     if (XMLUtils::GetString(pNode, "e2servicereference", strTemp))
     {
-      timer.iChannelId = GetTotalChannelNumber(strTemp);
+      timer.iChannelId = m_e2stbchannels.GetTotalChannelNumber(strTemp);
     }
 
     if (!XMLUtils::GetInt(pNode, "e2timebegin", iTmp))

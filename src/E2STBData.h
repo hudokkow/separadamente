@@ -21,6 +21,7 @@
 
 #include "client.h"
 
+#include "E2STBChannels.h"
 #include "E2STBConnection.h"
 #include "E2STBTimeshift.h"
 #include "E2STBUtils.h"
@@ -49,26 +50,6 @@ struct SE2STBEPG
   time_t      endTime;
   std::string strPlotOutline;
   std::string strPlot;
-};
-
-struct SE2STBChannelGroup
-{
-  std::string strServiceReference;
-  std::string strGroupName;
-  int         iGroupState;
-  std::vector<SE2STBEPG> EPG;
-};
-
-struct SE2STBChannel
-{
-  bool        bRadio;
-  int         iUniqueId;
-  int         iChannelNumber;
-  std::string strGroupName;
-  std::string strChannelName;
-  std::string strServiceReference;
-  std::string strStreamURL;
-  std::string strIconPath;
 };
 
 struct SE2STBTimer
@@ -122,12 +103,7 @@ class CE2STBData
     bool        Open();
 
     /* Channels */
-    int          GetChannelsAmount(void) { return m_channels.size(); }
     int          GetCurrentClientChannel(void) { return m_iCurrentChannel; }
-    PVR_ERROR    GetChannels(ADDON_HANDLE handle, bool bRadio);
-    PVR_ERROR    GetChannelGroups(ADDON_HANDLE handle);
-    PVR_ERROR    GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
-    unsigned int GetChannelGroupsAmount(void) { return m_iNumChannelGroups; }
 
     /* EPG */
     PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd); /*!< @brief Backend Interface */
@@ -140,7 +116,7 @@ class CE2STBData
     bool        OpenLiveStream(const PVR_CHANNEL &channel);
     bool        SwitchChannel(const PVR_CHANNEL &channel);
     void        CloseLiveStream();
-    const char* GetLiveStreamURL(const PVR_CHANNEL &channel) { return m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str(); }
+    const char* GetLiveStreamURL(const PVR_CHANNEL &channel) { return m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str(); }
 
     /* Timers */
     int       GetTimersAmount(void) { return m_timers.size(); }
@@ -160,9 +136,6 @@ class CE2STBData
 
     /* Channels */
     int                             m_iCurrentChannel;   /*!< @brief Current channel uniqueID */
-    int                             m_iNumChannelGroups; /*!< @brief Number of channel groups */
-    std::vector<SE2STBChannel>      m_channels;          /*!< @brief Backend channels */
-    std::vector<SE2STBChannelGroup> m_channelsGroups;    /*!< @brief Backend channel groups */
 
     /* Timers */
     std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
@@ -183,26 +156,16 @@ class CE2STBData
      ***********************************************/
     void BackgroundUpdate();
 
-    /* Channels */
-    int         GetTotalChannelNumber(std::string strServiceReference);
-    bool        LoadChannels(std::string strServerReference, std::string strGroupName); /*!< @brief Backend Interface */
-    bool        LoadChannels();
-    bool        LoadChannelGroups(); /*!< @brief Backend Interface */
-
     /* Timers */
     void TimerUpdates();
     std::vector<SE2STBTimer> LoadTimers(); /*!< @brief Backend Interface */
 
-    /* Lock */
-    mutable std::mutex m_mutex;    /*!< @brief mutex class handler */
-
     /* Time shifting */
     CE2STBTimeshift *m_tsBuffer; /*!< @brief Time shifting class handler */
 
-    /* Utils */
-    CE2STBUtils m_e2stbutils; /*!< @brief Utils */
-
-    /* Connection */
-    CE2STBConnection m_e2stbconnection; /*!< @brief Connection */
+    mutable std::mutex m_mutex;         /*!< @brief mutex class handler */
+    CE2STBChannels   m_e2stbchannels; /*!< @brief CE2STBChannels class handler */
+    CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
+    CE2STBUtils      m_e2stbutils;      /*!< @brief CE2STBUtils class handler */
 };
 

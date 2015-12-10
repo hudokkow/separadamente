@@ -20,8 +20,9 @@
 
 #include "client.h"
 
-#include "E2STBData.h"
+#include "E2STBChannels.h"
 #include "E2STBConnection.h"
+#include "E2STBData.h"
 #include "E2STBRecordings.h"
 
 #include "platform/util/util.h"
@@ -41,6 +42,7 @@ ADDON::CHelper_libXBMC_addon *XBMC = NULL;
  * @brief Initialize globals
  */
 ADDON_STATUS      g_currentStatus   = ADDON_STATUS_UNKNOWN;
+CE2STBChannels   *g_E2STBChannels   = nullptr;
 CE2STBConnection *g_E2STBConnection = nullptr;
 CE2STBData       *g_E2STBData       = nullptr;
 CE2STBRecordings *g_E2STBRecordings = nullptr;
@@ -256,13 +258,15 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   ADDON_ReadSettings();
 
   /* Instantiate globals */
+  g_E2STBChannels = new CE2STBChannels;
   g_E2STBConnection = new CE2STBConnection;
   g_E2STBData       = new CE2STBData;
   g_E2STBRecordings = new CE2STBRecordings;
 
   /* TODO: reorganize calls */
-  if (!g_E2STBConnection->Open() || !g_E2STBData->Open())
+  if (!g_E2STBConnection->Open())
   {
+    SAFE_DELETE(g_E2STBChannels);
     SAFE_DELETE(g_E2STBConnection);
     SAFE_DELETE(g_E2STBData);
     SAFE_DELETE(g_E2STBRecordings);
@@ -271,6 +275,10 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_currentStatus = ADDON_STATUS_LOST_CONNECTION;
     return g_currentStatus;
   }
+  g_E2STBChannels->Open();
+  g_E2STBData->Open();
+  g_E2STBRecordings->Open();
+
   g_currentStatus = ADDON_STATUS_OK;
   return g_currentStatus;
 }
@@ -283,6 +291,7 @@ ADDON_STATUS ADDON_GetStatus()
 void ADDON_Destroy()
 {
   g_E2STBConnection->SendPowerstate();
+  SAFE_DELETE(g_E2STBChannels);
   SAFE_DELETE(g_E2STBConnection);
   SAFE_DELETE(g_E2STBData);
   SAFE_DELETE(g_E2STBRecordings);
@@ -491,7 +500,7 @@ int GetChannelsAmount(void)
   if (!g_E2STBConnection->IsConnected())
     return 0;
 
-  return g_E2STBData->GetChannelsAmount();
+  return g_E2STBChannels->GetChannelsAmount();
 }
 
 int GetCurrentClientChannel(void)
@@ -507,7 +516,7 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetChannels(handle, bRadio);
+  return g_E2STBChannels->GetChannels(handle, bRadio);
 }
 
 PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
@@ -518,7 +527,7 @@ PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetChannelGroups(handle);
+  return g_E2STBChannels->GetChannelGroups(handle);
 }
 
 PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
@@ -529,7 +538,7 @@ PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &g
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetChannelGroupMembers(handle, group);
+  return g_E2STBChannels->GetChannelGroupMembers(handle, group);
 }
 
 int GetChannelGroupsAmount(void)
@@ -537,7 +546,7 @@ int GetChannelGroupsAmount(void)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetChannelGroupsAmount();
+  return g_E2STBChannels->GetChannelGroupsAmount();
 }
 
 /*!

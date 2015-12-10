@@ -18,6 +18,7 @@ include_directories(${kodiplatform_INCLUDE_DIRS}
 
 set(ENIGMA2_SOURCES src/client.cpp
                     src/compat.h
+                    src/E2STBChannels.cpp
                     src/E2STBConnection.cpp
                     src/E2STBData.cpp
                     src/E2STBRecordings.cpp
