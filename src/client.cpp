@@ -22,6 +22,7 @@
 
 #include "E2STBData.h"
 #include "E2STBConnection.h"
+#include "E2STBRecordings.h"
 
 #include "platform/util/util.h"
 #include "kodi/libKODI_guilib.h"
@@ -42,6 +43,7 @@ ADDON::CHelper_libXBMC_addon *XBMC = NULL;
 ADDON_STATUS      g_currentStatus   = ADDON_STATUS_UNKNOWN;
 CE2STBConnection *g_E2STBConnection = nullptr;
 CE2STBData       *g_E2STBData       = nullptr;
+CE2STBRecordings *g_E2STBRecordings = nullptr;
 
 /*!
  * @brief Connection client settings
@@ -255,14 +257,15 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   /* Instantiate globals */
   g_E2STBConnection = new CE2STBConnection;
-  g_E2STBData = new CE2STBData;
+  g_E2STBData       = new CE2STBData;
+  g_E2STBRecordings = new CE2STBRecordings;
 
-  if (!g_E2STBConnection->Open())
-    SAFE_DELETE(g_E2STBConnection);
-
-  if (!g_E2STBData->Open())
+  /* TODO: reorganize calls */
+  if (!g_E2STBConnection->Open() || !g_E2STBData->Open())
   {
+    SAFE_DELETE(g_E2STBConnection);
     SAFE_DELETE(g_E2STBData);
+    SAFE_DELETE(g_E2STBRecordings);
     SAFE_DELETE(PVR);
     SAFE_DELETE(XBMC);
     g_currentStatus = ADDON_STATUS_LOST_CONNECTION;
@@ -282,6 +285,7 @@ void ADDON_Destroy()
   g_E2STBConnection->SendPowerstate();
   SAFE_DELETE(g_E2STBConnection);
   SAFE_DELETE(g_E2STBData);
+  SAFE_DELETE(g_E2STBRecordings);
   SAFE_DELETE(PVR);
   SAFE_DELETE(XBMC);
   g_currentStatus = ADDON_STATUS_UNKNOWN;
@@ -568,7 +572,7 @@ int GetRecordingsAmount(bool deleted)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetRecordingsAmount();
+  return g_E2STBRecordings->GetRecordingsAmount();
 }
 
 PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
@@ -576,7 +580,7 @@ PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetRecordings(handle);
+  return g_E2STBRecordings->GetRecordings(handle);
 }
 
 PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
@@ -584,7 +588,7 @@ PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->DeleteRecording(recording);
+  return g_E2STBRecordings->DeleteRecording(recording);
 }
 
 PVR_ERROR RenameRecording(const PVR_RECORDING &_UNUSED(recording))
