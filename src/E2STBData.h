@@ -40,18 +40,6 @@ typedef enum E2STB_UPDATE_STATE
   E2STB_UPDATE_STATE_NEW
 } E2STB_UPDATE_STATE;
 
-struct SE2STBEPG
-{
-  int         iEventId;
-  std::string strServiceReference;
-  std::string strTitle;
-  int         iChannelId;
-  time_t      startTime;
-  time_t      endTime;
-  std::string strPlotOutline;
-  std::string strPlot;
-};
-
 struct SE2STBTimer
 {
   std::string     strTitle;
@@ -104,9 +92,6 @@ class CE2STBData
 
     /* Channels */
     int          GetCurrentClientChannel(void) { return m_iCurrentChannel; }
-
-    /* EPG */
-    PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd); /*!< @brief Backend Interface */
 
     /* Information */
     PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed); /*!< @brief Backend Interface */

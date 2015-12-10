@@ -557,7 +557,7 @@ PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time
   if (!g_E2STBConnection->IsConnected())
     return PVR_ERROR_SERVER_ERROR;
 
-  return g_E2STBData->GetEPGForChannel(handle, channel, iStart, iEnd);
+  return g_E2STBChannels->GetEPGForChannel(handle, channel, iStart, iEnd);
 }
 
 /*!

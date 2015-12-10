@@ -28,12 +28,24 @@
 #include <string>
 #include <vector>
 
+struct SE2STBEPG
+{
+  int         iEventId;
+  std::string strServiceReference;
+  std::string strTitle;
+  int         iChannelId;
+  time_t      startTime;
+  time_t      endTime;
+  std::string strPlotOutline;
+  std::string strPlot;
+};
+
 struct SE2STBChannelGroup
 {
   std::string strServiceReference;
   std::string strGroupName;
   int         iGroupState;
-//  std::vector<SE2STBEPG> EPG;
+  std::vector<SE2STBEPG> EPG;
 };
 
 struct SE2STBChannel
@@ -62,6 +74,8 @@ class CE2STBChannels
     PVR_ERROR    GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
     unsigned int GetChannelGroupsAmount(void) { return m_iNumChannelGroups; }
     int          GetTotalChannelNumber(std::string strServiceReference);
+
+    PVR_ERROR    GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
 
   private:
     int                             m_iNumChannelGroups;
