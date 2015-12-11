@@ -297,10 +297,9 @@ unsigned int ADDON_GetSettings(ADDON_StructSetting ***_UNUSED(sSet))
   return 0;
 }
 
-/********************************************//**
- * Read settings from settings.xml, compare to
- * UI settings, update settings.xml accordingly
- ***********************************************/
+/*!
+ * @brief  Read settings from settings.xml, compare to UI settings, update settings.xml accordingly
+ */
 ADDON_STATUS ADDON_SetSetting(const char *settingName,
     const void *settingValue)
 {
