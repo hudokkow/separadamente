@@ -74,7 +74,7 @@ class CE2STBChannels
     PVR_ERROR    GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
     unsigned int GetChannelGroupsAmount(void) { return m_iNumChannelGroups; }
     int          GetTotalChannelNumber(std::string strServiceReference);
-
+    const char*  GetLiveStreamURL(const PVR_CHANNEL &channel);
     PVR_ERROR    GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
 
   private:

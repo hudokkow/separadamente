@@ -145,6 +145,11 @@ int CE2STBChannels::GetTotalChannelNumber(std::string strServiceReference)
   return -1;
 }
 
+const char* CE2STBChannels::GetLiveStreamURL(const PVR_CHANNEL &channel)
+{
+  return m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str();
+}
+
 PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   if (channel.iUniqueId - 1 > m_channels.size())

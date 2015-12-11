@@ -101,7 +101,6 @@ class CE2STBData
     bool        OpenLiveStream(const PVR_CHANNEL &channel);
     bool        SwitchChannel(const PVR_CHANNEL &channel);
     void        CloseLiveStream();
-    const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
 
     /* Timers */
     int       GetTimersAmount(void) { return m_timers.size(); }

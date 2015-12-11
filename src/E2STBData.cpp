@@ -323,8 +323,8 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
     m_tsBuffer = nullptr;
   }
 
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting time shift buffer for channel %s", __FUNCTION__, GetLiveStreamURL(channel));
-  m_tsBuffer = new CE2STBTimeshift(GetLiveStreamURL(channel), g_strTimeshiftBufferPath);
+  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting time shift buffer for channel %s", __FUNCTION__, m_e2stbchannels.GetLiveStreamURL(channel));
+  m_tsBuffer = new CE2STBTimeshift(m_e2stbchannels.GetLiveStreamURL(channel), g_strTimeshiftBufferPath);
   return m_tsBuffer->IsValid();
 }
 /********************************************//**
@@ -339,11 +339,6 @@ void CE2STBData::CloseLiveStream(void)
     delete m_tsBuffer;
     m_tsBuffer = nullptr;
   }
-}
-
-const char* CE2STBData::GetLiveStreamURL(const PVR_CHANNEL &channel)
-{
-  return m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str();
 }
 
 /**************************************************************************//**

@@ -634,7 +634,7 @@ const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
   if (!g_E2STBConnection->IsConnected())
     return "";
 
-  return g_E2STBData->GetLiveStreamURL(channel);
+  return g_E2STBChannels->GetLiveStreamURL(channel);
 }
 
 /*!
