@@ -341,6 +341,11 @@ void CE2STBData::CloseLiveStream(void)
   }
 }
 
+const char* CE2STBData::GetLiveStreamURL(const PVR_CHANNEL &channel)
+{
+  return m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str();
+}
+
 /**************************************************************************//**
  * Timers // Timers // Timers // Timers // Timers // Timers // Timers // Timers
  *****************************************************************************/
