@@ -22,6 +22,8 @@
 #include "platform/threads/threads.h"
 #include "platform/util/StdString.h"
 
+namespace e2stb
+{
 /* indicate that caller can handle truncated reads, where function returns before entire buffer has been filled */
 #define READ_TRUNCATED 0x01
 /* indicate that that caller support read in the minimum defined chunk size, this disables internal cache then */
@@ -67,4 +69,4 @@ class CE2STBTimeshift: public PLATFORM::CThread
     uint64_t m_writePos;
 #endif
 };
-
+} /* namespace e2stb */

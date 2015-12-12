@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+using namespace e2stb;
+
 CE2STBRecordings::CE2STBRecordings()
 : m_iNumRecordings{0}
 {

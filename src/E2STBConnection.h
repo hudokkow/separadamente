@@ -26,6 +26,8 @@
 #include <mutex>
 #include <string>
 
+namespace e2stb
+{
 class CE2STBConnection
 {
   public:
@@ -66,3 +68,4 @@ class CE2STBConnection
     mutable std::mutex m_mutex;  /*!< @brief mutex class handler */
     CE2STBUtils m_e2stbutils;    /*!< @brief CE2STBUtils class handler */
 };
+} /* namespace e2stb */

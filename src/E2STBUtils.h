@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+namespace e2stb
+{
 class CE2STBUtils
 {
   public:
@@ -36,4 +38,4 @@ class CE2STBUtils
   private:
     static int TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results);
 };
-
+} /* namespace e2stb */

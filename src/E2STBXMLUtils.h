@@ -24,6 +24,8 @@
 
 #include <string>
 
+namespace e2stb
+{
 class XMLUtils
 {
 public:
@@ -41,3 +43,4 @@ public:
    */
   static bool GetString(const TiXmlNode* pRootNode, const char* strTag, std::string& strStringValue);
 };
+} /* namespace e2stb */

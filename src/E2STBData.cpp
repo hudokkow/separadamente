@@ -30,6 +30,8 @@
 #include <thread>
 #include <vector>
 
+using namespace e2stb;
+
 /**************************************************************************//**
  * General // General // General // General // General // General // General
  *****************************************************************************/

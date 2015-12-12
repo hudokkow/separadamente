@@ -32,6 +32,8 @@
 #include <thread>
 #include <vector>
 
+namespace e2stb
+{
 typedef enum E2STB_UPDATE_STATE
 {
   E2STB_UPDATE_STATE_NONE,
@@ -152,4 +154,4 @@ class CE2STBData
     CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
     CE2STBUtils      m_e2stbutils;      /*!< @brief CE2STBUtils class handler */
 };
-
+} /* namespace e2stb */

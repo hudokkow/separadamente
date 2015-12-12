@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+using namespace e2stb;
+
 CE2STBChannels::CE2STBChannels()
 : m_iNumChannelGroups{0}
 {

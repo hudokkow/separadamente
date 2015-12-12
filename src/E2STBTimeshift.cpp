@@ -22,6 +22,8 @@
 
 #include "client.h"
 
+using namespace e2stb;
+
 CE2STBTimeshift::CE2STBTimeshift(CStdString streampath, CStdString bufferpath) : m_bufferPath(bufferpath)
 {
   m_streamHandle = XBMC->OpenFile(streampath, READ_NO_CACHE);

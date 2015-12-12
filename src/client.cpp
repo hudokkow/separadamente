@@ -32,6 +32,8 @@
 #include <cstdlib>
 #include <string>
 
+using namespace e2stb;
+
 /*!
  * @brief Initialize helpers
  */

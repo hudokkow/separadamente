@@ -30,6 +30,8 @@
 #include <mutex>
 #include <string>
 
+using namespace e2stb;
+
 CE2STBConnection::CE2STBConnection()
 : m_strBackendBaseURLWeb{}
 , m_strBackendBaseURLStream{}

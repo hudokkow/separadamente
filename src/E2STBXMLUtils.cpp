@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <string>
 
+using namespace e2stb;
+
 bool XMLUtils::GetInt(const TiXmlNode* pRootNode, const char* strTag, int& iIntValue)
 {
   const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
