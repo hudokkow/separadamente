@@ -142,7 +142,7 @@ void CE2STBData::BackgroundUpdate()
 PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
 {
   std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/deviceinfo";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -213,7 +213,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   memset(&signalStat, 0, sizeof(signalStat));
 
   std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/signal";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -304,7 +304,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   if (g_bZapBeforeChannelChange)
   {
     std::string strServiceReference = m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strServiceReference;
-    std::string strTemp = "web/zap?sRef=" + m_e2stbutils.URLEncode(strServiceReference);
+    std::string strTemp = "web/zap?sRef=" + m_e2stbconnection.URLEncode(strServiceReference);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
     std::string strResult;
@@ -358,17 +358,17 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timeradd?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
+  std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
       + "&repeated=" + m_e2stbutils.IntToString(timer.iWeekdays)
       + "&begin=" + m_e2stbutils.IntToString(marginBefore)
       + "&end=" + m_e2stbutils.IntToString(marginAfter)
-      + "&name=" + m_e2stbutils.URLEncode(timer.strTitle)
-      + "&description=" + m_e2stbutils.URLEncode(timer.strSummary)
+      + "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)
+      + "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)
       + "&eit=" + m_e2stbutils.IntToString(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
-    strTemp += "&dirname=&" + m_e2stbutils.URLEncode(g_strBackendRecordingPath);
+    strTemp += "&dirname=&" + m_e2stbconnection.URLEncode(g_strBackendRecordingPath);
   }
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added timer %s", __FUNCTION__, strTemp.c_str());
@@ -391,7 +391,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timerdelete?sRef=" + m_e2stbutils.URLEncode(strServiceReference)
+  std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
       + "&begin=" + m_e2stbutils.IntToString(marginBefore)
       + "&end=" + m_e2stbutils.IntToString(marginAfter);
 
@@ -484,14 +484,14 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
     iDisabled = 1;
   }
   std::string strTemp = "web/timerchange?sRef="
-      + m_e2stbutils.URLEncode(strServiceReference) + "&begin="
+      + m_e2stbconnection.URLEncode(strServiceReference) + "&begin="
       + m_e2stbutils.IntToString(timer.startTime) + "&end="
       + m_e2stbutils.IntToString(timer.endTime) + "&name="
-      + m_e2stbutils.URLEncode(timer.strTitle) + "&eventID=&description="
-      + m_e2stbutils.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
+      + m_e2stbconnection.URLEncode(timer.strTitle) + "&eventID=&description="
+      + m_e2stbconnection.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
       + m_e2stbutils.IntToString(iDisabled) + "&justplay=0&repeated="
       + m_e2stbutils.IntToString(timer.iWeekdays) + "&channelOld="
-      + m_e2stbutils.URLEncode(strOldServiceReference) + "&beginOld="
+      + m_e2stbconnection.URLEncode(strOldServiceReference) + "&beginOld="
       + m_e2stbutils.IntToString(oldTimer.startTime) + "&endOld="
       + m_e2stbutils.IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
 
@@ -594,7 +594,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
   std::vector<SE2STBTimer> timers;
 
   std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/timerlist";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))

@@ -59,6 +59,14 @@ class CE2STBConnection
      * @brief Send command to backend STB
      */
     bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
+    /*!
+     * @brief Safe encode URL
+     */
+    std::string URLEncode(const std::string& strURL);
+    /*!
+     * @brief Connect to backend
+     */
+    std::string ConnectToBackend(std::string& strURL);
 
   private:
     bool        m_bIsConnected;     /*!< @brief Backend connection check */

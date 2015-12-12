@@ -23,7 +23,6 @@
 #include "client.h"
 
 #include <iterator>
-#include <iomanip>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -39,9 +38,6 @@ std::string CE2STBUtils::IntToString (int a)
     return temp.str();
 }
 
-/********************************************//**
- * Convert time string to seconds
- ***********************************************/
 long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
 {
   std::vector<std::string> secs;
@@ -53,55 +49,6 @@ long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
     timeInSecs += std::stoi(secs[i]);
   }
   return timeInSecs;
-}
-
-/********************************************//**
- * Safe encode URL
- ***********************************************/
-// Adapted from http://stackoverflow.com/a/17708801 / stolen from pvr.vbox. Thanks Jalle19
-std::string CE2STBUtils::URLEncode(const std::string& strURL)
-{
-  std::ostringstream escaped;
-  escaped.fill('0');
-  escaped << std::hex;
-
-  for (auto i = strURL.cbegin(), n = strURL.cend(); i != n; ++i)
-  {
-    std::string::value_type c = (*i);
-
-    // Keep alphanumeric and other accepted characters intact
-    if (c < 0 || isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
-    {
-      escaped << c;
-      continue;
-    }
-
-    // Any other characters are percent-encoded
-    escaped << '%' << std::setw(2) << int(static_cast<unsigned char>(c));
-  }
-
-  return escaped.str();
-}
-
-std::string CE2STBUtils::ConnectToBackend(std::string& strURL)
-{
-  std::string strResult;
-  void* fileHandle = XBMC->OpenFile(strURL.c_str(), 0);
-  if (fileHandle)
-  {
-    char buffer[1024];
-    while (XBMC->ReadFileString(fileHandle, buffer, 1024))
-    {
-      strResult.append(buffer);
-    }
-    XBMC->CloseFile(fileHandle);
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
-  }
-  else
-  {
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
-  }
-  return strResult;
 }
 
 // adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c

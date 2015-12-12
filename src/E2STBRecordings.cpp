@@ -68,7 +68,7 @@ PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)
 
 PVR_ERROR CE2STBRecordings::DeleteRecording(const PVR_RECORDING &recinfo)
 {
-  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbutils.URLEncode(recinfo.strRecordingId);
+  std::string strTemp = "web/moviedelete?sRef=" + m_e2stbconnection.URLEncode(recinfo.strRecordingId);
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
@@ -91,7 +91,7 @@ bool CE2STBRecordings::LoadRecordingLocations()
     strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getlocations";
   }
 
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -166,10 +166,10 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
   }
   else
   {
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbutils.URLEncode(strRecordingFolder);
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder);
   }
 
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -254,7 +254,7 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb + "file?file=" + m_e2stbutils.URLEncode(strTemp);
+      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb + "file?file=" + m_e2stbconnection.URLEncode(strTemp);
     }
     m_iNumRecordings++;
     iNumRecording++;

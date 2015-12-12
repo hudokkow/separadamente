@@ -31,9 +31,10 @@ class CE2STBUtils
     ~CE2STBUtils(void) {};
 
     std::string IntToString (int a);
+    /*!
+     * @brief Convert time string to seconds
+     */
     static long TimeStringToSeconds(const std::string& timeString);
-    std::string URLEncode(const std::string& strURL);
-    std::string ConnectToBackend(std::string& strURL);
 
   private:
     static int TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results);

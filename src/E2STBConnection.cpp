@@ -27,8 +27,10 @@
 
 #include <algorithm>  /* std::transform for GetDeviceInfo() */
 #include <cctype>     /* std::toupper for GetDeviceInfo() */
+#include <iomanip>    /* std::setw for URLEncode() */
 #include <mutex>
 #include <string>
+#include <sstream>    /* std::ostringstream for URLEncode() */
 
 using namespace e2stb;
 
@@ -108,7 +110,7 @@ void CE2STBConnection::SendPowerstate()
 bool CE2STBConnection::GetDeviceInfo()
 {
   std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -174,7 +176,7 @@ bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::s
   /* ISO C++ says that these are ambiguous, even though the worst conversion */
   /* for the first is better than the worst conversion for the second */
   std::string strURL = m_strBackendBaseURLWeb + std::string(strCommandURL);
-  std::string strXML = m_e2stbutils.ConnectToBackend(strURL);
+  std::string strXML = ConnectToBackend(strURL);
 
   if (!bIgnoreResult)
   {
@@ -218,4 +220,50 @@ bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::s
     return bTmp;
   }
   return true;
+}
+
+// Adapted from http://stackoverflow.com/a/17708801 / stolen from pvr.vbox. Thanks Jalle19
+std::string CE2STBConnection::URLEncode(const std::string& strURL)
+{
+  std::ostringstream escaped;
+  escaped.fill('0');
+  escaped << std::hex;
+
+  for (auto i = strURL.cbegin(), n = strURL.cend(); i != n; ++i)
+  {
+    std::string::value_type c = (*i);
+
+    // Keep alphanumeric and other accepted characters intact
+    if (c < 0 || isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+    {
+      escaped << c;
+      continue;
+    }
+
+    // Any other characters are percent-encoded
+    escaped << '%' << std::setw(2) << int(static_cast<unsigned char>(c));
+  }
+
+  return escaped.str();
+}
+
+std::string CE2STBConnection::ConnectToBackend(std::string& strURL)
+{
+  std::string strResult;
+  void* fileHandle = XBMC->OpenFile(strURL.c_str(), 0);
+  if (fileHandle)
+  {
+    char buffer[1024];
+    while (XBMC->ReadFileString(fileHandle, buffer, 1024))
+    {
+      strResult.append(buffer);
+    }
+    XBMC->CloseFile(fileHandle);
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
+  }
+  else
+  {
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
+  }
+  return strResult;
 }
