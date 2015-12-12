@@ -49,6 +49,19 @@ namespace compat
   }
 
   /**
+   * Android doesn't fully support C++11 so std::stof() is missing, we provide
+   * a limited version which does the job
+   */
+  template<typename T> float stof(const T& value)
+  {
+    std::istringstream iss(value);
+
+    float result;
+    iss >> result;
+    return result;
+  }
+
+  /**
    * Android doesn't fully support C++11 so std::stol() is missing, we provide 
    * a limited version which does the job
    */
