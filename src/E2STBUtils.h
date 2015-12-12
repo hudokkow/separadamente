@@ -26,16 +26,19 @@ namespace e2stb
 {
 class CE2STBUtils
 {
-  public:
-    CE2STBUtils(void) {};
-    ~CE2STBUtils(void) {};
+public:
+  CE2STBUtils() {};
+  ~CE2STBUtils() {};
 
-    /*!
-     * @brief Convert time string to seconds
-     */
-    static long TimeStringToSeconds(const std::string& timeString);
+  /*!
+   * @brief Convert time string to seconds
+   */
+  static long TimeStringToSeconds(const std::string& timeString);
 
-  private:
-    static int TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results);
+private:
+  /*!
+   * @brief Tokenize string with provided delimiter
+   */
+  static int TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results);
 };
 } /* namespace e2stb */

@@ -20,12 +20,9 @@
 
 #include "E2STBUtils.h"
 
-#include "client.h"
 #include "compat.h"
 
-#include <iterator>
 #include <string>
-#include <sstream>
 #include <vector>
 
 using namespace e2stb;
@@ -43,7 +40,7 @@ long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
   return timeInSecs;
 }
 
-// adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
+/* adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c */
 int CE2STBUtils::TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results)
 {
   std::string::size_type start_pos = 0;
