@@ -19,10 +19,12 @@
  *
  */
 
-#include "client.h"
-
 #include "E2STBConnection.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
+#include <ctime>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -63,29 +65,29 @@ struct SE2STBChannel
 
 class CE2STBChannels
 {
-  public:
-    CE2STBChannels(void);
-    ~CE2STBChannels(void);
+public:
+  CE2STBChannels();
+  ~CE2STBChannels();
 
-    std::vector<SE2STBChannel> m_channels;
-    bool         Open();
-    int          GetChannelsAmount(void) { return m_channels.size(); }
-    PVR_ERROR    GetChannels(ADDON_HANDLE handle, bool bRadio);
-    PVR_ERROR    GetChannelGroups(ADDON_HANDLE handle);
-    PVR_ERROR    GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
-    unsigned int GetChannelGroupsAmount(void) { return m_iNumChannelGroups; }
-    int          GetTotalChannelNumber(std::string strServiceReference);
-    const char*  GetLiveStreamURL(const PVR_CHANNEL &channel);
-    PVR_ERROR    GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
+  std::vector<SE2STBChannel> m_channels;
+  bool Open();
+  int GetChannelsAmount(void) { return m_channels.size(); }
+  PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
+  PVR_ERROR GetChannelGroups(ADDON_HANDLE handle);
+  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
+  unsigned int GetChannelGroupsAmount(void) { return m_iNumChannelGroups; }
+  int GetTotalChannelNumber(std::string strServiceReference);
+  const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
+  PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
 
-  private:
-    int                             m_iNumChannelGroups;
-    std::vector<SE2STBChannelGroup> m_channelsGroups;
+private:
+  int m_iNumChannelGroups;
+  std::vector<SE2STBChannelGroup> m_channelsGroups;
 
-    bool        LoadChannels(std::string strServerReference, std::string strGroupName);
-    bool        LoadChannels();
-    bool        LoadChannelGroups();
+  bool LoadChannels(std::string strServerReference, std::string strGroupName);
+  bool LoadChannels();
+  bool LoadChannelGroups();
 
-    CE2STBConnection   m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
+  CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
 };
 } /* namespace e2stb */

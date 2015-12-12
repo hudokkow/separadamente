@@ -26,7 +26,7 @@
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
-#include <algorithm>
+#include <algorithm> /* std::replace for LoadChannels() */
 #include <string>
 #include <vector>
 
@@ -51,14 +51,10 @@ bool CE2STBChannels::Open()
   if (m_channels.size() == 0)
   {
     if (!LoadChannelGroups())
-    {
       return false;
-    }
 
     if (!LoadChannels())
-    {
       return false;
-    }
   }
   return true;
 }
@@ -141,9 +137,7 @@ int CE2STBChannels::GetTotalChannelNumber(std::string strServiceReference)
   for (unsigned int i = 0; i < m_channels.size(); i++)
   {
     if (!strServiceReference.compare(m_channels[i].strServiceReference))
-    {
       return i + 1;
-    }
   }
   return -1;
 }
@@ -164,8 +158,8 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
 
   SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
 
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/epgservice?sRef="
-      + m_e2stbconnection.URLEncode(myChannel.strServiceReference);
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb
+      + "web/epgservice?sRef=" + m_e2stbconnection.URLEncode(myChannel.strServiceReference);
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   int iNumEPG = 0;
@@ -209,55 +203,39 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
     int iTmp;
 
     if (!XMLUtils::GetInt(pNode, "e2eventstart", iTmpStart))
-    {
       continue;
-    }
 
     /*  Skip unnecessary events */
     if (iStart > iTmpStart)
-    {
       continue;
-    }
 
     if (!XMLUtils::GetInt(pNode, "e2eventduration", iTmp))
-    {
       continue;
-    }
 
     if ((iEnd > 1) && (iEnd < (iTmpStart + iTmp)))
-    {
       continue;
-    }
 
     SE2STBEPG entry;
     entry.startTime = iTmpStart;
     entry.endTime = iTmpStart + iTmp;
 
     if (!XMLUtils::GetInt(pNode, "e2eventid", entry.iEventId))
-    {
       continue;
-    }
 
     entry.iChannelId = channel.iUniqueId;
 
     if (!XMLUtils::GetString(pNode, "e2eventtitle", strTemp))
-    {
       continue;
-    }
 
     entry.strTitle = strTemp;
 
     entry.strServiceReference = myChannel.strServiceReference;
 
     if (XMLUtils::GetString(pNode, "e2eventdescriptionextended", strTemp))
-    {
       entry.strPlot = strTemp;
-    }
 
     if (XMLUtils::GetString(pNode, "e2eventdescription", strTemp))
-    {
       entry.strPlotOutline = strTemp;
-    }
 
     EPG_TAG channelEPG;
     memset(&channelEPG, 0, sizeof(EPG_TAG));
@@ -290,15 +268,13 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
     channelEPG.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
     PVR->TransferEpgEntry(handle, &channelEPG);
-
     iNumEPG++;
 
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded EPG entry %d - %s for channel %d starting at %d and ending at %d",
         __FUNCTION__, channelEPG.iUniqueBroadcastId, channelEPG.strTitle, entry.iChannelId, entry.startTime,
         entry.endTime);
   }
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded %u EPG entries for channel %s", __FUNCTION__, iNumEPG,
-      channel.strChannelName);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded %u EPG entries for channel %s", __FUNCTION__, iNumEPG, channel.strChannelName);
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -306,8 +282,8 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices?sRef="
-      + m_e2stbconnection.URLEncode(strServiceReference);
+  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb
+      + "web/getservices?sRef=" + m_e2stbconnection.URLEncode(strServiceReference);
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -349,15 +325,11 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
     std::string strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-    {
       continue;
-    }
 
     /* Discard label elements */
     if (strTemp.compare(0, 5, "1:64:") == 0)
-    {
       continue;
-    }
 
     SE2STBChannel newChannel;
     newChannel.bRadio = bRadio;
@@ -367,9 +339,7 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
     newChannel.strServiceReference = strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicename", strTemp))
-    {
       continue;
-    }
 
     newChannel.strChannelName = strTemp;
 
@@ -429,9 +399,7 @@ bool CE2STBChannels::LoadChannels()
   {
     SE2STBChannelGroup &myGroup = m_channelsGroups.at(i);
     if (LoadChannels(myGroup.strServiceReference, myGroup.strGroupName))
-    {
       bOk = true;
-    }
   }
   /* TODO: Check another way to load Radio channels in API. Currently there's
    no way one can request a Radio bouquets list, like we do for TV bouquets.
@@ -487,22 +455,16 @@ bool CE2STBChannels::LoadChannelGroups()
     std::string strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-    {
       continue;
-    }
 
     SE2STBChannelGroup newGroup;
     newGroup.strServiceReference = strTemp;
 
     if (!XMLUtils::GetString(pNode, "e2servicename", strTemp))
-    {
       continue;
-    }
 
     if (strTemp.compare(0, 3, "---") == 0)
-    {
       continue;
-    }
 
     newGroup.strGroupName = strTemp;
 
