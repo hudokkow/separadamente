@@ -242,7 +242,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   std::string strSNRDB = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNRDB is %s", __FUNCTION__, strSNRDB.c_str());
   /* STB's API 100% = 17.00dB, hence SNRDB * 5.88235 */
-  signalStat.iSNR = (std::stof(strTemp.c_str()) * 5.88235 * 655.35 + 0.5);
+  signalStat.iSNR = (compat::stof(strTemp.c_str()) * 5.88235 * 655.35 + 0.5);
 
   if (!XMLUtils::GetString(pElement, "e2snr", strTemp))
   {
@@ -250,7 +250,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   }
   std::string strSNR = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] SNR is %s", __FUNCTION__, strSNR.c_str());
-  signalStat.iSignal = (std::stoi(strTemp.c_str()) * 655.35);
+  signalStat.iSignal = (compat::stoi(strTemp.c_str()) * 655.35);
 
   if (!XMLUtils::GetString(pElement, "e2ber", strTemp))
   {
@@ -258,7 +258,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   }
   std::string strBER = strTemp;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] BER is %s", __FUNCTION__, strBER.c_str());
-  signalStat.iBER = std::stol(strTemp.c_str());
+  signalStat.iBER = compat::stol(strTemp.c_str());
 
   signalStatus = signalStat;
   return PVR_ERROR_NO_ERROR;

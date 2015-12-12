@@ -21,6 +21,7 @@
 #include "E2STBUtils.h"
 
 #include "client.h"
+#include "compat.h"
 
 #include <iterator>
 #include <string>
@@ -37,7 +38,7 @@ long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
   for (unsigned int i = 0; i < secs.size(); i++)
   {
     timeInSecs *= 60;
-    timeInSecs += std::stoi(secs[i]);
+    timeInSecs += compat::stoi(secs[i]);
   }
   return timeInSecs;
 }
