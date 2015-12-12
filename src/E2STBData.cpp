@@ -21,6 +21,7 @@
 #include "E2STBData.h"
 
 #include "client.h"
+#include "compat.h"
 
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
@@ -359,12 +360,12 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-      + "&repeated=" + m_e2stbutils.IntToString(timer.iWeekdays)
-      + "&begin=" + m_e2stbutils.IntToString(marginBefore)
-      + "&end=" + m_e2stbutils.IntToString(marginAfter)
+      + "&repeated=" + compat::to_string(timer.iWeekdays)
+      + "&begin=" + compat::to_string(marginBefore)
+      + "&end=" + compat::to_string(marginAfter)
       + "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)
       + "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)
-      + "&eit=" + m_e2stbutils.IntToString(timer.iEpgUid);
+      + "&eit=" + compat::to_string(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
@@ -392,8 +393,8 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-      + "&begin=" + m_e2stbutils.IntToString(marginBefore)
-      + "&end=" + m_e2stbutils.IntToString(marginAfter);
+      + "&begin=" + compat::to_string(marginBefore)
+      + "&end=" + compat::to_string(marginAfter);
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
@@ -485,15 +486,15 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   }
   std::string strTemp = "web/timerchange?sRef="
       + m_e2stbconnection.URLEncode(strServiceReference) + "&begin="
-      + m_e2stbutils.IntToString(timer.startTime) + "&end="
-      + m_e2stbutils.IntToString(timer.endTime) + "&name="
+      + compat::to_string(timer.startTime) + "&end="
+      + compat::to_string(timer.endTime) + "&name="
       + m_e2stbconnection.URLEncode(timer.strTitle) + "&eventID=&description="
       + m_e2stbconnection.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
-      + m_e2stbutils.IntToString(iDisabled) + "&justplay=0&repeated="
-      + m_e2stbutils.IntToString(timer.iWeekdays) + "&channelOld="
+      + compat::to_string(iDisabled) + "&justplay=0&repeated="
+      + compat::to_string(timer.iWeekdays) + "&channelOld="
       + m_e2stbconnection.URLEncode(strOldServiceReference) + "&beginOld="
-      + m_e2stbutils.IntToString(oldTimer.startTime) + "&endOld="
-      + m_e2stbutils.IntToString(oldTimer.endTime) + "&deleteOldOnSave=1";
+      + compat::to_string(oldTimer.startTime) + "&endOld="
+      + compat::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))

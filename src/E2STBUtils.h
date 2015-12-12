@@ -30,7 +30,6 @@ class CE2STBUtils
     CE2STBUtils(void) {};
     ~CE2STBUtils(void) {};
 
-    std::string IntToString (int a);
     /*!
      * @brief Convert time string to seconds
      */

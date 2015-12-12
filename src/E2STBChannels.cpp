@@ -21,6 +21,7 @@
 #include "E2STBChannels.h"
 
 #include "client.h"
+#include "compat.h"
 
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
@@ -85,7 +86,7 @@ PVR_ERROR CE2STBChannels::GetChannels(ADDON_HANDLE handle, bool bRadio)
 
       if (!g_bUseTimeshift)
       {
-        std::string strStream = "pvr://stream/tv/" + m_e2stbutils.IntToString(channel.iUniqueId) + ".ts";
+        std::string strStream = "pvr://stream/tv/" + compat::to_string(channel.iUniqueId) + ".ts";
         strncpy(xbmcChannel.strStreamURL, strStream.c_str(), sizeof(xbmcChannel.strStreamURL) - 1);
       }
       PVR->TransferChannelEntry(handle, &xbmcChannel);

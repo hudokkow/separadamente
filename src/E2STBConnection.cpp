@@ -21,6 +21,7 @@
 #include "E2STBConnection.h"
 
 #include "client.h"
+#include "compat.h"
 
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
@@ -53,16 +54,16 @@ CE2STBConnection::CE2STBConnection()
   if (!g_bUseSecureHTTP)
   {
     m_strBackendBaseURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortWebHTTP) + "/";
+        + compat::to_string(g_iPortWebHTTP) + "/";
     m_strBackendBaseURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortStream) + "/";
+        + compat::to_string(g_iPortStream) + "/";
   }
   else
   {
     m_strBackendBaseURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortWebHTTPS) + "/";
+        + compat::to_string(g_iPortWebHTTPS) + "/";
     m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
-        + m_e2stbutils.IntToString(g_iPortStream) + "/";
+        + compat::to_string(g_iPortStream) + "/";
   }
 }
 

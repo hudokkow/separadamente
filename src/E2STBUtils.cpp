@@ -29,15 +29,6 @@
 
 using namespace e2stb;
 
-// some implementations don't support std::to_string... I'm looking at you Android
-// taken from http://stackoverflow.com/questions/5590381/easiest-way-to-convert-int-to-string-in-c
-std::string CE2STBUtils::IntToString (int a)
-{
-    std::ostringstream temp;
-    temp << a;
-    return temp.str();
-}
-
 long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
 {
   std::vector<std::string> secs;
