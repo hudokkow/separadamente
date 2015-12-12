@@ -22,12 +22,11 @@
 
 #include "client.h"
 #include "compat.h"
+#include "platform/util/StringUtils.h" /* ToUpper for GetDeviceInfo() */
 
 #include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
-#include <algorithm>  /* std::transform for GetDeviceInfo() */
-#include <cctype>     /* std::toupper for GetDeviceInfo() */
 #include <iomanip>    /* std::setw for URLEncode() */
 #include <mutex>
 #include <string>
@@ -164,8 +163,7 @@ bool CE2STBConnection::GetDeviceInfo()
     XBMC->Log(ADDON::LOG_ERROR, "[%s] Couldn't parse <e2devicename> from result", __FUNCTION__);
     return false;
   }
-  /* http://stackoverflow.com/questions/7131858/stdtransform-and-toupper-no-matching-function */
-  std::transform(strTemp.begin(), strTemp.end(), strTemp.begin(), (int (*)(int))std::toupper);
+  StringUtils::ToUpper(strTemp);
   m_strServerName += " " + strTemp;
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 device name is %s", __FUNCTION__, m_strServerName.c_str());
   return true;
