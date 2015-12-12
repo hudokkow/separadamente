@@ -23,6 +23,7 @@
 #include "client.h"
 
 #include "tinyxml.h"
+#include "E2STBUtils.h"
 #include "E2STBXMLUtils.h"
 
 #include <string>
@@ -245,7 +246,7 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2length", strTemp))
     {
-      recording.iDuration = m_e2stbutils.TimeStringToSeconds(strTemp);
+      recording.iDuration = CE2STBUtils::TimeStringToSeconds(strTemp);
     }
     else
     {
