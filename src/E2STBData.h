@@ -24,7 +24,6 @@
 #include "E2STBChannels.h"
 #include "E2STBConnection.h"
 #include "E2STBTimeshift.h"
-#include "E2STBUtils.h"
 
 #include <atomic>
 #include <mutex>
@@ -152,6 +151,5 @@ class CE2STBData
     mutable std::mutex m_mutex;         /*!< @brief mutex class handler */
     CE2STBChannels   m_e2stbchannels; /*!< @brief CE2STBChannels class handler */
     CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
-    CE2STBUtils      m_e2stbutils;      /*!< @brief CE2STBUtils class handler */
 };
 } /* namespace e2stb */

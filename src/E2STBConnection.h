@@ -21,8 +21,6 @@
 
 #include "client.h"
 
-#include "E2STBUtils.h"
-
 #include <mutex>
 #include <string>
 
@@ -74,6 +72,5 @@ class CE2STBConnection
     std::string m_strImageVersion;  /*!< @brief Backend Image version */
 
     mutable std::mutex m_mutex;  /*!< @brief mutex class handler */
-    CE2STBUtils m_e2stbutils;    /*!< @brief CE2STBUtils class handler */
 };
 } /* namespace e2stb */
