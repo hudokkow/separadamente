@@ -19,11 +19,13 @@
  *
  */
 
-#include "client.h"
-
 #include "E2STBChannels.h"
 #include "E2STBConnection.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -46,28 +48,27 @@ struct SE2STBRecording
 
 class CE2STBRecordings
 {
-  public:
-    CE2STBRecordings(void);
-    ~CE2STBRecordings(void);
+public:
+  CE2STBRecordings();
+  ~CE2STBRecordings();
 
-    bool         Open();
-    PVR_ERROR    GetRecordings(ADDON_HANDLE handle);
-    PVR_ERROR    DeleteRecording(const PVR_RECORDING &recinfo);
-    unsigned int GetRecordingsAmount() { return m_iNumRecordings; }
+  bool Open();
+  PVR_ERROR GetRecordings(ADDON_HANDLE handle);
+  PVR_ERROR DeleteRecording(const PVR_RECORDING &recinfo);
+  unsigned int GetRecordingsAmount() { return m_iNumRecordings; }
 
-  private:
-    int                          m_iNumRecordings;
-    std::vector<std::string>     m_recordingsLocations;
-    std::vector<SE2STBRecording> m_recordings;
+private:
+  int m_iNumRecordings;
+  std::vector<std::string> m_recordingsLocations;
+  std::vector<SE2STBRecording> m_recordings;
 
+  bool LoadRecordingLocations();
+  bool IsInRecordingFolder(std::string);
+  bool GetRecordingFromLocation(std::string strRecordingFolder);
+  void TransferRecordings(ADDON_HANDLE handle);
+  std::string GetChannelPiconPath(std::string strChannelName);
 
-    bool         LoadRecordingLocations();
-    bool         IsInRecordingFolder(std::string);
-    bool         GetRecordingFromLocation(std::string strRecordingFolder);
-    void         TransferRecordings(ADDON_HANDLE handle);
-    std::string  GetChannelPiconPath(std::string strChannelName);
-
-    CE2STBChannels   m_e2stbchannels;   /*!< @brief CE2STBChannels class handler */
-    CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
+  CE2STBChannels m_e2stbchannels;     /*!< @brief CE2STBChannels class handler */
+  CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
 };
 } /* namespace e2stb */

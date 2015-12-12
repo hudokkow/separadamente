@@ -23,7 +23,7 @@
 #include "client.h"
 
 #include "tinyxml.h"
-#include "E2STBUtils.h"
+#include "E2STBUtils.h" /* TimeStringToSeconds in GetRecordingFromLocation() */
 #include "E2STBXMLUtils.h"
 
 #include <string>
@@ -58,10 +58,8 @@ PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)
   for (unsigned int i = 0; i < m_recordingsLocations.size(); i++)
   {
     if (!GetRecordingFromLocation(m_recordingsLocations[i]))
-    {
       XBMC->Log(ADDON::LOG_ERROR, "[%s] Error fetching recordings list from folder %s", __FUNCTION__,
           m_recordingsLocations[i].c_str());
-    }
   }
   TransferRecordings(handle);
   return PVR_ERROR_NO_ERROR;
@@ -73,9 +71,8 @@ PVR_ERROR CE2STBRecordings::DeleteRecording(const PVR_RECORDING &recinfo)
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-  {
     return PVR_ERROR_FAILED;
-  }
+
   PVR->TriggerRecordingUpdate();
   return PVR_ERROR_NO_ERROR;
 }
@@ -84,13 +81,10 @@ bool CE2STBRecordings::LoadRecordingLocations()
 {
   std::string strURL;
   if (g_bUseOnlyCurrentRecordingPath)
-  {
     strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getcurrlocation";
-  }
+
   else
-  {
     strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getlocations";
-  }
 
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
@@ -162,13 +156,11 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 {
   std::string strURL;
   if (!strRecordingFolder.compare("default"))
-  {
     strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist";
-  }
+
   else
-  {
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist" + "?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder);
-  }
+    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist"
+        + "?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder);
 
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
@@ -255,7 +247,8 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb + "file?file=" + m_e2stbconnection.URLEncode(strTemp);
+      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb
+          + "file?file=" + m_e2stbconnection.URLEncode(strTemp);
     }
     m_iNumRecordings++;
     iNumRecording++;
@@ -286,13 +279,11 @@ void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
     std::string strTemp;
 
     if (IsInRecordingFolder(recording.strTitle))
-    {
       strTemp = "/" + recording.strTitle + "/";
-    }
+
     else
-    {
       strTemp = "/";
-    }
+
     recording.strDirectory = strTemp;
     strncpy(recordings.strDirectory, recording.strDirectory.c_str(), sizeof(recordings.strDirectory) - 1);
     recordings.recordingTime = recording.startTime;
@@ -306,9 +297,7 @@ std::string CE2STBRecordings::GetChannelPiconPath(std::string strChannelName)
   for (unsigned int i = 0; i < m_e2stbchannels.m_channels.size(); i++)
   {
     if (!strChannelName.compare(m_e2stbchannels.m_channels[i].strChannelName))
-    {
       return m_e2stbchannels.m_channels[i].strIconPath;
-    }
   }
   return "";
 }
