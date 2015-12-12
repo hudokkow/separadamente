@@ -19,8 +19,6 @@
  *
  */
 
-#include "client.h"
-
 #include <mutex>
 #include <string>
 
@@ -28,49 +26,49 @@ namespace e2stb
 {
 class CE2STBConnection
 {
-  public:
-    CE2STBConnection(void);
-    ~CE2STBConnection();
+public:
+  CE2STBConnection();
+  ~CE2STBConnection();
 
-    std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
-    std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
-    std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
-    std::string m_strServerName;           /*!< @brief Backend name */
+  std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
+  std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
+  std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
+  std::string m_strServerName;           /*!< @brief Backend name */
 
-    /*!
-     * @brief Returns backend connection status
-     */
-    bool Open();
-    /*!
-     * @brief Returns backend connection status
-     */
-    bool IsConnected();
-    /*!
-     * @brief Signal backend to shutdown
-     */
-    void SendPowerstate();
-    /*!
-     * @brief Get backend device info
-     */
-    bool GetDeviceInfo();
-    /*!
-     * @brief Send command to backend STB
-     */
-    bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
-    /*!
-     * @brief Safe encode URL
-     */
-    std::string URLEncode(const std::string& strURL);
-    /*!
-     * @brief Connect to backend
-     */
-    std::string ConnectToBackend(std::string& strURL);
+  /*!
+   * @brief Returns backend connection status
+   */
+  bool Open();
+  /*!
+   * @brief Returns backend connection status
+   */
+  bool IsConnected();
+  /*!
+   * @brief Signal backend to shutdown
+   */
+  void SendPowerstate();
+  /*!
+   * @brief Get backend device info
+   */
+  bool GetDeviceInfo();
+  /*!
+   * @brief Send command to backend STB
+   */
+  bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
+  /*!
+   * @brief Safe encode URL
+   */
+  std::string URLEncode(const std::string& strURL);
+  /*!
+   * @brief Connect to backend
+   */
+  std::string ConnectToBackend(std::string& strURL);
 
-  private:
-    bool        m_bIsConnected;     /*!< @brief Backend connection check */
-    std::string m_strEnigmaVersion; /*!< @brief Backend Enigma2 version */
-    std::string m_strImageVersion;  /*!< @brief Backend Image version */
+private:
+  bool        m_bIsConnected;     /*!< @brief Backend connection check */
+  std::string m_strEnigmaVersion; /*!< @brief Backend Enigma2 version */
+  std::string m_strImageVersion;  /*!< @brief Backend Image version */
 
-    mutable std::mutex m_mutex;  /*!< @brief mutex class handler */
+  mutable std::mutex m_mutex;     /*!< @brief mutex class handler */
 };
 } /* namespace e2stb */

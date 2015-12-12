@@ -46,9 +46,7 @@ CE2STBConnection::CE2STBConnection()
   std::string strURLAuthentication;
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-  {
     strURLAuthentication = g_strUsername + ":" + g_strPassword + "@";
-  }
 
   if (!g_bUseSecureHTTP)
   {
@@ -99,7 +97,7 @@ void CE2STBConnection::SendPowerstate()
   std::unique_lock<std::mutex> lock(m_mutex);
 
   /* TODO: Review power states functionality
-  http://wiki.dbox2-tuning.net/wiki/Enigma2:WebInterface
+   http://wiki.dbox2-tuning.net/wiki/Enigma2:WebInterface
    */
   std::string strTemp = "web/powerstate?newstate=1";
 
@@ -140,7 +138,7 @@ bool CE2STBConnection::GetDeviceInfo()
     return false;
   }
   m_strEnigmaVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 version is %s", __FUNCTION__, m_strEnigmaVersion.c_str());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Enigma2 version is %s", __FUNCTION__, m_strEnigmaVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2imageversion", strTemp))
   {
@@ -148,7 +146,7 @@ bool CE2STBConnection::GetDeviceInfo()
     return false;
   }
   m_strImageVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 image version is %s", __FUNCTION__, m_strImageVersion.c_str());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Enigma2 image version is %s", __FUNCTION__, m_strImageVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2webifversion", strTemp))
   {
@@ -156,7 +154,7 @@ bool CE2STBConnection::GetDeviceInfo()
     return false;
   }
   m_strWebIfVersion = strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 web interface version is %s", __FUNCTION__, m_strWebIfVersion.c_str());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Enigma2 web interface version is %s", __FUNCTION__, m_strWebIfVersion.c_str());
 
   if (!XMLUtils::GetString(pElement, "e2devicename", strTemp))
   {
@@ -165,15 +163,12 @@ bool CE2STBConnection::GetDeviceInfo()
   }
   StringUtils::ToUpper(strTemp);
   m_strServerName += " " + strTemp;
-  XBMC->Log(ADDON::LOG_NOTICE, "[%s] Enigma2 device name is %s", __FUNCTION__, m_strServerName.c_str());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Enigma2 device name is %s", __FUNCTION__, m_strServerName.c_str());
   return true;
 }
 
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
-  /* std::string is needed to quell warning */
-  /* ISO C++ says that these are ambiguous, even though the worst conversion */
-  /* for the first is better than the worst conversion for the second */
   std::string strURL = m_strBackendBaseURLWeb + std::string(strCommandURL);
   std::string strXML = ConnectToBackend(strURL);
 
@@ -221,7 +216,7 @@ bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::s
   return true;
 }
 
-// Adapted from http://stackoverflow.com/a/17708801 / stolen from pvr.vbox. Thanks Jalle19
+/* Adapted from http://stackoverflow.com/a/17708801 / stolen from pvr.vbox. Thanks Jalle19 */
 std::string CE2STBConnection::URLEncode(const std::string& strURL)
 {
   std::ostringstream escaped;
@@ -232,17 +227,16 @@ std::string CE2STBConnection::URLEncode(const std::string& strURL)
   {
     std::string::value_type c = (*i);
 
-    // Keep alphanumeric and other accepted characters intact
+    /* Keep alphanumeric and other accepted characters intact */
     if (c < 0 || isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
     {
       escaped << c;
       continue;
     }
 
-    // Any other characters are percent-encoded
+    /* Any other characters are percent-encoded */
     escaped << '%' << std::setw(2) << int(static_cast<unsigned char>(c));
   }
-
   return escaped.str();
 }
 
