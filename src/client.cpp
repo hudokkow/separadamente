@@ -574,12 +574,12 @@ PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time
  */
 PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-  return g_E2STBData->GetDriveSpace(iTotal, iUsed);
+  return g_E2STBConnection->GetDriveSpace(iTotal, iUsed);
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
-  return g_E2STBData->SignalStatus(signalStatus);
+  return g_E2STBConnection->SignalStatus(signalStatus);
 }
 
 /*!

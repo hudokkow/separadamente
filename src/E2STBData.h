@@ -96,10 +96,6 @@ class CE2STBData
     /* Channels */
     int          GetCurrentClientChannel(void) { return m_iCurrentChannel; }
 
-    /* Information */
-    PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed); /*!< @brief Backend Interface */
-    PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);      /*!< @brief Backend Interface */
-
     /* Stream handling */
     bool        OpenLiveStream(const PVR_CHANNEL &channel);
     bool        SwitchChannel(const PVR_CHANNEL &channel);
