@@ -506,25 +506,16 @@ const char *GetBackendHostname(void)
  */
 int GetChannelsAmount(void)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return 0;
-
   return g_E2STBChannels->GetChannelsAmount();
 }
 
 int GetCurrentClientChannel(void)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBData->GetCurrentClientChannel();
 }
 
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBChannels->GetChannels(handle, bRadio);
 }
 
@@ -532,9 +523,6 @@ PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
   if (bRadio)
     return PVR_ERROR_NO_ERROR;
-
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
 
   return g_E2STBChannels->GetChannelGroups(handle);
 }
@@ -544,17 +532,11 @@ PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &g
   if (group.bIsRadio)
     return PVR_ERROR_NO_ERROR;
 
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBChannels->GetChannelGroupMembers(handle, group);
 }
 
 int GetChannelGroupsAmount(void)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBChannels->GetChannelGroupsAmount();
 }
 
@@ -563,9 +545,6 @@ int GetChannelGroupsAmount(void)
  */
 PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBChannels->GetEPGForChannel(handle, channel, iStart, iEnd);
 }
 
@@ -587,25 +566,16 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
  */
 int GetRecordingsAmount(bool deleted)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBRecordings->GetRecordingsAmount();
 }
 
 PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBRecordings->GetRecordings(handle);
 }
 
 PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBRecordings->DeleteRecording(recording);
 }
 
@@ -619,17 +589,11 @@ PVR_ERROR RenameRecording(const PVR_RECORDING &_UNUSED(recording))
  */
 bool OpenLiveStream(const PVR_CHANNEL &channel)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return false;
-
   return g_E2STBData->OpenLiveStream(channel);
 }
 
 bool SwitchChannel(const PVR_CHANNEL &channel)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return false;
-
   return g_E2STBData->SwitchChannel(channel);
 }
 
@@ -640,9 +604,6 @@ void CloseLiveStream(void)
 
 const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return "";
-
   return g_E2STBChannels->GetLiveStreamURL(channel);
 }
 
@@ -657,42 +618,27 @@ PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
 
 int GetTimersAmount(void)
 {
-  if (!!g_E2STBConnection->IsConnected())
-    return 0;
-
   return g_E2STBData->GetTimersAmount();
 }
 
 PVR_ERROR GetTimers(ADDON_HANDLE handle)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
   return g_E2STBData->GetTimers(handle);
 }
 
 PVR_ERROR AddTimer(const PVR_TIMER &timer)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBData->AddTimer(timer);
 }
 
 PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool _UNUSED(bForceDelete))
 {
-  if (!g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBData->DeleteTimer(timer);
 }
 
 PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
 {
-  if (!g_E2STBData || !g_E2STBConnection->IsConnected())
-    return PVR_ERROR_SERVER_ERROR;
-
   return g_E2STBData->UpdateTimer(timer);
 }
 
@@ -701,23 +647,17 @@ PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
  */
 bool CanPauseStream(void)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return false;
-
   return g_bUseTimeshift;
 }
 
 bool CanSeekStream(void)
 {
-  if (!g_E2STBConnection->IsConnected())
-    return false;
-
   return g_bUseTimeshift;
 }
 
 int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return 0;
 
   return g_E2STBData->GetTimeshiftBuffer()->ReadData(pBuffer, iBufferSize);
@@ -725,7 +665,7 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize)
 
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */)
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return -1;
 
   return g_E2STBData->GetTimeshiftBuffer()->Seek(iPosition, iWhence);
@@ -733,7 +673,7 @@ long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */)
 
 long long PositionLiveStream(void)
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return -1;
 
   return g_E2STBData->GetTimeshiftBuffer()->Position();
@@ -741,7 +681,7 @@ long long PositionLiveStream(void)
 
 long long LengthLiveStream(void)
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return 0;
 
   return g_E2STBData->GetTimeshiftBuffer()->Length();
@@ -749,7 +689,7 @@ long long LengthLiveStream(void)
 
 time_t GetBufferTimeStart()
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return 0;
 
   return g_E2STBData->GetTimeshiftBuffer()->TimeStart();
@@ -757,7 +697,7 @@ time_t GetBufferTimeStart()
 
 time_t GetBufferTimeEnd()
 {
-  if (!g_E2STBConnection->IsConnected() || !g_E2STBData->GetTimeshiftBuffer())
+  if (!g_E2STBData->GetTimeshiftBuffer())
     return 0;
 
   return g_E2STBData->GetTimeshiftBuffer()->TimeEnd();

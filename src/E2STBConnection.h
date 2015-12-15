@@ -42,10 +42,6 @@ public:
    */
   bool Open();
   /*!
-   * @brief Returns backend connection status
-   */
-  bool IsConnected();
-  /*!
    * @brief Signal backend to shutdown
    */
   void SendPowerstate();

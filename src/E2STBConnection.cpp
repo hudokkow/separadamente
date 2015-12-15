@@ -84,11 +84,6 @@ bool CE2STBConnection::Open()
   return true;
 }
 
-bool CE2STBConnection::IsConnected()
-{
-  return m_bIsConnected;
-}
-
 void CE2STBConnection::SendPowerstate()
 {
   if (!g_bSendDeepStanbyToSTB)
