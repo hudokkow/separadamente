@@ -83,4 +83,4 @@ extern bool g_bLoadWebInterfacePicons;       /*!< @brief Use hostname webinterfa
 extern std::string g_strPiconsLocationPath;  /*!< @brief Hostname picons path */
 extern int g_iClientUpdateInterval;          /*!< @brief Client update interval in minutes */
 extern bool g_bSendDeepStanbyToSTB;          /*!< @brief Send deep standby command to STB */
-
+extern bool g_bExtraDebug;                   /*!< @brief Enable extra debug mode (silence extremely verbose crap) */

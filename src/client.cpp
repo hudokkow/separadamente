@@ -90,6 +90,8 @@ bool g_bLoadWebInterfacePicons       = true;
 std::string g_strPiconsLocationPath;
 int g_iClientUpdateInterval          = 120;
 bool g_bSendDeepStanbyToSTB          = false;
+/* TODO: Implement setting on UI options */
+bool g_bExtraDebug                   = false;
 
 extern "C"
 {

@@ -270,9 +270,10 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
     PVR->TransferEpgEntry(handle, &channelEPG);
     iNumEPG++;
 
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded EPG entry %d - %s for channel %d starting at %d and ending at %d",
-        __FUNCTION__, channelEPG.iUniqueBroadcastId, channelEPG.strTitle, entry.iChannelId, entry.startTime,
-        entry.endTime);
+    if (g_bExtraDebug)
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded EPG entry %d - %s for channel %d starting at %d and ending at %d",
+          __FUNCTION__, channelEPG.iUniqueBroadcastId, channelEPG.strTitle, entry.iChannelId, entry.startTime,
+          entry.endTime);
   }
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded %u EPG entries for channel %s", __FUNCTION__, iNumEPG, channel.strChannelName);
   return PVR_ERROR_NO_ERROR;
@@ -384,8 +385,10 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
       newChannel.strIconPath = strURL;
     }
     m_channels.push_back(newChannel);
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded channel %s with picon %s", __FUNCTION__,
-        newChannel.strChannelName.c_str(), newChannel.strIconPath.c_str());
+
+    if (g_bExtraDebug)
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded channel %s with picon %s", __FUNCTION__,
+          newChannel.strChannelName.c_str(), newChannel.strIconPath.c_str());
   }
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %d channels", __FUNCTION__, m_channels.size());
   return true;
