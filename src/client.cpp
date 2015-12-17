@@ -25,10 +25,15 @@
 #include "E2STBData.h"
 #include "E2STBRecordings.h"
 
-#include "platform/util/util.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_pvr.h"
 #include "kodi/libKODI_guilib.h"
+#include "kodi/xbmc_addon_types.h"
 #include "kodi/xbmc_pvr_dll.h"
+#include "kodi/xbmc_pvr_types.h"
+#include "platform/util/util.h"
 
+#include <ctime>
 #include <cstdlib>
 #include <string>
 
@@ -262,7 +267,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   ADDON_ReadSettings();
 
   /* Instantiate globals */
-  g_E2STBChannels = new CE2STBChannels;
+  g_E2STBChannels   = new CE2STBChannels;
   g_E2STBConnection = new CE2STBConnection;
   g_E2STBData       = new CE2STBData;
   g_E2STBRecordings = new CE2STBRecordings;

@@ -19,13 +19,15 @@
  *
  */
 
-#include "client.h"
-
 #include "E2STBChannels.h"
 #include "E2STBConnection.h"
 #include "E2STBTimeshift.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
 #include <atomic>
+#include <ctime>
 #include <mutex>
 #include <string>
 #include <thread>

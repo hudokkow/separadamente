@@ -22,11 +22,15 @@
 
 #include "client.h"
 #include "compat.h"
-
-#include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_epg_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
+#include "tinyxml.h"
 #include <algorithm> /* std::replace for LoadChannels() */
+#include <ctime>
 #include <string>
 #include <vector>
 

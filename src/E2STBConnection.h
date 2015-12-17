@@ -19,6 +19,8 @@
  *
  */
 
+#include "kodi/xbmc_pvr_types.h"
+
 #include <mutex>
 #include <string>
 

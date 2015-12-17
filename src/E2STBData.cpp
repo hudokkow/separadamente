@@ -22,10 +22,12 @@
 
 #include "client.h"
 #include "compat.h"
-
-#include "tinyxml.h"
 #include "E2STBXMLUtils.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
+#include "tinyxml.h"
 #include <mutex>
 #include <string>
 #include <thread>

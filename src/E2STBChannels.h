@@ -25,7 +25,6 @@
 #include "kodi/xbmc_pvr_types.h"
 
 #include <ctime>
-#include <mutex>
 #include <string>
 #include <vector>
 

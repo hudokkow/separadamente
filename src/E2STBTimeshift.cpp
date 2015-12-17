@@ -22,6 +22,12 @@
 
 #include "client.h"
 
+#include "platform/threads/threads.h"
+#include "platform/util/StdString.h"
+
+#include <ctime>
+#include <cstdint>
+
 using namespace e2stb;
 
 CE2STBTimeshift::CE2STBTimeshift(CStdString streampath, CStdString bufferpath) : m_bufferPath(bufferpath)

@@ -22,6 +22,9 @@
 #include "platform/threads/threads.h"
 #include "platform/util/StdString.h"
 
+#include <ctime>
+#include <cstdint>
+
 namespace e2stb
 {
 /* indicate that caller can handle truncated reads, where function returns before entire buffer has been filled */

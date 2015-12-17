@@ -22,11 +22,12 @@
 
 #include "client.h"
 #include "compat.h"
+#include "E2STBXMLUtils.h"
+
+#include "kodi/xbmc_pvr_types.h"
 #include "platform/util/StringUtils.h" /* ToUpper for GetDeviceInfo() */
 
 #include "tinyxml.h"
-#include "E2STBXMLUtils.h"
-
 #include <iomanip>    /* std::setw for URLEncode() */
 #include <mutex>
 #include <string>

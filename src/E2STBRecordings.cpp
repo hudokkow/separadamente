@@ -21,11 +21,13 @@
 #include "E2STBRecordings.h"
 
 #include "client.h"
-
-#include "tinyxml.h"
 #include "E2STBUtils.h" /* TimeStringToSeconds in GetRecordingFromLocation() */
 #include "E2STBXMLUtils.h"
 
+#include "kodi/xbmc_addon_types.h"
+#include "kodi/xbmc_pvr_types.h"
+
+#include "tinyxml.h"
 #include <string>
 #include <vector>
 

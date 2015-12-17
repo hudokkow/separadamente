@@ -19,9 +19,11 @@
  */
 
 #include "E2STBXMLUtils.h"
+#include "compat.h"
+
 #include "platform/util/StringUtils.h"
 
-#include <cstdlib>
+#include "tinyxml.h"
 #include <string>
 
 using namespace e2stb;
@@ -31,7 +33,7 @@ bool XMLUtils::GetInt(const TiXmlNode* pRootNode, const char* strTag, int& iIntV
   const TiXmlNode* pNode = pRootNode->FirstChild(strTag);
   if (!pNode || !pNode->FirstChild())
     return false;
-  iIntValue = atoi(pNode->FirstChild()->Value());
+  iIntValue = compat::stoi(pNode->FirstChild()->Value());
   return true;
 }
 
