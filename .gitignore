@@ -1,17 +1,23 @@
-# GEdit
-*~
-
-# Eclipse Core
-.project
-
-# CDT-specific
-.cproject
-.settings/
-.settings/*
-
-#cmake
+# build artifacts
 build/
-build/*
-
-#build artifacts
+debian/changelog
+debian/files
+debian/kodi-pvr-enigma2-stb-dbg.debhelper.log
+debian/kodi-pvr-enigma2-stb-dbg.substvars
+debian/kodi-pvr-enigma2-stb-dbg/
+debian/kodi-pvr-enigma2-stb.debhelper.log
+debian/kodi-pvr-enigma2-stb.postinst.debhelper
+debian/kodi-pvr-enigma2-stb.postrm.debhelper
+debian/kodi-pvr-enigma2-stb.substvars
+debian/kodi-pvr-enigma2-stb/
+debian/tmp/
+obj-x86_64-linux-gnu/
 pvr.enigma2.stb/addon.xml
+
+# clion
+.idea/
+
+# Eclipse/CDT
+.cproject
+.project
+.settings/
