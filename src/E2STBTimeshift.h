@@ -19,8 +19,8 @@
  *
  */
 
-#include "platform/threads/threads.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/threads/threads.h"
+#include "p8-platform/util/StdString.h"
 
 #include <ctime>
 #include <cstdint>
@@ -42,7 +42,7 @@ namespace e2stb
 #define BUFFER_READ_TIMEOUT       10000
 #define BUFFER_READ_WAITTIME      50
 
-class CE2STBTimeshift: public PLATFORM::CThread
+class CE2STBTimeshift: public P8PLATFORM::CThread
 {
   public:
     CE2STBTimeshift(CStdString streamPath, CStdString bufferPath);
@@ -68,7 +68,7 @@ class CE2STBTimeshift: public PLATFORM::CThread
     CStdString m_bufferPath;
 
 #ifndef TARGET_POSIX
-    PLATFORM::CMutex m_mutex;
+    P8PLATFORM::CMutex m_mutex;
     uint64_t m_writePos;
 #endif
 };

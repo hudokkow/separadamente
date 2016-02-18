@@ -30,7 +30,7 @@
 #include "kodi/xbmc_addon_types.h"
 #include "kodi/xbmc_pvr_dll.h"
 #include "kodi/xbmc_pvr_types.h"
-#include "platform/util/util.h"
+#include "p8-platform/util/util.h"
 
 #include <ctime>
 #include <cstdlib>

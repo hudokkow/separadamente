@@ -21,7 +21,7 @@
 #include "E2STBXMLUtils.h"
 #include "compat.h"
 
-#include "platform/util/StringUtils.h"
+#include "p8-platform/util/StringUtils.h"
 
 #include "tinyxml.h"
 #include <string>

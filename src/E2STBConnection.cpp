@@ -25,7 +25,7 @@
 #include "E2STBXMLUtils.h"
 
 #include "kodi/xbmc_pvr_types.h"
-#include "platform/util/StringUtils.h" /* ToUpper for GetDeviceInfo() */
+#include "p8-platform/util/StringUtils.h" /* ToUpper for GetDeviceInfo() */
 
 #include "tinyxml.h"
 #include <iomanip>    /* std::setw for URLEncode() */
