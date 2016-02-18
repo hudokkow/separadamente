@@ -93,7 +93,15 @@ void CE2STBConnection::SendPowerstate()
   std::unique_lock<std::mutex> lock(m_mutex);
 
   /* TODO: Review power states functionality
-   http://wiki.dbox2-tuning.net/wiki/Enigma2:WebInterface
+   http://dream.reichholf.net/wiki/Enigma2:WebInterface
+  
+    0 = Toogle Standby
+    1 = Deepstandby
+    2 = Reboot
+    3 = Restart Enigma2
+    4 = Wakeup form Standby
+    5 = Standby
+
    */
   std::string strTemp = "web/powerstate?newstate=1";
 
