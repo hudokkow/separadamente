@@ -290,6 +290,10 @@ void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
     strncpy(recordings.strDirectory, recording.strDirectory.c_str(), sizeof(recordings.strDirectory) - 1);
     recordings.recordingTime = recording.startTime;
     recordings.iDuration = recording.iDuration;
+
+    /* TODO: PVR API 5.0.0: Implement this */
+    recordings.iChannelUid = PVR_CHANNEL_INVALID_UID;
+
     PVR->TransferRecordingEntry(handle, &recordings);
   }
 }

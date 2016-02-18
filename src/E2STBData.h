@@ -93,9 +93,6 @@ class CE2STBData
     /* Client creation and connection */
     bool        Open();
 
-    /* Channels */
-    int          GetCurrentClientChannel(void) { return m_iCurrentChannel; }
-
     /* Stream handling */
     bool        OpenLiveStream(const PVR_CHANNEL &channel);
     bool        SwitchChannel(const PVR_CHANNEL &channel);

@@ -27,7 +27,6 @@
 
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
-#include "kodi/libKODI_guilib.h"
 #include "kodi/xbmc_addon_types.h"
 #include "kodi/xbmc_pvr_dll.h"
 #include "kodi/xbmc_pvr_types.h"
@@ -449,14 +448,14 @@ const char* GetMininumPVRAPIVersion(void)
 
 const char* GetGUIAPIVersion(void)
 {
-  static const char *strGuiApiVersion = KODI_GUILIB_API_VERSION;
-  return strGuiApiVersion;
+  /* GUI API is not used */
+  return "";
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  static const char *strMinGuiApiVersion = KODI_GUILIB_MIN_API_VERSION;
-  return strMinGuiApiVersion;
+  /* GUI API is not used */
+  return "";
 }
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
@@ -507,11 +506,6 @@ const char *GetBackendHostname(void)
 int GetChannelsAmount(void)
 {
   return g_E2STBChannels->GetChannelsAmount();
-}
-
-int GetCurrentClientChannel(void)
-{
-  return g_E2STBData->GetCurrentClientChannel();
 }
 
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
@@ -746,9 +740,13 @@ PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &_UNUSED(recording), int _UN
 PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &_UNUSED(recording), int _UNUSED(lastplayedposition)) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
 
+/* EPG */
+PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
+
 /* Time shifting */
 /* TODO: implement */
 bool IsTimeshifting(void) { return false; }
+bool IsRealTimeStream() { return true; }
 
 /* Menu hook */
 PVR_ERROR CallMenuHook(const PVR_MENUHOOK &_UNUSED(menuhook), const PVR_MENUHOOK_DATA &_UNUSED(item)) { return PVR_ERROR_NOT_IMPLEMENTED; }
