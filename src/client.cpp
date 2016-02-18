@@ -24,6 +24,7 @@
 #include "E2STBConnection.h"
 #include "E2STBData.h"
 #include "E2STBRecordings.h"
+#include "E2STBVersion.h"
 
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
@@ -188,6 +189,7 @@ void ADDON_ReadSettings(void)
   /*!
    * @brief Log the crap out of client settings for debugging purposes
    */
+  XBMC->Log(ADDON::LOG_DEBUG, "Version: %s", g_strAddonVersion.c_str());
   XBMC->Log(ADDON::LOG_DEBUG, "Hostname: %s", g_strHostname.c_str());
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
