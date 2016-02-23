@@ -69,7 +69,7 @@ struct SE2STBTimer
   }
 
   bool operator ==(const SE2STBTimer &right) const
-  {
+      {
     bool bChanged = true;
     bChanged = bChanged && (startTime  == right.startTime);
     bChanged = bChanged && (endTime    == right.endTime);
@@ -81,70 +81,44 @@ struct SE2STBTimer
     bChanged = bChanged && (!strPlot.compare(right.strPlot));
 
     return bChanged;
-  }
+      }
 };
 
 class CE2STBData
 {
-  public:
-    CE2STBData(void);
-    ~CE2STBData();
+public:
+  CE2STBData();
+  ~CE2STBData();
 
-    /* Client creation and connection */
-    bool        Open();
+  bool Open();
 
-    /* Stream handling */
-    bool        OpenLiveStream(const PVR_CHANNEL &channel);
-    bool        SwitchChannel(const PVR_CHANNEL &channel);
-    void        CloseLiveStream();
+  bool OpenLiveStream(const PVR_CHANNEL &channel);
+  bool SwitchChannel(const PVR_CHANNEL &channel);
+  void CloseLiveStream();
 
-    /* Timers */
-    int       GetTimersAmount(void) { return m_timers.size(); }
-    PVR_ERROR AddTimer(const PVR_TIMER &timer);    /*!< @brief Backend Interface */
-    PVR_ERROR DeleteTimer(const PVR_TIMER &timer); /*!< @brief Backend Interface */
-    PVR_ERROR GetTimers(ADDON_HANDLE handle);
-    PVR_ERROR UpdateTimer(const PVR_TIMER &timer); /*!< @brief Backend Interface */
+  int GetTimersAmount(void) { return m_timers.size(); }
+  PVR_ERROR AddTimer(const PVR_TIMER &timer);
+  PVR_ERROR DeleteTimer(const PVR_TIMER &timer);
+  PVR_ERROR GetTimers(ADDON_HANDLE handle);
+  PVR_ERROR UpdateTimer(const PVR_TIMER &timer);
 
-    /* Time shifting */
-    CE2STBTimeshift *GetTimeshiftBuffer() { return m_tsBuffer; }
+  CE2STBTimeshift *GetTimeshiftBuffer() { return m_tsBuffer; }
 
-  private:
-    /********************************************//**
-     * Members
-     ***********************************************/
-    unsigned int m_iTimersIndexCounter;    /*!< @brief Timers counter */
+private:
+  unsigned int m_iTimersIndexCounter; /*!< @brief Timers counter */
+  int m_iCurrentChannel;              /*!< @brief Current channel uniqueID */
+  std::vector<SE2STBTimer> m_timers;  /*!< @brief Backend timers */
+  std::atomic<bool> m_active;         /*!< @brief Controls whether the background update thread should keep running or not */
+  std::thread m_backgroundThread;     /*!< @brief The background update thread */
 
-    /* Channels */
-    int                             m_iCurrentChannel;   /*!< @brief Current channel uniqueID */
+  void BackgroundUpdate();
 
-    /* Timers */
-    std::vector<SE2STBTimer> m_timers; /*!< @brief Backend timers */
+  void TimerUpdates();
+  std::vector<SE2STBTimer> LoadTimers();
 
-    /**
-     * Controls whether the background update thread should keep running or not
-     */
-    std::atomic<bool> m_active;
-
-    /**
-     * The background update thread
-     */
-    std::thread m_backgroundThread;
-
-
-    /********************************************//**
-     * Functions
-     ***********************************************/
-    void BackgroundUpdate();
-
-    /* Timers */
-    void TimerUpdates();
-    std::vector<SE2STBTimer> LoadTimers(); /*!< @brief Backend Interface */
-
-    /* Time shifting */
-    CE2STBTimeshift *m_tsBuffer; /*!< @brief Time shifting class handler */
-
-    mutable std::mutex m_mutex;         /*!< @brief mutex class handler */
-    CE2STBChannels   m_e2stbchannels; /*!< @brief CE2STBChannels class handler */
-    CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
+  mutable std::mutex m_mutex;         /*!< @brief mutex class handler */
+  CE2STBTimeshift *m_tsBuffer;        /*!< @brief Time shifting class handler */
+  CE2STBChannels   m_e2stbchannels;   /*!< @brief CE2STBChannels class handler */
+  CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
 };
 } /* namespace e2stb */

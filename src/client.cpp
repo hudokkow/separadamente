@@ -600,6 +600,8 @@ void CloseLiveStream(void)
 
 const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
 {
+  /* TODO: revisit */
+  // return g_E2STBChannels->m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str();
   return g_E2STBChannels->GetLiveStreamURL(channel);
 }
 

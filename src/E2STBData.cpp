@@ -35,12 +35,6 @@
 
 using namespace e2stb;
 
-/**************************************************************************//**
- * General // General // General // General // General // General // General
- *****************************************************************************/
-/********************************************//**
- * Constructor
- ***********************************************/
 CE2STBData::CE2STBData()
 : m_iTimersIndexCounter{1}
 , m_iCurrentChannel{-1}
@@ -49,14 +43,11 @@ CE2STBData::CE2STBData()
   /* Start the background update thread */
   m_active = true;
   m_backgroundThread = std::thread([this]()
-  {
-    BackgroundUpdate();
-  });
+    {
+      BackgroundUpdate();
+    });
 }
 
-/********************************************//**
- * Destructor
- ***********************************************/
 CE2STBData::~CE2STBData()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping background update thread", __FUNCTION__);
@@ -77,9 +68,6 @@ CE2STBData::~CE2STBData()
   }
 }
 
-/********************************************//**
- * Open client
- ***********************************************/
 bool CE2STBData::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
@@ -91,9 +79,6 @@ bool CE2STBData::Open()
   return true;
 }
 
-/********************************************//**
- * Process
- ***********************************************/
 void CE2STBData::BackgroundUpdate()
 {
   /* Keep count of how many times the loop has run so we can trigger
@@ -136,16 +121,6 @@ void CE2STBData::BackgroundUpdate()
   }
 }
 
-
-
-
-
-/**************************************************************************//**
- * Stream Handling // Stream Handling // Stream Handling // Stream Handling
- *****************************************************************************/
-/********************************************//**
- * Open channel live stream
- ***********************************************/
 bool CE2STBData::OpenLiveStream(const PVR_CHANNEL &channel)
 {
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Opening channel %u", __FUNCTION__, channel.iUniqueId);
@@ -158,9 +133,6 @@ bool CE2STBData::OpenLiveStream(const PVR_CHANNEL &channel)
   return true;
 }
 
-/********************************************//**
- * Switch channel
- ***********************************************/
 bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Switching to channel %d", __FUNCTION__, channel.iUniqueId);
@@ -174,8 +146,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
 
 
   /* TODO: Check it works with single tuner STB. It doesn't for
-  tuner number > 1 and it shouldnt't(?) unless all tuners are busy?
-   */
+  tuner number > 1 and it shouldnt't(?) unless all tuners are busy? */
   if (g_bZapBeforeChannelChange)
   {
     std::string strServiceReference = m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strServiceReference;
@@ -204,9 +175,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   m_tsBuffer = new CE2STBTimeshift(m_e2stbchannels.GetLiveStreamURL(channel), g_strTimeshiftBufferPath);
   return m_tsBuffer->IsValid();
 }
-/********************************************//**
- * Close channel live stream
- ***********************************************/
+
 void CE2STBData::CloseLiveStream(void)
 {
   m_iCurrentChannel = -1;
@@ -218,12 +187,6 @@ void CE2STBData::CloseLiveStream(void)
   }
 }
 
-/**************************************************************************//**
- * Timers // Timers // Timers // Timers // Timers // Timers // Timers // Timers
- *****************************************************************************/
-/********************************************//**
- * Add timer
- ***********************************************/
 PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Channel UID is %d with title %s and EPG ID %d", __FUNCTION__,
@@ -234,12 +197,12 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-      + "&repeated=" + compat::to_string(timer.iWeekdays)
-      + "&begin=" + compat::to_string(marginBefore)
-      + "&end=" + compat::to_string(marginAfter)
-      + "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)
-      + "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)
-      + "&eit=" + compat::to_string(timer.iEpgUid);
+          + "&repeated=" + compat::to_string(timer.iWeekdays)
+  + "&begin=" + compat::to_string(marginBefore)
+  + "&end=" + compat::to_string(marginAfter)
+  + "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)
+  + "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)
+  + "&eit=" + compat::to_string(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
   {
@@ -257,9 +220,6 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   return PVR_ERROR_NO_ERROR;
 }
 
-/********************************************//**
- * Delete timer
- ***********************************************/
 PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
 {
   unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
@@ -267,8 +227,8 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-      + "&begin=" + compat::to_string(marginBefore)
-      + "&end=" + compat::to_string(marginAfter);
+          + "&begin=" + compat::to_string(marginBefore)
+  + "&end=" + compat::to_string(marginAfter);
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
@@ -286,9 +246,6 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   return PVR_ERROR_NO_ERROR;
 }
 
-/********************************************//**
- * Get timers
- ***********************************************/
 PVR_ERROR CE2STBData::GetTimers(ADDON_HANDLE handle)
 {
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Number of timers is %d", __FUNCTION__, m_timers.size());
@@ -327,9 +284,6 @@ PVR_ERROR CE2STBData::GetTimers(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-/********************************************//**
- * Update timer
- ***********************************************/
 PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
 {
   /* TODO Check it works */
@@ -379,9 +333,6 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   return PVR_ERROR_NO_ERROR;
 }
 
-/********************************************//**
- * Update timers
- ***********************************************/
 void CE2STBData::TimerUpdates()
 {
   std::vector<SE2STBTimer> newtimer = LoadTimers();
@@ -461,9 +412,6 @@ void CE2STBData::TimerUpdates()
   }
 }
 
-/********************************************//**
- * Load timers from backend
- ***********************************************/
 std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 {
   std::vector<SE2STBTimer> timers;
