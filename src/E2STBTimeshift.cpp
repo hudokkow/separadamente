@@ -30,9 +30,10 @@
 
 using namespace e2stb;
 
-CE2STBTimeshift::CE2STBTimeshift(CStdString streampath, CStdString bufferpath) : m_bufferPath(bufferpath)
+CE2STBTimeshift::CE2STBTimeshift(CStdString streamURL, CStdString bufferPath)
+  : m_bufferPath(bufferPath)
 {
-  m_streamHandle = XBMC->OpenFile(streampath, READ_NO_CACHE);
+  m_streamHandle = XBMC->OpenFile(streamURL, READ_NO_CACHE);
   m_bufferPath += "/tsbuffer.ts";
   m_filebufferWriteHandle = XBMC->OpenFileForWrite(m_bufferPath, true);
 #ifndef TARGET_POSIX
@@ -48,27 +49,21 @@ CE2STBTimeshift::~CE2STBTimeshift(void)
 {
   Stop();
   if (IsRunning())
-  {
     StopThread();
-  }
 
   if (m_filebufferWriteHandle)
-  {
     XBMC->CloseFile(m_filebufferWriteHandle);
-  }
   if (m_filebufferReadHandle)
-  {
     XBMC->CloseFile(m_filebufferReadHandle);
-  }
   if (m_streamHandle)
-  {
     XBMC->CloseFile(m_streamHandle);
-  }
 }
 
 bool CE2STBTimeshift::IsValid()
 {
-  return (m_streamHandle != NULL);
+  return (m_streamHandle != NULL
+      && m_filebufferWriteHandle != NULL
+      && m_filebufferReadHandle != NULL);
 }
 
 void CE2STBTimeshift::Stop()
@@ -78,7 +73,7 @@ void CE2STBTimeshift::Stop()
 
 void *CE2STBTimeshift::Process()
 {
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timeshift thread started", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "Timeshift: Thread started");
   byte buffer[STREAM_READ_BUFFER_SIZE];
 
   while (m_start)
@@ -92,40 +87,27 @@ void *CE2STBTimeshift::Process()
     m_mutex.Unlock();
 #endif
   }
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timeshift thread stopped", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "Timeshift: Thread stopped");
   return NULL;
 }
 
 long long CE2STBTimeshift::Seek(long long position, int whence)
 {
-  if (m_filebufferReadHandle)
-  {
-    return XBMC->SeekFile(m_filebufferReadHandle, position, whence);
-  }
-  return -1;
+  return XBMC->SeekFile(m_filebufferReadHandle, position, whence);
 }
 
 long long CE2STBTimeshift::Position()
 {
-  if (m_filebufferReadHandle)
-  {
-    return XBMC->GetFilePosition(m_filebufferReadHandle);
-  }
-  return -1;
+  return XBMC->GetFilePosition(m_filebufferReadHandle);
 }
 
 long long CE2STBTimeshift::Length()
 {
-  if (!m_filebufferReadHandle || !m_filebufferWriteHandle)
-  {
-    return 0;
-  }
+  // We can't use GetFileLength here as it's value will be cached
+  // by XBMC until we read or seek above it.
+  // see xbmc/xbmc/filesystem/HDFile.cpp CHDFile::GetLength()
+  //return XBMC->GetFileLength(m_filebufferReadHandle);
 
-  /* We can't use GetFileLength here as it's value will be cached
-  by Kodi until we read or seek above it.
-  see xbm/xbmc/filesystem/HDFile.cpp CHDFile::GetLength()
-  return XBMC->GetFileLength(m_filebufferReadHandle);
-  */
   int64_t writePos = 0;
 #ifdef TARGET_POSIX
   /* refresh write position */
@@ -141,11 +123,6 @@ long long CE2STBTimeshift::Length()
 
 int CE2STBTimeshift::ReadData(unsigned char *buffer, unsigned int size)
 {
-  if (!m_filebufferReadHandle || !m_filebufferWriteHandle)
-  {
-    return 0;
-  }
-
   /* make sure we never read above the current write position */
   int64_t readPos = XBMC->GetFilePosition(m_filebufferReadHandle);
   unsigned int timeWaited = 0;
@@ -153,12 +130,13 @@ int CE2STBTimeshift::ReadData(unsigned char *buffer, unsigned int size)
   {
     if (timeWaited > BUFFER_READ_TIMEOUT)
     {
-      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timeshift: Read timed out; waited %u", __FUNCTION__, timeWaited);
+      XBMC->Log(ADDON::LOG_DEBUG, "Timeshift: Read timed out; waited %u", timeWaited);
       return -1;
     }
     Sleep(BUFFER_READ_WAITTIME);
     timeWaited += BUFFER_READ_WAITTIME;
   }
+
   return XBMC->ReadFile(m_filebufferReadHandle, buffer, size);
 }
 

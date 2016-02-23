@@ -44,32 +44,29 @@ namespace e2stb
 
 class CE2STBTimeshift: public P8PLATFORM::CThread
 {
-  public:
-    CE2STBTimeshift(CStdString streamPath, CStdString bufferPath);
-    ~CE2STBTimeshift(void);
+public:
+  CE2STBTimeshift(CStdString streamURL, CStdString bufferPath);
+  ~CE2STBTimeshift(void);
+  bool IsValid();
+  int ReadData(unsigned char *buffer, unsigned int size);
+  long long Seek(long long position, int whence);
+  long long Position();
+  long long Length();
+  void Stop(void);
+  time_t TimeStart();
+  time_t TimeEnd();
 
-    int       ReadData(unsigned char *buffer, unsigned int size);
-    bool      IsValid();
-    void      Stop(void);
-    time_t    TimeStart();
-    time_t    TimeEnd();
-    long long Seek(long long position, int whence);
-    long long Position();
-    long long Length();
+private:
+  virtual void *Process(void);
 
-  private:
-    virtual void *Process(void);
-
-
-    void      *m_streamHandle;
-    void      *m_filebufferReadHandle;
-    void      *m_filebufferWriteHandle;
-    time_t     m_start;
-    CStdString m_bufferPath;
-
+  CStdString m_bufferPath;
+  void *m_streamHandle;
+  void *m_filebufferReadHandle;
+  void *m_filebufferWriteHandle;
+  time_t m_start;
 #ifndef TARGET_POSIX
-    P8PLATFORM::CMutex m_mutex;
-    uint64_t m_writePos;
+  P8PLATFORM::CMutex m_mutex;
+  uint64_t m_writePos;
 #endif
 };
 } /* namespace e2stb */
