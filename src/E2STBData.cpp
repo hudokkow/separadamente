@@ -26,6 +26,7 @@
 
 #include "kodi/xbmc_addon_types.h"
 #include "kodi/xbmc_pvr_types.h"
+#include "p8-platform/util/util.h"
 
 #include "tinyxml.h"
 #include <mutex>
@@ -63,8 +64,7 @@ CE2STBData::~CE2STBData()
   if (m_tsBuffer)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal time shifting buffer", __FUNCTION__);
-    delete m_tsBuffer;
-    m_tsBuffer = nullptr;
+    SAFE_DELETE(m_tsBuffer);
   }
 }
 
@@ -72,9 +72,8 @@ bool CE2STBData::Open()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
   if (!m_e2stbconnection.GetDeviceInfo())
-  {
     return false;
-  }
+
   TimerUpdates();
   return true;
 }
@@ -126,9 +125,8 @@ bool CE2STBData::OpenLiveStream(const PVR_CHANNEL &channel)
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Opening channel %u", __FUNCTION__, channel.iUniqueId);
 
   if (static_cast<int>(channel.iUniqueId) == m_iCurrentChannel)
-  {
     return true;
-  }
+
   SwitchChannel(channel);
   return true;
 }
@@ -138,9 +136,8 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Switching to channel %d", __FUNCTION__, channel.iUniqueId);
 
   if (static_cast<int>(channel.iUniqueId) == m_iCurrentChannel)
-  {
     return true;
-  }
+
   CloseLiveStream();
   m_iCurrentChannel = static_cast<int>(channel.iUniqueId);
 
@@ -155,21 +152,14 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
 
     std::string strResult;
     if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-    {
       return false;
-    }
 
     if (!g_bUseTimeshift)
-    {
       return true;
-    }
   }
 
   if (m_tsBuffer)
-  {
-    delete m_tsBuffer;
-    m_tsBuffer = nullptr;
-  }
+    SAFE_DELETE(m_tsBuffer);
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Starting time shift buffer for channel %s", __FUNCTION__, m_e2stbchannels.GetLiveStreamURL(channel));
   m_tsBuffer = new CE2STBTimeshift(m_e2stbchannels.GetLiveStreamURL(channel), g_strTimeshiftBufferPath);
@@ -181,10 +171,7 @@ void CE2STBData::CloseLiveStream(void)
   m_iCurrentChannel = -1;
 
   if (m_tsBuffer)
-  {
-    delete m_tsBuffer;
-    m_tsBuffer = nullptr;
-  }
+    SAFE_DELETE(m_tsBuffer);
 }
 
 PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
@@ -196,26 +183,23 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-          + "&repeated=" + compat::to_string(timer.iWeekdays)
-  + "&begin=" + compat::to_string(marginBefore)
-  + "&end=" + compat::to_string(marginAfter)
-  + "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)
-  + "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)
-  + "&eit=" + compat::to_string(timer.iEpgUid);
+  std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference) +
+      "&repeated=" + compat::to_string(timer.iWeekdays) +
+      "&begin=" + compat::to_string(marginBefore) +
+      "&end=" + compat::to_string(marginAfter) +
+      "&name=" + m_e2stbconnection.URLEncode(timer.strTitle)+
+      "&description=" + m_e2stbconnection.URLEncode(timer.strSummary)+
+      "&eit=" + compat::to_string(timer.iEpgUid);
 
   if (!g_strBackendRecordingPath.empty())
-  {
     strTemp += "&dirname=&" + m_e2stbconnection.URLEncode(g_strBackendRecordingPath);
-  }
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added timer %s", __FUNCTION__, strTemp.c_str());
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-  {
     return PVR_ERROR_SERVER_ERROR;
-  }
+
   TimerUpdates();
   return PVR_ERROR_NO_ERROR;
 }
@@ -225,23 +209,21 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
+  /* TODO: test this */
   std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
-  std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference)
-          + "&begin=" + compat::to_string(marginBefore)
-  + "&end=" + compat::to_string(marginAfter);
+  std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference) +
+      "&begin=" + compat::to_string(marginBefore) +
+      "&end=" + compat::to_string(marginAfter);
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-  {
     return PVR_ERROR_SERVER_ERROR;
-  }
 
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Deleted timer %s", __FUNCTION__, strTemp.c_str());
 
   if (timer.state == PVR_TIMER_STATE_RECORDING)
-  {
     PVR->TriggerRecordingUpdate();
-  }
+
   TimerUpdates();
   return PVR_ERROR_NO_ERROR;
 }
@@ -268,15 +250,15 @@ PVR_ERROR CE2STBData::GetTimers(ADDON_HANDLE handle)
     strncpy(timers.strDirectory, "/", sizeof(timers.strDirectory) - 1);
     strncpy(timers.strSummary, timer.strPlot.c_str(), sizeof(timers.strSummary) - 1);
     timers.state         = timer.state;
-    timers.iPriority     = 0;                              /* Unused */
-    timers.iLifetime     = 0;                              /* Unused */
-    timers.firstDay      = 0;                              /* Unused */
+    timers.iPriority     = 0; /* Unused */
+    timers.iLifetime     = 0; /* Unused */
+    timers.firstDay      = 0; /* Unused */
     timers.iWeekdays     = timer.iWeekdays;
     timers.iEpgUid       = timer.iEpgID;
-    timers.iMarginStart  = 0;                              /* Unused */
-    timers.iMarginEnd    = 0;                              /* Unused */
-    timers.iGenreType    = 0;                              /* Unused */
-    timers.iGenreSubType = 0;                              /* Unused */
+    timers.iMarginStart  = 0; /* Unused */
+    timers.iMarginEnd    = 0; /* Unused */
+    timers.iGenreType    = 0; /* Unused */
+    timers.iGenreSubType = 0; /* Unused */
     timers.iClientIndex  = timer.iClientIndex;
 
     PVR->TransferTimerEntry(handle, &timers);
@@ -295,13 +277,9 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   while (i < m_timers.size())
   {
     if (m_timers.at(i).iClientIndex == timer.iClientIndex)
-    {
       break;
-    }
     else
-    {
       i++;
-    }
   }
   SE2STBTimer &oldTimer = m_timers.at(i);
   std::string strOldServiceReference = m_e2stbchannels.m_channels.at(oldTimer.iChannelId - 1).strServiceReference;
@@ -309,26 +287,24 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
 
   int iDisabled = 0;
   if (timer.state == PVR_TIMER_STATE_CANCELLED)
-  {
     iDisabled = 1;
-  }
-  std::string strTemp = "web/timerchange?sRef="
-      + m_e2stbconnection.URLEncode(strServiceReference) + "&begin="
-      + compat::to_string(timer.startTime) + "&end="
-      + compat::to_string(timer.endTime) + "&name="
-      + m_e2stbconnection.URLEncode(timer.strTitle) + "&eventID=&description="
-      + m_e2stbconnection.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled="
-      + compat::to_string(iDisabled) + "&justplay=0&repeated="
-      + compat::to_string(timer.iWeekdays) + "&channelOld="
-      + m_e2stbconnection.URLEncode(strOldServiceReference) + "&beginOld="
-      + compat::to_string(oldTimer.startTime) + "&endOld="
-      + compat::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
+
+  std::string strTemp = "web/timerchange?sRef=" +
+      m_e2stbconnection.URLEncode(strServiceReference) + "&begin=" +
+      compat::to_string(timer.startTime) + "&end=" +
+      compat::to_string(timer.endTime) + "&name=" +
+      m_e2stbconnection.URLEncode(timer.strTitle) + "&eventID=&description=" +
+      m_e2stbconnection.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled=" +
+      compat::to_string(iDisabled) + "&justplay=0&repeated=" +
+      compat::to_string(timer.iWeekdays) + "&channelOld=" +
+      m_e2stbconnection.URLEncode(strOldServiceReference) + "&beginOld=" +
+      compat::to_string(oldTimer.startTime) + "&endOld=" +
+      compat::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
-  {
     return PVR_ERROR_SERVER_ERROR;
-  }
+
   TimerUpdates();
   return PVR_ERROR_NO_ERROR;
 }
@@ -397,6 +373,7 @@ void CE2STBData::TimerUpdates()
       timer.iClientIndex = m_iTimersIndexCounter;
       XBMC->Log(ADDON::LOG_NOTICE, "[%s] New timer %s with client index %d", __FUNCTION__, timer.strTitle.c_str(),
           m_iTimersIndexCounter);
+
       m_timers.push_back(timer);
       m_iTimersIndexCounter++;
       iNew++;
@@ -458,72 +435,48 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
     int iDisabled;
 
     if (XMLUtils::GetString(pNode, "e2name", strTemp))
-    {
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Processing timer %s", __FUNCTION__, strTemp.c_str());
-    }
 
     if (!XMLUtils::GetInt(pNode, "e2state", iTmp))
-    {
       continue;
-    }
 
     if (!XMLUtils::GetInt(pNode, "e2disabled", iDisabled))
-    {
       continue;
-    }
 
     SE2STBTimer timer;
 
     timer.strTitle = strTemp;
 
     if (XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-    {
       timer.iChannelId = m_e2stbchannels.GetTotalChannelNumber(strTemp);
-    }
 
     if (!XMLUtils::GetInt(pNode, "e2timebegin", iTmp))
-    {
       continue;
-    }
 
     timer.startTime = iTmp;
 
     if (!XMLUtils::GetInt(pNode, "e2timeend", iTmp))
-    {
       continue;
-    }
 
     timer.endTime = iTmp;
 
     if (XMLUtils::GetString(pNode, "e2description", strTemp))
-    {
       timer.strPlot = strTemp;
-    }
 
     if (XMLUtils::GetInt(pNode, "e2repeated", iTmp))
-    {
       timer.iWeekdays = iTmp;
-    }
     else
-    {
       timer.iWeekdays = 0;
-    }
 
     if (XMLUtils::GetInt(pNode, "e2eit", iTmp))
-    {
       timer.iEpgID = iTmp;
-    }
     else
-    {
       timer.iEpgID = 0;
-    }
 
     timer.state = PVR_TIMER_STATE_NEW;
 
     if (!XMLUtils::GetInt(pNode, "e2state", iTmp))
-    {
       continue;
-    }
 
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] e2state is %d", __FUNCTION__, iTmp);
 
@@ -561,9 +514,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
     }
 
     if (timer.state == PVR_TIMER_STATE_NEW)
-    {
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timer state is new", __FUNCTION__);
-    }
 
     timers.push_back(timer);
     XBMC->Log(ADDON::LOG_NOTICE, "[%s] Fetched timer %s beginning at %d and ending at %d", __FUNCTION__,
