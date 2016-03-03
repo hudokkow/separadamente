@@ -46,8 +46,6 @@ struct SE2STBChannelGroup
 {
   std::string strServiceReference;
   std::string strGroupName;
-  int         iGroupState;
-  std::vector<SE2STBEPG> EPG;
 };
 
 struct SE2STBChannel
