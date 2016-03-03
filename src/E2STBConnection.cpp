@@ -44,6 +44,7 @@ CE2STBConnection::CE2STBConnection()
 , m_strWebIfVersion{}
 , m_strServerName{"Enigma2 STB"}
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBConnection ctor", __FUNCTION__);
   std::string strURLAuthentication;
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
@@ -67,6 +68,7 @@ CE2STBConnection::CE2STBConnection()
 
 CE2STBConnection::~CE2STBConnection()
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBConnection dtor", __FUNCTION__);
   m_bIsConnected = false;
 }
 

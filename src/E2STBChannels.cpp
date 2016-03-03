@@ -39,10 +39,14 @@ using namespace e2stb;
 CE2STBChannels::CE2STBChannels()
 : m_iNumChannelGroups{0}
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBChannels ctor", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p", __FUNCTION__, &m_channels);
 }
 
 CE2STBChannels::~CE2STBChannels()
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBChannels dtor", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_channels, m_channels.size());
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels list", __FUNCTION__);
   m_channels.clear();
 

@@ -36,10 +36,13 @@ using namespace e2stb;
 CE2STBRecordings::CE2STBRecordings()
 : m_iNumRecordings{0}
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings ctor", __FUNCTION__);
 }
 
 CE2STBRecordings::~CE2STBRecordings()
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings dtor", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.m_channels, m_e2stbchannels.m_channels.size());
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal recordings list", __FUNCTION__);
   m_recordings.clear();
 }

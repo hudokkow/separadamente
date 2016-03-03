@@ -42,6 +42,7 @@ CE2STBData::CE2STBData()
 , m_tsBuffer{nullptr}
 {
   TimerUpdates();
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBData ctor", __FUNCTION__);
   /* Start the background update thread */
   m_active = true;
   m_backgroundThread = std::thread([this]()
@@ -52,6 +53,8 @@ CE2STBData::CE2STBData()
 
 CE2STBData::~CE2STBData()
 {
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBData dtor", __FUNCTION__);
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.m_channels, m_e2stbchannels.m_channels.size());
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping background update thread", __FUNCTION__);
   /* Signal the background thread to stop */
   m_active = false;
