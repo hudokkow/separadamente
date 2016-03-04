@@ -44,26 +44,8 @@ CE2STBConnection::CE2STBConnection()
 , m_strWebIfVersion{}
 , m_strServerName{"Enigma2 STB"}
 {
+  ConnectionStrings();
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBConnection ctor", __FUNCTION__);
-  std::string strURLAuthentication;
-
-  if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-    strURLAuthentication = g_strUsername + ":" + g_strPassword + "@";
-
-  if (!g_bUseSecureHTTP)
-  {
-    m_strBackendURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortWebHTTP) + "/";
-    m_strBackendURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortStream) + "/";
-  }
-  else
-  {
-    m_strBackendURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortWebHTTPS) + "/";
-    m_strBackendURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortStream) + "/";
-  }
 }
 
 CE2STBConnection::~CE2STBConnection()
@@ -84,6 +66,29 @@ bool CE2STBConnection::Initialize()
     return false;
   }
   return true;
+}
+
+void CE2STBConnection::ConnectionStrings()
+{
+  std::string strURLAuthentication;
+
+  if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
+    strURLAuthentication = g_strUsername + ":" + g_strPassword + "@";
+
+  if (!g_bUseSecureHTTP)
+  {
+    m_strBackendURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
+        + compat::to_string(g_iPortWebHTTP) + "/";
+    m_strBackendURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
+        + compat::to_string(g_iPortStream) + "/";
+  }
+  else
+  {
+    m_strBackendURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
+        + compat::to_string(g_iPortWebHTTPS) + "/";
+    m_strBackendURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
+        + compat::to_string(g_iPortStream) + "/";
+  }
 }
 
 std::string CE2STBConnection::GetBackendName() const

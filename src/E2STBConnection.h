@@ -36,13 +36,15 @@ public:
    * @brief Returns backend connection status
    */
   bool Initialize();
-  /*!
-   * @brief Signal backend to shutdown
-   */
+  void ConnectionStrings();
+
   std::string GetBackendName() const;
   std::string GetBackendVersion() const;
   std::string GetBackendURLWeb() const;
   std::string GetBackendURLStream() const;
+  /*!
+   * @brief Signal backend to shutdown
+   */
   void SendPowerstate();
   /*!
    * @brief Get backend device info
