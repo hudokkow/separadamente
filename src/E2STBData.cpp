@@ -62,9 +62,6 @@ CE2STBData::~CE2STBData()
     m_backgroundThread.join();
 
   std::unique_lock<std::mutex> lock(m_mutex);
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal timers list", __FUNCTION__);
-  m_timers.clear();
-
   if (m_tsBuffer)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal time shifting buffer", __FUNCTION__);

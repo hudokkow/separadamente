@@ -44,8 +44,6 @@ CE2STBRecordings::~CE2STBRecordings()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings dtor", __FUNCTION__);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.GetChannelsVector(), m_e2stbchannels.GetChannelsVector().size());
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal recordings list", __FUNCTION__);
-  m_recordings.clear();
 }
 
 PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)

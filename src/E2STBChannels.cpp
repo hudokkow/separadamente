@@ -49,11 +49,6 @@ CE2STBChannels::~CE2STBChannels()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBChannels dtor", __FUNCTION__);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_channels, m_channels.size());
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels list", __FUNCTION__);
-  m_channels.clear();
-
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels groups list", __FUNCTION__);
-  m_channelsGroups.clear();
 }
 
 
