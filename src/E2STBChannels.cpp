@@ -39,6 +39,8 @@ using namespace e2stb;
 CE2STBChannels::CE2STBChannels()
 : m_iNumChannelGroups{0}
 {
+  LoadChannelGroups();
+  LoadChannels();
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBChannels ctor", __FUNCTION__);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p", __FUNCTION__, &m_channels);
 }
@@ -52,19 +54,6 @@ CE2STBChannels::~CE2STBChannels()
 
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal channels groups list", __FUNCTION__);
   m_channelsGroups.clear();
-}
-
-bool CE2STBChannels::Open()
-{
-  if (m_channels.size() == 0)
-  {
-    if (!LoadChannelGroups())
-      return false;
-
-    if (!LoadChannels())
-      return false;
-  }
-  return true;
 }
 
 PVR_ERROR CE2STBChannels::GetChannels(ADDON_HANDLE handle, bool bRadio)

@@ -67,7 +67,6 @@ public:
   ~CE2STBChannels();
 
   std::vector<SE2STBChannel> m_channels;
-  bool Open();
   int GetChannelsAmount(void) { return m_channels.size(); }
   PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   PVR_ERROR GetChannelGroups(ADDON_HANDLE handle);
