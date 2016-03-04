@@ -32,18 +32,17 @@ public:
   CE2STBConnection();
   ~CE2STBConnection();
 
-  std::string m_strBackendBaseURLWeb;    /*!< @brief Backend base URL Web */
-  std::string m_strBackendBaseURLStream; /*!< @brief Backend base URL Stream */
-  std::string m_strWebIfVersion;         /*!< @brief Backend web interface version */
-  std::string m_strServerName;           /*!< @brief Backend name */
-
   /*!
    * @brief Returns backend connection status
    */
-  bool Open();
+  bool Initialize();
   /*!
    * @brief Signal backend to shutdown
    */
+  std::string GetBackendName() const;
+  std::string GetBackendVersion() const;
+  std::string GetBackendURLWeb() const;
+  std::string GetBackendURLStream() const;
   void SendPowerstate();
   /*!
    * @brief Get backend device info
@@ -71,9 +70,13 @@ public:
   PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
 
 private:
-  bool        m_bIsConnected;     /*!< @brief Backend connection check */
-  std::string m_strEnigmaVersion; /*!< @brief Backend Enigma2 version */
-  std::string m_strImageVersion;  /*!< @brief Backend Image version */
+  std::string m_strBackendURLWeb;    /*!< @brief Backend base URL Web */
+  std::string m_strBackendURLStream; /*!< @brief Backend base URL Stream */
+  bool        m_bIsConnected;        /*!< @brief Backend connection check */
+  std::string m_strEnigmaVersion;    /*!< @brief Backend Enigma2 version */
+  std::string m_strImageVersion;     /*!< @brief Backend Image version */
+  std::string m_strWebIfVersion;     /*!< @brief Backend web interface version */
+  std::string m_strServerName;       /*!< @brief Backend name */
 
   mutable std::mutex m_mutex;     /*!< @brief mutex class handler */
 };

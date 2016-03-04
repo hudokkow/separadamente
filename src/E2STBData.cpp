@@ -393,7 +393,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 {
   std::vector<SE2STBTimer> timers;
 
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/timerlist";
+  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/timerlist";
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;

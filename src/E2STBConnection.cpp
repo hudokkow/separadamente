@@ -36,8 +36,8 @@
 using namespace e2stb;
 
 CE2STBConnection::CE2STBConnection()
-: m_strBackendBaseURLWeb{}
-, m_strBackendBaseURLStream{}
+: m_strBackendURLWeb{}
+, m_strBackendURLStream{}
 , m_bIsConnected{false}
 , m_strEnigmaVersion{}
 , m_strImageVersion{}
@@ -51,16 +51,16 @@ CE2STBConnection::CE2STBConnection()
 
   if (!g_bUseSecureHTTP)
   {
-    m_strBackendBaseURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
+    m_strBackendURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
         + compat::to_string(g_iPortWebHTTP) + "/";
-    m_strBackendBaseURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
+    m_strBackendURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
         + compat::to_string(g_iPortStream) + "/";
   }
   else
   {
-    m_strBackendBaseURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
+    m_strBackendURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
         + compat::to_string(g_iPortWebHTTPS) + "/";
-    m_strBackendBaseURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
+    m_strBackendURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
         + compat::to_string(g_iPortStream) + "/";
   }
 }
@@ -70,7 +70,7 @@ CE2STBConnection::~CE2STBConnection()
   m_bIsConnected = false;
 }
 
-bool CE2STBConnection::Open()
+bool CE2STBConnection::Initialize()
 {
   std::unique_lock<std::mutex> lock(m_mutex);
   m_bIsConnected = GetDeviceInfo();
@@ -82,6 +82,26 @@ bool CE2STBConnection::Open()
     return false;
   }
   return true;
+}
+
+std::string CE2STBConnection::GetBackendName() const
+{
+  return m_strServerName;
+}
+
+std::string CE2STBConnection::GetBackendVersion() const
+{
+  return m_strWebIfVersion;
+}
+
+std::string CE2STBConnection::GetBackendURLWeb() const
+{
+  return m_strBackendURLWeb;
+}
+
+std::string CE2STBConnection::GetBackendURLStream() const
+{
+  return m_strBackendURLStream;
 }
 
 void CE2STBConnection::SendPowerstate()
@@ -111,7 +131,7 @@ void CE2STBConnection::SendPowerstate()
 
 bool CE2STBConnection::GetDeviceInfo()
 {
-  std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
+  std::string strURL = m_strBackendURLWeb + "web/deviceinfo";
   std::string strXML = ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -173,7 +193,7 @@ bool CE2STBConnection::GetDeviceInfo()
 
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
-  std::string strURL = m_strBackendBaseURLWeb + std::string(strCommandURL);
+  std::string strURL = m_strBackendURLWeb + std::string(strCommandURL);
   std::string strXML = ConnectToBackend(strURL);
 
   if (!bIgnoreResult)
@@ -267,7 +287,7 @@ std::string CE2STBConnection::ConnectToBackend(std::string& strURL)
 
 PVR_ERROR CE2STBConnection::GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-  std::string strURL = m_strBackendBaseURLWeb + "web/deviceinfo";
+  std::string strURL = m_strBackendURLWeb + "web/deviceinfo";
   std::string strXML = ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;
@@ -335,7 +355,7 @@ PVR_ERROR CE2STBConnection::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   static PVR_SIGNAL_STATUS signalStat;
   memset(&signalStat, 0, sizeof(signalStat));
 
-  std::string strURL = m_strBackendBaseURLWeb + "web/signal";
+  std::string strURL = m_strBackendURLWeb + "web/signal";
   std::string strXML = ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;

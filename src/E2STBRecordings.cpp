@@ -83,10 +83,10 @@ bool CE2STBRecordings::LoadRecordingLocations()
 {
   std::string strURL;
   if (g_bUseOnlyCurrentRecordingPath)
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getcurrlocation";
+    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getcurrlocation";
 
   else
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getlocations";
+    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getlocations";
 
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
@@ -158,10 +158,10 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 {
   std::string strURL;
   if (!strRecordingFolder.compare("default"))
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist";
+    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/movielist";
 
   else
-    strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/movielist"
+    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/movielist"
         + "?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder);
 
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
@@ -249,7 +249,7 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 
     if (XMLUtils::GetString(pNode, "e2filename", strTemp))
     {
-      recording.strStreamURL = m_e2stbconnection.m_strBackendBaseURLWeb
+      recording.strStreamURL = m_e2stbconnection.GetBackendURLWeb()
           + "file?file=" + m_e2stbconnection.URLEncode(strTemp);
     }
     m_iNumRecordings++;

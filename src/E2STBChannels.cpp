@@ -162,7 +162,7 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
 
   SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
 
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb
+  std::string strURL = m_e2stbconnection.GetBackendURLWeb()
       + "web/epgservice?sRef=" + m_e2stbconnection.URLEncode(myChannel.strServiceReference);
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
@@ -287,7 +287,7 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb
+  std::string strURL = m_e2stbconnection.GetBackendURLWeb()
       + "web/getservices?sRef=" + m_e2stbconnection.URLEncode(strServiceReference);
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
@@ -378,14 +378,14 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
 
     newChannel.strIconPath = strPicon;
     /* Stop changing this! It is the STREAM port, dumbass */
-    std::string strURL = m_e2stbconnection.m_strBackendBaseURLStream + strTemp2;
+    std::string strURL = m_e2stbconnection.GetBackendURLStream() + strTemp2;
 
     newChannel.strStreamURL = strURL;
 
     if (g_bLoadWebInterfacePicons)
     {
       std::replace(strTemp2.begin(), strTemp2.end(), ':', '_');
-      strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "picon/" + strTemp2 + ".png";
+      strURL = m_e2stbconnection.GetBackendURLWeb() + "picon/" + strTemp2 + ".png";
       newChannel.strIconPath = strURL;
     }
     m_channels.push_back(newChannel);
@@ -421,7 +421,7 @@ bool CE2STBChannels::LoadChannels()
 
 bool CE2STBChannels::LoadChannelGroups()
 {
-  std::string strURL = m_e2stbconnection.m_strBackendBaseURLWeb + "web/getservices";
+  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getservices";
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
 
   TiXmlDocument xmlDoc;

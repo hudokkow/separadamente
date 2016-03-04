@@ -274,7 +274,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   g_E2STBRecordings = new CE2STBRecordings;
 
   /* TODO: reorganize calls */
-  if (!g_E2STBConnection->Open())
+  if (!g_E2STBConnection->Initialize())
   {
     SAFE_DELETE(g_E2STBChannels);
     SAFE_DELETE(g_E2STBConnection);
@@ -482,19 +482,20 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
  */
 const char *GetBackendName(void)
 {
-  static std::string strBackendName = g_E2STBConnection->m_strServerName;
+  static std::string strBackendName = g_E2STBConnection->GetBackendName();
   return strBackendName.c_str();
 }
 
 const char *GetBackendVersion(void)
 {
-  static std::string strBackendVersion = g_E2STBConnection->m_strWebIfVersion;
+  static std::string strBackendVersion = g_E2STBConnection->GetBackendVersion();
   return strBackendVersion.c_str();
 }
 
 const char *GetConnectionString(void)
 {
-  return g_strHostname.c_str();
+  static std::string strBackendURLWeb = g_E2STBConnection->GetBackendURLWeb();
+  return strBackendURLWeb.c_str();
 }
 
 const char *GetBackendHostname(void)
