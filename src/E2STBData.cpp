@@ -41,6 +41,7 @@ CE2STBData::CE2STBData()
 , m_iCurrentChannel{-1}
 , m_tsBuffer{nullptr}
 {
+  TimerUpdates();
   /* Start the background update thread */
   m_active = true;
   m_backgroundThread = std::thread([this]()
@@ -66,16 +67,6 @@ CE2STBData::~CE2STBData()
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal time shifting buffer", __FUNCTION__);
     SAFE_DELETE(m_tsBuffer);
   }
-}
-
-bool CE2STBData::Open()
-{
-  std::unique_lock<std::mutex> lock(m_mutex);
-  if (!m_e2stbconnection.GetDeviceInfo())
-    return false;
-
-  TimerUpdates();
-  return true;
 }
 
 void CE2STBData::BackgroundUpdate()

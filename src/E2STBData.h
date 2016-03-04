@@ -90,8 +90,6 @@ public:
   CE2STBData();
   ~CE2STBData();
 
-  bool Open();
-
   bool OpenLiveStream(const PVR_CHANNEL &channel);
   bool SwitchChannel(const PVR_CHANNEL &channel);
   void CloseLiveStream();

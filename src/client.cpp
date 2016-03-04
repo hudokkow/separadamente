@@ -286,7 +286,6 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return g_currentStatus;
   }
   g_E2STBChannels->Open();
-  g_E2STBData->Open();
   g_E2STBRecordings->Open();
 
   g_currentStatus = ADDON_STATUS_OK;
