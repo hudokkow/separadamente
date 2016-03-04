@@ -59,8 +59,7 @@ bool CE2STBConnection::Initialize()
 
   if (!m_bIsConnected)
   {
-    XBMC->Log(ADDON::LOG_ERROR, "[%s] Web interface can't be reached. Make sure connection options are correct",
-        __FUNCTION__);
+    XBMC->Log(ADDON::LOG_ERROR, "[%s] Web interface can't be reached. Wrong connection settings?",  __FUNCTION__);
     return false;
   }
   return true;
@@ -68,68 +67,21 @@ bool CE2STBConnection::Initialize()
 
 void CE2STBConnection::ConnectionStrings()
 {
-  std::string strURLAuthentication;
+  std::string strURLAuth;
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-    strURLAuthentication = g_strUsername + ":" + g_strPassword + "@";
+    strURLAuth = g_strUsername + ":" + g_strPassword + "@";
 
   if (!g_bUseSecureHTTP)
   {
-    m_strBackendURLWeb = "http://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortWebHTTP) + "/";
-    m_strBackendURLStream = "http://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortStream) + "/";
+    m_strBackendURLWeb = "http://" + strURLAuth + g_strHostname + ":" + compat::to_string(g_iPortWebHTTP) + "/";
+    m_strBackendURLStream = "http://" + strURLAuth + g_strHostname + ":" + compat::to_string(g_iPortStream) + "/";
   }
   else
   {
-    m_strBackendURLWeb = "https://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortWebHTTPS) + "/";
-    m_strBackendURLStream = "https://" + strURLAuthentication + g_strHostname + ":"
-        + compat::to_string(g_iPortStream) + "/";
+    m_strBackendURLWeb = "https://" + strURLAuth + g_strHostname + ":" + compat::to_string(g_iPortWebHTTPS) + "/";
+    m_strBackendURLStream = "https://" + strURLAuth + g_strHostname + ":" + compat::to_string(g_iPortStream) + "/";
   }
-}
-
-std::string CE2STBConnection::GetBackendName() const
-{
-  return m_strServerName;
-}
-
-std::string CE2STBConnection::GetBackendVersion() const
-{
-  return m_strWebIfVersion;
-}
-
-std::string CE2STBConnection::GetBackendURLWeb() const
-{
-  return m_strBackendURLWeb;
-}
-
-std::string CE2STBConnection::GetBackendURLStream() const
-{
-  return m_strBackendURLStream;
-}
-
-void CE2STBConnection::SendPowerstate()
-{
-  if (!g_bSendDeepStanbyToSTB)
-  {
-    return;
-  }
-  /* TODO: Review power states functionality
-   http://dream.reichholf.net/wiki/Enigma2:WebInterface
-  
-    0 = Toogle Standby
-    1 = Deepstandby
-    2 = Reboot
-    3 = Restart Enigma2
-    4 = Wakeup form Standby
-    5 = Standby
-
-   */
-  std::string strTemp = "web/powerstate?newstate=1";
-
-  std::string strResult;
-  SendCommandToSTB(strTemp, strResult, true);
 }
 
 bool CE2STBConnection::GetDeviceInfo()
@@ -194,6 +146,44 @@ bool CE2STBConnection::GetDeviceInfo()
   return true;
 }
 
+std::string CE2STBConnection::GetBackendName() const
+{
+  return m_strServerName;
+}
+
+std::string CE2STBConnection::GetBackendVersion() const
+{
+  return m_strWebIfVersion;
+}
+
+std::string CE2STBConnection::GetBackendURLWeb() const
+{
+  return m_strBackendURLWeb;
+}
+
+std::string CE2STBConnection::GetBackendURLStream() const
+{
+  return m_strBackendURLStream;
+}
+
+void CE2STBConnection::SendPowerstate()
+{
+  if (!g_bSendDeepStanbyToSTB)
+    return;
+  /* TODO: Review power states functionality - http://dream.reichholf.net/wiki/Enigma2:WebInterface
+    0 = Toogle Standby
+    1 = Deepstandby
+    2 = Reboot
+    3 = Restart Enigma2
+    4 = Wakeup form Standby
+    5 = Standby
+   */
+  std::string strTemp = "web/powerstate?newstate=1";
+
+  std::string strResult;
+  SendCommandToSTB(strTemp, strResult, true);
+}
+
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
   std::string strURL = m_strBackendURLWeb + std::string(strCommandURL);
@@ -235,9 +225,8 @@ bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::s
     }
 
     if (!bTmp)
-    {
       XBMC->Log(ADDON::LOG_ERROR, "[%s] Backend sent error message %s", __FUNCTION__, strResultText.c_str());
-    }
+
     return bTmp;
   }
   return true;
@@ -282,8 +271,7 @@ std::string CE2STBConnection::ConnectToBackend(std::string& strURL)
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
   }
   else
-  {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
-  }
+
   return strResult;
 }
