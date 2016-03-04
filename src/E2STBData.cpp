@@ -54,7 +54,7 @@ CE2STBData::CE2STBData()
 CE2STBData::~CE2STBData()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBData dtor", __FUNCTION__);
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.m_channels, m_e2stbchannels.m_channels.size());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.GetChannelsVector(), m_e2stbchannels.GetChannelsVector().size());
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Stopping background update thread", __FUNCTION__);
   /* Signal the background thread to stop */
   m_active = false;
@@ -83,10 +83,10 @@ void CE2STBData::BackgroundUpdate()
 
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Starting background update thread", __FUNCTION__);
 
-  for (unsigned int iChannelPtr = 0; iChannelPtr < m_e2stbchannels.m_channels.size(); iChannelPtr++)
+  for (unsigned int iChannelPtr = 0; iChannelPtr < m_e2stbchannels.GetChannelsVector().size(); iChannelPtr++)
   {
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Triggering EPG update for channel %d", __FUNCTION__, iChannelPtr);
-    PVR->TriggerEpgUpdate(m_e2stbchannels.m_channels.at(iChannelPtr).iUniqueId);
+    PVR->TriggerEpgUpdate(m_e2stbchannels.GetChannelsVector().at(iChannelPtr).iUniqueId);
   }
 
   while (m_active)
@@ -140,7 +140,7 @@ bool CE2STBData::SwitchChannel(const PVR_CHANNEL &channel)
   tuner number > 1 and it shouldnt't(?) unless all tuners are busy? */
   if (g_bZapBeforeChannelChange)
   {
-    std::string strServiceReference = m_e2stbchannels.m_channels.at(channel.iUniqueId - 1).strServiceReference;
+    std::string strServiceReference = m_e2stbchannels.GetChannelsVector().at(channel.iUniqueId - 1).strServiceReference;
     std::string strTemp = "web/zap?sRef=" + m_e2stbconnection.URLEncode(strServiceReference);
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Zap command sent to box %s", __FUNCTION__, strTemp.c_str());
 
@@ -298,7 +298,7 @@ PVR_ERROR CE2STBData::AddTimer(const PVR_TIMER &timer)
   unsigned int marginBefore = timer.startTime - (timer.iMarginStart * 60);
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
-  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.GetChannelsVector().at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timeradd?sRef=" + m_e2stbconnection.URLEncode(strServiceReference) +
       "&repeated=" + compat::to_string(timer.iWeekdays) +
       "&begin=" + compat::to_string(marginBefore) +
@@ -326,7 +326,7 @@ PVR_ERROR CE2STBData::DeleteTimer(const PVR_TIMER &timer)
   unsigned int marginAfter = timer.endTime + (timer.iMarginEnd * 60);
 
   /* TODO: test this */
-  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.GetChannelsVector().at(timer.iClientChannelUid - 1).strServiceReference;
   std::string strTemp = "web/timerdelete?sRef=" + m_e2stbconnection.URLEncode(strServiceReference) +
       "&begin=" + compat::to_string(marginBefore) +
       "&end=" + compat::to_string(marginAfter);
@@ -387,7 +387,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   /* TODO Check it works */
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timer channel ID %d", __FUNCTION__, timer.iClientChannelUid);
 
-  std::string strServiceReference = m_e2stbchannels.m_channels.at(timer.iClientChannelUid - 1).strServiceReference;
+  std::string strServiceReference = m_e2stbchannels.GetChannelsVector().at(timer.iClientChannelUid - 1).strServiceReference;
 
   unsigned int i = 0;
   while (i < m_timers.size())
@@ -398,7 +398,7 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
       i++;
   }
   SE2STBTimer &oldTimer = m_timers.at(i);
-  std::string strOldServiceReference = m_e2stbchannels.m_channels.at(oldTimer.iChannelId - 1).strServiceReference;
+  std::string strOldServiceReference = m_e2stbchannels.GetChannelsVector().at(oldTimer.iChannelId - 1).strServiceReference;
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Old timer channel ID %d", __FUNCTION__, oldTimer.iChannelId);
 
   int iDisabled = 0;

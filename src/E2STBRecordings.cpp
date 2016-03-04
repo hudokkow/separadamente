@@ -36,23 +36,16 @@ using namespace e2stb;
 CE2STBRecordings::CE2STBRecordings()
 : m_iNumRecordings{0}
 {
+  LoadRecordingLocations();
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings ctor", __FUNCTION__);
 }
 
 CE2STBRecordings::~CE2STBRecordings()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings dtor", __FUNCTION__);
-  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.m_channels, m_e2stbchannels.m_channels.size());
+  XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.GetChannelsVector(), m_e2stbchannels.GetChannelsVector().size());
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Removing internal recordings list", __FUNCTION__);
   m_recordings.clear();
-}
-
-bool CE2STBRecordings::Open()
-{
-  if (!LoadRecordingLocations())
-    return false;
-
-  return true;
 }
 
 PVR_ERROR CE2STBRecordings::GetRecordings(ADDON_HANDLE handle)
@@ -303,10 +296,10 @@ void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
 
 std::string CE2STBRecordings::GetChannelPiconPath(std::string strChannelName)
 {
-  for (unsigned int i = 0; i < m_e2stbchannels.m_channels.size(); i++)
+  for (unsigned int i = 0; i < m_e2stbchannels.GetChannelsVector().size(); i++)
   {
-    if (!strChannelName.compare(m_e2stbchannels.m_channels[i].strChannelName))
-      return m_e2stbchannels.m_channels[i].strIconPath;
+    if (!strChannelName.compare(m_e2stbchannels.GetChannelsVector()[i].strChannelName))
+      return m_e2stbchannels.GetChannelsVector()[i].strIconPath;
   }
   return "";
 }

@@ -56,6 +56,8 @@ CE2STBChannels::~CE2STBChannels()
   m_channelsGroups.clear();
 }
 
+
+
 PVR_ERROR CE2STBChannels::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
@@ -275,6 +277,11 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded %u EPG entries for channel %s", __FUNCTION__, iNumEPG, channel.strChannelName);
   return PVR_ERROR_NO_ERROR;
 }
+
+std::vector<SE2STBChannel> &CE2STBChannels::GetChannelsVector()
+ {
+   return m_channels;
+ }
 
 bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string strGroupName)
 {

@@ -52,7 +52,6 @@ public:
   CE2STBRecordings();
   ~CE2STBRecordings();
 
-  bool Open();
   PVR_ERROR GetRecordings(ADDON_HANDLE handle);
   PVR_ERROR DeleteRecording(const PVR_RECORDING &recinfo);
   unsigned int GetRecordingsAmount() { return m_iNumRecordings; }

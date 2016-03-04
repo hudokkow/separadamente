@@ -66,7 +66,6 @@ public:
   CE2STBChannels();
   ~CE2STBChannels();
 
-  std::vector<SE2STBChannel> m_channels;
   int GetChannelsAmount(void) { return m_channels.size(); }
   PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   PVR_ERROR GetChannelGroups(ADDON_HANDLE handle);
@@ -75,10 +74,12 @@ public:
   int GetTotalChannelNumber(std::string strServiceReference);
   const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
   PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
+  std::vector<SE2STBChannel> &GetChannelsVector();
 
 private:
   int m_iNumChannelGroups;
   std::vector<SE2STBChannelGroup> m_channelsGroups;
+  std::vector<SE2STBChannel> m_channels;
 
   bool LoadChannels(std::string strServerReference, std::string strGroupName);
   bool LoadChannels();
