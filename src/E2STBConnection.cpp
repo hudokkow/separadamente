@@ -29,7 +29,6 @@
 
 #include "tinyxml.h"
 #include <iomanip>    /* std::setw for URLEncode() */
-#include <mutex>
 #include <string>
 #include <sstream>    /* std::ostringstream for URLEncode() */
 
@@ -56,7 +55,6 @@ CE2STBConnection::~CE2STBConnection()
 
 bool CE2STBConnection::Initialize()
 {
-  std::unique_lock<std::mutex> lock(m_mutex);
   m_bIsConnected = GetDeviceInfo();
 
   if (!m_bIsConnected)
@@ -117,8 +115,6 @@ void CE2STBConnection::SendPowerstate()
   {
     return;
   }
-  std::unique_lock<std::mutex> lock(m_mutex);
-
   /* TODO: Review power states functionality
    http://dream.reichholf.net/wiki/Enigma2:WebInterface
   

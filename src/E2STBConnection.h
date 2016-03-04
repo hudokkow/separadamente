@@ -21,7 +21,6 @@
 
 #include "kodi/xbmc_pvr_types.h"
 
-#include <mutex>
 #include <string>
 
 namespace e2stb
@@ -71,7 +70,5 @@ private:
   std::string m_strImageVersion;     /*!< @brief Backend Image version */
   std::string m_strWebIfVersion;     /*!< @brief Backend web interface version */
   std::string m_strServerName;       /*!< @brief Backend name */
-
-  mutable std::mutex m_mutex;     /*!< @brief mutex class handler */
 };
 } /* namespace e2stb */
