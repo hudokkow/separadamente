@@ -94,13 +94,21 @@ public:
   bool SwitchChannel(const PVR_CHANNEL &channel);
   void CloseLiveStream();
 
+  CE2STBTimeshift *GetTimeshiftBuffer() { return m_tsBuffer; }
+  /*!
+   * @brief Backend HDD information
+   */
+  PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed);
+  /*!
+   * @brief Backend signal status
+   */
+  PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
+
   int GetTimersAmount(void) { return m_timers.size(); }
   PVR_ERROR AddTimer(const PVR_TIMER &timer);
   PVR_ERROR DeleteTimer(const PVR_TIMER &timer);
   PVR_ERROR GetTimers(ADDON_HANDLE handle);
   PVR_ERROR UpdateTimer(const PVR_TIMER &timer);
-
-  CE2STBTimeshift *GetTimeshiftBuffer() { return m_tsBuffer; }
 
 private:
   unsigned int m_iTimersIndexCounter; /*!< @brief Timers counter */

@@ -62,14 +62,6 @@ public:
    * @brief Connect to backend
    */
   std::string ConnectToBackend(std::string& strURL);
-  /*!
-   * @brief Backend HDD information
-   */
-  PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed);
-  /*!
-   * @brief Backend signal status
-   */
-  PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus);
 
 private:
   std::string m_strBackendURLWeb;    /*!< @brief Backend base URL Web */
