@@ -562,7 +562,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
     timer.strTitle = strTemp;
 
     if (XMLUtils::GetString(pNode, "e2servicereference", strTemp))
-      timer.iChannelId = m_e2stbchannels.GetTotalChannelNumber(strTemp);
+      timer.iChannelId = m_e2stbchannels.GetChannelID(strTemp);
 
     if (!XMLUtils::GetInt(pNode, "e2timebegin", iTmp))
       continue;

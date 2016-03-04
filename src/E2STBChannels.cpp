@@ -126,7 +126,7 @@ PVR_ERROR CE2STBChannels::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_
   return PVR_ERROR_NO_ERROR;
 }
 
-int CE2STBChannels::GetTotalChannelNumber(std::string strServiceReference)
+int CE2STBChannels::GetChannelID(std::string strServiceReference)
 {
   for (unsigned int i = 0; i < m_channels.size(); i++)
   {

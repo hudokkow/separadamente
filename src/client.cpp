@@ -504,7 +504,7 @@ const char *GetBackendHostname(void)
  */
 int GetChannelsAmount(void)
 {
-  return g_E2STBChannels->GetChannelsAmount();
+  return g_E2STBChannels->GetChannelsVector().size();
 }
 
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
