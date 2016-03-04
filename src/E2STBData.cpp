@@ -108,6 +108,7 @@ void CE2STBData::BackgroundUpdate()
       }
       TimerUpdates();
       PVR->TriggerRecordingUpdate();
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_e2stbchannels.GetChannelsVector(), m_e2stbchannels.GetChannelsVector().size());
     }
     lapCounter++;
     usleep(5000 * 1000);

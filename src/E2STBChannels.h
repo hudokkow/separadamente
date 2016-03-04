@@ -74,7 +74,7 @@ public:
   int GetTotalChannelNumber(std::string strServiceReference);
   const char* GetLiveStreamURL(const PVR_CHANNEL &channel);
   PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
-  std::vector<SE2STBChannel> &GetChannelsVector();
+  const std::vector<SE2STBChannel> &GetChannelsVector();
 
 private:
   int m_iNumChannelGroups;

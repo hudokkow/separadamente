@@ -278,7 +278,7 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
   return PVR_ERROR_NO_ERROR;
 }
 
-std::vector<SE2STBChannel> &CE2STBChannels::GetChannelsVector()
+const std::vector<SE2STBChannel> &CE2STBChannels::GetChannelsVector()
  {
    return m_channels;
  }
