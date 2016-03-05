@@ -490,8 +490,8 @@ const char *GetBackendVersion(void)
 
 const char *GetConnectionString(void)
 {
-  static std::string strBackendURLWeb = g_E2STBConnection->GetBackendURLWeb();
-  return strBackendURLWeb.c_str();
+  /* only return hostname, otherwise we leak credentials */
+  return g_strHostname.c_str();
 }
 
 const char *GetBackendHostname(void)
