@@ -22,6 +22,7 @@
 
 #include "client.h"
 
+#include "kodi/IFileTypes.h"
 #include "p8-platform/threads/threads.h"
 #include "p8-platform/util/StdString.h"
 
@@ -32,14 +33,14 @@ using namespace e2stb;
 
 CE2STBTimeshift::CE2STBTimeshift(CStdString streampath, CStdString bufferpath) : m_bufferPath(bufferpath)
 {
-  m_streamHandle = XBMC->OpenFile(streampath, READ_NO_CACHE);
+  m_streamHandle = XBMC->OpenFile(streampath, XFILE::READ_NO_CACHE);
   m_bufferPath += "/tsbuffer.ts";
   m_filebufferWriteHandle = XBMC->OpenFileForWrite(m_bufferPath, true);
 #ifndef TARGET_POSIX
   m_writePos = 0;
 #endif
   Sleep(100);
-  m_filebufferReadHandle = XBMC->OpenFile(m_bufferPath, READ_NO_CACHE);
+  m_filebufferReadHandle = XBMC->OpenFile(m_bufferPath, XFILE::READ_NO_CACHE);
   m_start = time(NULL);
   CreateThread();
 }
