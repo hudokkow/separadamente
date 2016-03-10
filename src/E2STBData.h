@@ -19,7 +19,7 @@
  *
  */
 
-#include "E2STBChannels.h"
+#include "E2STBBackendData.h"
 #include "E2STBConnection.h"
 #include "E2STBTimeshift.h"
 
@@ -124,7 +124,7 @@ private:
 
   mutable std::mutex m_mutex;         /*!< @brief mutex class handler */
   CE2STBTimeshift *m_tsBuffer;        /*!< @brief Time shifting class handler */
-  CE2STBChannels   m_e2stbchannels;   /*!< @brief CE2STBChannels class handler */
+  CE2STBBackendData   m_e2stbchannels;   /*!< @brief CE2STBChannels class handler */
   CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
 };
 } /* namespace e2stb */

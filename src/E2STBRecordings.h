@@ -19,7 +19,7 @@
  *
  */
 
-#include "E2STBChannels.h"
+#include "E2STBBackendData.h"
 #include "E2STBConnection.h"
 
 #include "kodi/xbmc_addon_types.h"
@@ -67,7 +67,7 @@ private:
   void TransferRecordings(ADDON_HANDLE handle);
   std::string GetChannelPiconPath(std::string strChannelName);
 
-  CE2STBChannels m_e2stbchannels;     /*!< @brief CE2STBChannels class handler */
+  CE2STBBackendData m_e2stbchannels;     /*!< @brief CE2STBChannels class handler */
   CE2STBConnection m_e2stbconnection; /*!< @brief CE2STBConnection class handler */
 };
 } /* namespace e2stb */

@@ -18,7 +18,7 @@
  *
  */
 
-#include "E2STBChannels.h"
+#include "E2STBBackendData.h"
 
 #include "client.h"
 #include "compat.h"
@@ -36,7 +36,7 @@
 
 using namespace e2stb;
 
-CE2STBChannels::CE2STBChannels()
+CE2STBBackendData::CE2STBBackendData()
 : m_iNumChannelGroups{0}
 {
   LoadChannelGroups();
@@ -45,7 +45,7 @@ CE2STBChannels::CE2STBChannels()
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p", __FUNCTION__, &m_channels);
 }
 
-CE2STBChannels::~CE2STBChannels()
+CE2STBBackendData::~CE2STBBackendData()
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBChannels dtor", __FUNCTION__);
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky m_channels address is %p and size is %d", __FUNCTION__, &m_channels, m_channels.size());
@@ -53,7 +53,7 @@ CE2STBChannels::~CE2STBChannels()
 
 
 
-PVR_ERROR CE2STBChannels::GetChannels(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR CE2STBBackendData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
@@ -85,7 +85,7 @@ PVR_ERROR CE2STBChannels::GetChannels(ADDON_HANDLE handle, bool bRadio)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR CE2STBChannels::GetChannelGroups(ADDON_HANDLE handle)
+PVR_ERROR CE2STBBackendData::GetChannelGroups(ADDON_HANDLE handle)
 {
   for (unsigned int iTagPtr = 0; iTagPtr < m_channelsGroups.size(); iTagPtr++)
   {
@@ -101,7 +101,7 @@ PVR_ERROR CE2STBChannels::GetChannelGroups(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR CE2STBChannels::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
+PVR_ERROR CE2STBBackendData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Adding channels from group %s", __FUNCTION__, group.strGroupName);
   std::string strTemp = group.strGroupName;
@@ -126,7 +126,7 @@ PVR_ERROR CE2STBChannels::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_
   return PVR_ERROR_NO_ERROR;
 }
 
-int CE2STBChannels::GetChannelID(std::string strServiceReference)
+int CE2STBBackendData::GetChannelID(std::string strServiceReference)
 {
   for (unsigned int i = 0; i < m_channels.size(); i++)
   {
@@ -136,12 +136,12 @@ int CE2STBChannels::GetChannelID(std::string strServiceReference)
   return -1;
 }
 
-const char* CE2STBChannels::GetLiveStreamURL(const PVR_CHANNEL &channel)
+const char* CE2STBBackendData::GetLiveStreamURL(const PVR_CHANNEL &channel)
 {
   return m_channels.at(channel.iUniqueId - 1).strStreamURL.c_str();
 }
 
-PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR CE2STBBackendData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   if (channel.iUniqueId - 1 > m_channels.size())
   {
@@ -273,12 +273,12 @@ PVR_ERROR CE2STBChannels::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNE
   return PVR_ERROR_NO_ERROR;
 }
 
-const std::vector<SE2STBChannel> &CE2STBChannels::GetChannelsVector()
+const std::vector<SE2STBChannel> &CE2STBBackendData::GetChannelsVector()
  {
    return m_channels;
  }
 
-bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string strGroupName)
+bool CE2STBBackendData::LoadChannels(std::string strServiceReference, std::string strGroupName)
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
@@ -393,7 +393,7 @@ bool CE2STBChannels::LoadChannels(std::string strServiceReference, std::string s
   return true;
 }
 
-bool CE2STBChannels::LoadChannels()
+bool CE2STBBackendData::LoadChannels()
 {
   bool bOk = false;
   m_channels.clear();
@@ -414,7 +414,7 @@ bool CE2STBChannels::LoadChannels()
   return bOk;
 }
 
-bool CE2STBChannels::LoadChannelGroups()
+bool CE2STBBackendData::LoadChannelGroups()
 {
   std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getservices";
   std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);

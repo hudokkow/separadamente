@@ -20,7 +20,7 @@
 
 #include "client.h"
 
-#include "E2STBChannels.h"
+#include "E2STBBackendData.h"
 #include "E2STBConnection.h"
 #include "E2STBData.h"
 #include "E2STBRecordings.h"
@@ -48,11 +48,11 @@ ADDON::CHelper_libXBMC_addon *XBMC = NULL;
 /*!
  * @brief Initialize globals
  */
-ADDON_STATUS      g_currentStatus   = ADDON_STATUS_UNKNOWN;
-CE2STBChannels   *g_E2STBChannels   = nullptr;
-CE2STBConnection *g_E2STBConnection = nullptr;
-CE2STBData       *g_E2STBData       = nullptr;
-CE2STBRecordings *g_E2STBRecordings = nullptr;
+ADDON_STATUS       g_currentStatus   = ADDON_STATUS_UNKNOWN;
+CE2STBBackendData *g_E2STBChannels   = nullptr;
+CE2STBConnection  *g_E2STBConnection = nullptr;
+CE2STBData        *g_E2STBData       = nullptr;
+CE2STBRecordings  *g_E2STBRecordings = nullptr;
 
 /*!
  * @brief Connection client settings
@@ -268,7 +268,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   ADDON_ReadSettings();
 
   /* Instantiate globals */
-  g_E2STBChannels   = new CE2STBChannels;
+  g_E2STBChannels   = new CE2STBBackendData;
   g_E2STBConnection = new CE2STBConnection;
   g_E2STBData       = new CE2STBData;
   g_E2STBRecordings = new CE2STBRecordings;

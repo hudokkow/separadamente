@@ -60,11 +60,11 @@ struct SE2STBChannel
   std::string strIconPath;
 };
 
-class CE2STBChannels
+class CE2STBBackendData
 {
 public:
-  CE2STBChannels();
-  ~CE2STBChannels();
+  CE2STBBackendData();
+  ~CE2STBBackendData();
 
   PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   PVR_ERROR GetChannelGroups(ADDON_HANDLE handle);
