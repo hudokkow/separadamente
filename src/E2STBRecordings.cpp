@@ -287,6 +287,8 @@ void CE2STBRecordings::TransferRecordings(ADDON_HANDLE handle)
 
     /* TODO: PVR API 5.0.0: Implement this */
     recordings.iChannelUid = PVR_CHANNEL_INVALID_UID;
+    /* TODO: PVR API 5.1.0: Implement this */
+    recordings.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
 
     PVR->TransferRecordingEntry(handle, &recordings);
   }
