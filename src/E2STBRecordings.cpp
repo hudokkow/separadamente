@@ -119,7 +119,7 @@ bool CE2STBRecordings::LoadRecordingLocations()
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2location"))
   {
     std::string strTemp = pNode->GetText();
-    m_recordingsLocations.push_back(strTemp);
+    m_recordingsLocations.emplace_back(std::move(strTemp));
     iNumLocations++;
     XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added %s as a recording location", __FUNCTION__, strTemp.c_str());
   }
@@ -248,7 +248,7 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
     }
     m_iNumRecordings++;
     iNumRecording++;
-    m_recordings.push_back(recording);
+    m_recordings.emplace_back(std::move(recording));
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded recording %s starting at %d with length %d", __FUNCTION__,
         recording.strTitle.c_str(), recording.startTime, recording.iDuration);
   }

@@ -383,7 +383,7 @@ bool CE2STBBackendData::LoadChannels(std::string strServiceReference, std::strin
       strURL = m_e2stbconnection.GetBackendURLWeb() + "picon/" + strTemp2 + ".png";
       newChannel.strIconPath = strURL;
     }
-    m_channels.push_back(newChannel);
+    m_channels.emplace_back(std::move(newChannel));
 
     if (g_bExtraDebug)
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded channel %s with picon %s", __FUNCTION__,
@@ -509,7 +509,7 @@ bool CE2STBBackendData::LoadChannelGroups()
         continue;
       }
     }
-    m_channelsGroups.push_back(newGroup);
+    m_channelsGroups.emplace_back(std::move(newGroup));
     XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded TV channel group %s", __FUNCTION__, newGroup.strGroupName.c_str());
     m_iNumChannelGroups++;
   }

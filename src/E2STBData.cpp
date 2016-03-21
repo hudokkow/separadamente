@@ -488,7 +488,7 @@ void CE2STBData::TimerUpdates()
       XBMC->Log(ADDON::LOG_NOTICE, "[%s] New timer %s with client index %d", __FUNCTION__, timer.strTitle.c_str(),
           m_iTimersIndexCounter);
 
-      m_timers.push_back(timer);
+      m_timers.emplace_back(std::move(timer));
       m_iTimersIndexCounter++;
       iNew++;
     }
@@ -630,7 +630,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
     if (timer.state == PVR_TIMER_STATE_NEW)
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Timer state is new", __FUNCTION__);
 
-    timers.push_back(timer);
+    timers.emplace_back(std::move(timer));
     XBMC->Log(ADDON::LOG_NOTICE, "[%s] Fetched timer %s beginning at %d and ending at %d", __FUNCTION__,
         timer.strTitle.c_str(), timer.startTime, timer.endTime);
   }

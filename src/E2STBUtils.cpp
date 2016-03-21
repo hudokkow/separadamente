@@ -41,7 +41,7 @@ long CE2STBUtils::TimeStringToSeconds(const std::string &timeString)
 }
 
 /* adapted from http://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c */
-int CE2STBUtils::TokenizeString(const std::string& str, const std::string& delimiter, std::vector<std::string>& results)
+int CE2STBUtils::TokenizeString(const std::string& str, const std::string &delimiter, std::vector<std::string> &results)
 {
   std::string::size_type start_pos = 0;
   std::string::size_type delim_pos = 0;
@@ -49,7 +49,7 @@ int CE2STBUtils::TokenizeString(const std::string& str, const std::string& delim
   while (std::string::npos != delim_pos)
   {
     delim_pos = str.find_first_of(delimiter, start_pos);
-    results.push_back(str.substr(start_pos, delim_pos - start_pos));
+    results.emplace_back(str.substr(start_pos, delim_pos - start_pos));
     start_pos = delim_pos + 1;
   }
   return results.size();
