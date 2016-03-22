@@ -86,7 +86,7 @@ void CE2STBConnection::ConnectionStrings()
 
 bool CE2STBConnection::GetDeviceInfo()
 {
-  std::string strXML = ConnectToBackend("web/deviceinfo");
+  std::string strXML = GetBackendData("web/deviceinfo");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -183,7 +183,7 @@ void CE2STBConnection::SendPowerstate()
 
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
 {
-  std::string strXML = ConnectToBackend(strCommandURL);
+  std::string strXML = GetBackendData(strCommandURL);
 
   if (!bIgnoreResult)
   {
@@ -252,7 +252,7 @@ std::string CE2STBConnection::URLEncode(const std::string& strURL)
   return escaped.str();
 }
 
-std::string CE2STBConnection::ConnectToBackend(const std::string& strPath)
+std::string CE2STBConnection::GetBackendData(const std::string& strPath)
 {
   std::string strResult;
   std::string strURL = m_strBackendURLWeb + strPath;

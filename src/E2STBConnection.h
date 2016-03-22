@@ -31,70 +31,77 @@ public:
   CE2STBConnection();
   ~CE2STBConnection();
 
-  /*!
-   * @brief Backend connection status
-   * return True if backend is available, false otherwise
+  /**
+   * Initialize backend connection
+   * @@return True if successful, false otherwise
    */
   bool Initialize();
-  /*!
-   * @brief Initialize backend connection strings (web and stream)
+  /**
+   * Initialize backend connection strings (web and stream)
    */
   void ConnectionStrings();
-  /*!
-   * @brief Get backend device info
-   * return True if backend is available, false otherwise
+  /**
+   * Backend connection status
+   * @@return True if connected, false otherwise
    */
   bool GetDeviceInfo();
-  /*!
-   * @brief Backend connection status
-   * return Backend name
+  /**
+   * Get backend name
+   * @@return Backend name
    */
   std::string GetBackendName() const;
-  /*!
-   * @brief Backend connection status
-   * return Backend Web API version
+  /**
+   * Get backend API version
+   * @@return Backend API version
    */
   std::string GetBackendVersion() const;
-  /*!
-   * @brief Backend connection status
-   * return Backend Web API URL
+  /**
+   * Get backend web API URL
+   * @return Backend web API URL
    */
   std::string GetBackendURLWeb() const;
-  /*!
-   * @brief Backend connection status
-   * return Backend stream URL
+  /**
+   * Get backend stream API URL
+   * @return Backend stream API URL
    */
   std::string GetBackendURLStream() const;
-  /*!
-   * @brief Signal backend to shutdown if defined in GUI settings
+  /**
+   * Signal backend to shutdown if defined in GUI settings
    */
   void SendPowerstate();
-  /*!
-   * @brief Send command/info to backend
+  /**
+   * Send command/info to backend
+   * @param strCommandURL
+   * @param strResult
+   * @param bIgnoreResult
+   * @return
    */
   bool SendCommandToSTB(const std::string& strCommandURL, std::string& strResult, bool bIgnoreResult = false);
-  /*!
-   * @brief Safe encode URL
-   * param[in] strCommnandURL URL string to safe encode
-   * param[in] strResult String with result
-   * param[in]  bIgnoreResult Ignore result
-   * return True if successful, false otherwise
+  /**
+   * Safe encode URL
+   * @param strURL URL string to safe encode
+   * @return Safe encoded string
    */
   std::string URLEncode(const std::string& strURL);
-  /*!
-   * @brief Connect to backend
-   * param[in] strURL URL string to connect to backend
-   * return Safe encoded URL
+  /**
+   * Connect to backend
+   * @param[in] strURL URL string to connect to backend
+   * @return Safe encoded URL
    */
-  std::string ConnectToBackend(const std::string& strPath);
+  /**
+   * Connect to backend
+   * @param strPath Path on backend
+   * @return Parsed data on backend path
+   */
+  std::string GetBackendData(const std::string& strPath);
 
 private:
-  std::string m_strBackendURLWeb;    /*!< @brief Backend base URL Web */
-  std::string m_strBackendURLStream; /*!< @brief Backend base URL Stream */
-  bool        m_bIsConnected;        /*!< @brief Backend connection check */
-  std::string m_strEnigmaVersion;    /*!< @brief Backend Enigma2 version */
-  std::string m_strImageVersion;     /*!< @brief Backend Image version */
-  std::string m_strWebIfVersion;     /*!< @brief Backend web interface version */
-  std::string m_strServerName;       /*!< @brief Backend name */
+  std::string m_strBackendURLWeb;    /**< Backend base URL Web */
+  std::string m_strBackendURLStream; /**< Backend base URL Stream */
+  bool        m_bIsConnected;        /**< Backend connection check */
+  std::string m_strEnigmaVersion;    /**< Backend Enigma2 version */
+  std::string m_strImageVersion;     /**< Backend Image version */
+  std::string m_strWebIfVersion;     /**< Backend web API version */
+  std::string m_strServerName;       /**< Backend name */
 };
 } /* namespace e2stb */

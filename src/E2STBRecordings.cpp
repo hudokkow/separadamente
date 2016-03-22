@@ -77,9 +77,9 @@ bool CE2STBRecordings::LoadRecordingLocations()
 {
   std::string strXML;
   if (g_bUseOnlyCurrentRecordingPath)
-    strXML = m_e2stbconnection.ConnectToBackend("web/getcurrlocation");
+    strXML = m_e2stbconnection.GetBackendData("web/getcurrlocation");
   else
-    strXML = m_e2stbconnection.ConnectToBackend("web/getlocations");
+    strXML = m_e2stbconnection.GetBackendData("web/getlocations");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -150,9 +150,9 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
   std::string strXML;
   /* TODO: verify where the fuck "default" comes from */
   if (!strRecordingFolder.compare("default"))
-    strXML = m_e2stbconnection.ConnectToBackend("web/movielist");
+    strXML = m_e2stbconnection.GetBackendData("web/movielist");
   else
-    strXML = m_e2stbconnection.ConnectToBackend("web/movielist?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder));
+    strXML = m_e2stbconnection.GetBackendData("web/movielist?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder));
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
