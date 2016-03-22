@@ -95,10 +95,8 @@ void CE2STBData::BackgroundUpdate()
 
       if (g_bAutomaticTimerlistCleanup)
       {
-        std::string strTemp = "web/timercleanup?cleanup=true";
-
         std::string strResult;
-        if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
+        if (!m_e2stbconnection.SendCommandToSTB("web/timercleanup?cleanup=true", strResult))
         {
           XBMC->Log(ADDON::LOG_ERROR, "[%s] Automatic timer list cleanup failed", __FUNCTION__);
         }

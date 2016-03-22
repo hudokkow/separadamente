@@ -177,10 +177,8 @@ void CE2STBConnection::SendPowerstate()
     4 = Wakeup form Standby
     5 = Standby
    */
-  std::string strTemp = "web/powerstate?newstate=1";
-
   std::string strResult;
-  SendCommandToSTB(strTemp, strResult, true);
+  SendCommandToSTB("web/powerstate?newstate=1", strResult, true);
 }
 
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
