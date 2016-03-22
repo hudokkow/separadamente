@@ -265,7 +265,8 @@ std::string CE2STBConnection::GetBackendData(const std::string& strPath)
       strResult.append(buffer);
     }
     XBMC->CloseFile(fileHandle);
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
+    if (g_bExtraDebug)
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
   }
   else
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
