@@ -152,9 +152,8 @@ PVR_ERROR CE2STBBackendData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHA
 
   SE2STBChannel myChannel = m_channels.at(channel.iUniqueId - 1);
 
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb()
-      + "web/epgservice?sRef=" + m_e2stbconnection.URLEncode(myChannel.strServiceReference);
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/epgservice?sRef=" +
+      m_e2stbconnection.URLEncode(myChannel.strServiceReference));
 
   int iNumEPG = 0;
 
@@ -282,9 +281,8 @@ bool CE2STBBackendData::LoadChannels(std::string strServiceReference, std::strin
 {
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loading channel group %s", __FUNCTION__, strGroupName.c_str());
 
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb()
-      + "web/getservices?sRef=" + m_e2stbconnection.URLEncode(strServiceReference);
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/getservices?sRef=" +
+      m_e2stbconnection.URLEncode(strServiceReference));
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -416,8 +414,7 @@ bool CE2STBBackendData::LoadChannels()
 
 bool CE2STBBackendData::LoadChannelGroups()
 {
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getservices";
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/getservices");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))

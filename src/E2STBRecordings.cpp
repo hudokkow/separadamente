@@ -75,14 +75,11 @@ PVR_ERROR CE2STBRecordings::DeleteRecording(const PVR_RECORDING &recinfo)
 
 bool CE2STBRecordings::LoadRecordingLocations()
 {
-  std::string strURL;
+  std::string strXML;
   if (g_bUseOnlyCurrentRecordingPath)
-    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getcurrlocation";
-
+    strXML = m_e2stbconnection.ConnectToBackend("web/getcurrlocation");
   else
-    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/getlocations";
-
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+    strXML = m_e2stbconnection.ConnectToBackend("web/getlocations");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -150,15 +147,12 @@ bool CE2STBRecordings::IsInRecordingFolder(std::string strRecordingFolder)
 
 bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
 {
-  std::string strURL;
+  std::string strXML;
+  /* TODO: verify where the fuck "default" comes from */
   if (!strRecordingFolder.compare("default"))
-    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/movielist";
-
+    strXML = m_e2stbconnection.ConnectToBackend("web/movielist");
   else
-    strURL = m_e2stbconnection.GetBackendURLWeb() + "web/movielist"
-        + "?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder);
-
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+    strXML = m_e2stbconnection.ConnectToBackend("web/movielist?dirname=" + m_e2stbconnection.URLEncode(strRecordingFolder));
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))

@@ -168,8 +168,7 @@ void CE2STBData::CloseLiveStream(void)
 
 PVR_ERROR CE2STBData::GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/deviceinfo";
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/deviceinfo");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -236,8 +235,7 @@ PVR_ERROR CE2STBData::SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   static PVR_SIGNAL_STATUS signalStat;
   memset(&signalStat, 0, sizeof(signalStat));
 
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/signal";
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/signal");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))
@@ -507,8 +505,7 @@ std::vector<SE2STBTimer> CE2STBData::LoadTimers()
 {
   std::vector<SE2STBTimer> timers;
 
-  std::string strURL = m_e2stbconnection.GetBackendURLWeb() + "web/timerlist";
-  std::string strXML = m_e2stbconnection.ConnectToBackend(strURL);
+  std::string strXML = m_e2stbconnection.ConnectToBackend("web/timerlist");
 
   TiXmlDocument xmlDoc;
   if (!xmlDoc.Parse(strXML.c_str()))

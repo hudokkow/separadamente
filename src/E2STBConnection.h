@@ -86,7 +86,7 @@ public:
    * param[in] strURL URL string to connect to backend
    * return Safe encoded URL
    */
-  std::string ConnectToBackend(std::string& strURL);
+  std::string ConnectToBackend(const std::string& strPath);
 
 private:
   std::string m_strBackendURLWeb;    /*!< @brief Backend base URL Web */
