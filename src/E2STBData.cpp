@@ -399,17 +399,16 @@ PVR_ERROR CE2STBData::UpdateTimer(const PVR_TIMER &timer)
   if (timer.state == PVR_TIMER_STATE_CANCELLED)
     iDisabled = 1;
 
-  std::string strTemp = "web/timerchange?sRef=" +
-      m_e2stbconnection.URLEncode(strServiceReference) + "&begin=" +
-      compat::to_string(timer.startTime) + "&end=" +
-      compat::to_string(timer.endTime) + "&name=" +
-      m_e2stbconnection.URLEncode(timer.strTitle) + "&eventID=&description=" +
-      m_e2stbconnection.URLEncode(timer.strSummary) + "&tags=&afterevent=3&eit=0&disabled=" +
-      compat::to_string(iDisabled) + "&justplay=0&repeated=" +
-      compat::to_string(timer.iWeekdays) + "&channelOld=" +
-      m_e2stbconnection.URLEncode(strOldServiceReference) + "&beginOld=" +
-      compat::to_string(oldTimer.startTime) + "&endOld=" +
-      compat::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
+  std::string strTemp = "web/timerchange?sRef=" + m_e2stbconnection.URLEncode(strServiceReference) +
+      "&begin=" + compat::to_string(timer.startTime) +
+      "&end=" + compat::to_string(timer.endTime) +
+      "&name=" + m_e2stbconnection.URLEncode(timer.strTitle) +
+      "&eventID=&description=" + m_e2stbconnection.URLEncode(timer.strSummary) +
+      "&tags=&afterevent=3&eit=0&disabled=" + compat::to_string(iDisabled) +
+      "&justplay=0&repeated=" + compat::to_string(timer.iWeekdays) +
+      "&channelOld=" + m_e2stbconnection.URLEncode(strOldServiceReference) +
+      "&beginOld=" + compat::to_string(oldTimer.startTime) +
+      "&endOld=" + compat::to_string(oldTimer.endTime) + "&deleteOldOnSave=1";
 
   std::string strResult;
   if (!m_e2stbconnection.SendCommandToSTB(strTemp, strResult))
