@@ -70,7 +70,7 @@ void CE2STBConnection::ConnectionStrings()
   std::string strURLAuth;
 
   if (g_bUseAuthentication && !g_strUsername.empty() && !g_strPassword.empty())
-    strURLAuth = g_strUsername + ":" + g_strPassword + "@";
+    strURLAuth = URLEncode(g_strUsername) + ":" + URLEncode(g_strPassword) + "@";
 
   if (!g_bUseSecureHTTP)
   {
