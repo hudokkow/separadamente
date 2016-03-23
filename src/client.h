@@ -22,8 +22,8 @@
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
 
-/*!
- * @brief Quell unused parameter warnings
+/**
+ * Quell unused parameter warnings
  */
 #ifndef _UNUSED
 #if defined(__GNUC__)
@@ -35,53 +35,52 @@
 #endif
 #endif
 
-
-/*!
- * @brief Helpers
+/**
+ * Helpers
  */
 extern CHelper_libXBMC_pvr          *PVR;
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 
-/*!
- * @brief Connection client settings
+/**
+ * Connection client settings
  */
-extern std::string g_strHostname; /*!< @brief Hostname IP/URL */
-extern int g_iPortWebHTTP;        /*!< @brief Hostname webinterface HTTP port */
-extern int g_iPortStream;         /*!< @brief Hostname webinterface stream port */
-extern bool g_bUseAuthentication; /*!< @brief Hostname use authentication */
-extern std::string g_strUsername; /*!< @brief Hostname username */
-extern std::string g_strPassword; /*!< @brief Hostname password */
-extern bool g_bUseSecureHTTP;     /*!< @brief Hostname use HTTPS */
-extern int g_iPortWebHTTPS;       /*!< @brief Hostname webinterface HTTPS port */
+extern std::string g_strHostname; /**< Hostname IP/URL */
+extern int g_iPortWebHTTP;        /**< Hostname webinterface HTTP port */
+extern int g_iPortStream;         /**< Hostname webinterface stream port */
+extern bool g_bUseAuthentication; /**< Hostname use authentication */
+extern std::string g_strUsername; /**< Hostname username */
+extern std::string g_strPassword; /**< Hostname password */
+extern bool g_bUseSecureHTTP;     /**< Hostname use HTTPS */
+extern int g_iPortWebHTTPS;       /**< Hostname webinterface HTTPS port */
 
-/*!
- * @brief Channels client settings
+/**
+ * Channels client settings
  */
-extern bool g_bSelectTVChannelGroups;            /*!< @brief Load only selected TV channel groups */
-extern int g_iNumTVChannelGroupsToLoad;          /*!< @brief Number of TV channel groups to load */
-extern std::string g_strTVChannelGroupNameOne;   /*!< @brief Name of TV channel group one to load */
-extern std::string g_strTVChannelGroupNameTwo;   /*!< @brief Name of TV channel group two to load */
-extern std::string g_strTVChannelGroupNameThree; /*!< @brief Name of TV channel group three to load */
-extern std::string g_strTVChannelGroupNameFour;  /*!< @brief Name of TV channel group four to load */
-extern std::string g_strTVChannelGroupNameFive;  /*!< @brief Name of TV channel group five to load */
-extern bool g_bLoadRadioChannelsGroup;           /*!< @brief Load Radio channels group */
-extern bool g_bZapBeforeChannelChange;           /*!< @brief Zap before channel change */
+extern bool g_bSelectTVChannelGroups;            /**< Load only selected TV channel groups */
+extern int g_iNumTVChannelGroupsToLoad;          /**< Number of TV channel groups to load */
+extern std::string g_strTVChannelGroupNameOne;   /**< Name of TV channel group one to load */
+extern std::string g_strTVChannelGroupNameTwo;   /**< Name of TV channel group two to load */
+extern std::string g_strTVChannelGroupNameThree; /**< Name of TV channel group three to load */
+extern std::string g_strTVChannelGroupNameFour;  /**< Name of TV channel group four to load */
+extern std::string g_strTVChannelGroupNameFive;  /**< Name of TV channel group five to load */
+extern bool g_bLoadRadioChannelsGroup;           /**< Load Radio channels group */
+extern bool g_bZapBeforeChannelChange;           /**< Zap before channel change */
 
-/*!
- * @brief Recordings/Timers client settings
+/**
+ * Recordings/Timers client settings
  */
-extern bool g_bLoadRecordings;                /*!< @brief Backend recording path */
-extern std::string g_strBackendRecordingPath; /*!< @brief Backend recording path */
-extern bool g_bUseOnlyCurrentRecordingPath;   /*!< @brief Use only current recording path */
-extern bool g_bAutomaticTimerlistCleanup;     /*!< @brief Automatic timer list cleanup */
+extern bool g_bLoadRecordings;                /**< Load recordings from backend */
+extern std::string g_strBackendRecordingPath; /**< Backend recording path */
+extern bool g_bUseOnlyCurrentRecordingPath;   /**< Use only current recording path */
+extern bool g_bAutomaticTimerlistCleanup;     /**< Automatic timer list cleanup */
 
-/*!
- * @brief Advanced client settings
+/**
+ * Advanced client settings
  */
-extern bool g_bUseTimeshift;                 /*!< @brief Use timeshift */
-extern std::string g_strTimeshiftBufferPath; /*!< @brief Timeshift buffer path */
-extern bool g_bLoadWebInterfacePicons;       /*!< @brief Use hostname webinterface picons */
-extern std::string g_strPiconsLocationPath;  /*!< @brief Hostname picons path */
-extern int g_iClientUpdateInterval;          /*!< @brief Client update interval in minutes */
-extern bool g_bSendDeepStanbyToSTB;          /*!< @brief Send deep standby command to STB */
-extern bool g_bExtraDebug;                   /*!< @brief Enable extra debug mode (silence extremely verbose crap) */
+extern bool g_bUseTimeshift;                 /**< Use timeshift */
+extern std::string g_strTimeshiftBufferPath; /**< Timeshift buffer path */
+extern bool g_bLoadWebInterfacePicons;       /**< Use hostname webinterface picons */
+extern std::string g_strPiconsLocationPath;  /**< Hostname picons path */
+extern int g_iClientUpdateInterval;          /**< Client update interval in minutes */
+extern bool g_bSendDeepStanbyToSTB;          /**< Send deep standby command to STB */
+extern bool g_bExtraDebug;                   /**< Enable extra debug mode (silence extremely verbose crap) */

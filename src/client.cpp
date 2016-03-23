@@ -39,24 +39,15 @@
 
 using namespace e2stb;
 
-/*!
- * @brief Initialize helpers
- */
 CHelper_libXBMC_pvr          *PVR  = NULL;
 ADDON::CHelper_libXBMC_addon *XBMC = NULL;
 
-/*!
- * @brief Initialize globals
- */
 ADDON_STATUS       g_currentStatus   = ADDON_STATUS_UNKNOWN;
 CE2STBBackendData *g_E2STBChannels   = nullptr;
 CE2STBConnection  *g_E2STBConnection = nullptr;
 CE2STBData        *g_E2STBData       = nullptr;
 CE2STBRecordings  *g_E2STBRecordings = nullptr;
 
-/*!
- * @brief Connection client settings
- */
 std::string g_strHostname  = "127.0.0.1";
 int g_iPortWebHTTP         = 80;
 int g_iPortStream          = 8001;
@@ -66,9 +57,6 @@ std::string g_strPassword;
 bool g_bUseSecureHTTP      = false;
 int g_iPortWebHTTPS        = 443;
 
-/*!
- * @brief Channels client settings
- */
 bool g_bSelectTVChannelGroups             = false;
 int g_iNumTVChannelGroupsToLoad           = 0;
 std::string g_strTVChannelGroupNameOne;
@@ -79,33 +67,24 @@ std::string g_strTVChannelGroupNameFive;
 bool g_bLoadRadioChannelsGroup            = false;
 bool g_bZapBeforeChannelChange            = false;
 
-/*!
- * @brief Recordings/Timers client settings
- */
 bool g_bLoadRecordings                 = true;
 std::string g_strBackendRecordingPath;
 bool g_bUseOnlyCurrentRecordingPath    = false;
 bool g_bAutomaticTimerlistCleanup      = true;
 
-/*!
- * @brief Advanced client settings
- */
 bool g_bUseTimeshift                 = false;
 std::string g_strTimeshiftBufferPath = "special://userdata/addon_data/pvr.enigma2.stb";
 bool g_bLoadWebInterfacePicons       = true;
 std::string g_strPiconsLocationPath;
 int g_iClientUpdateInterval          = 120;
 bool g_bSendDeepStanbyToSTB          = false;
-/* TODO: Implement setting on UI options */
 bool g_bExtraDebug                   = false;
 
 extern "C"
 {
 void ADDON_ReadSettings(void)
 {
-  /*!
-   * @brief Read settings from settings.xml. Generate a new file if it's not found / new install
-   */
+  /* Read settings from settings.xml. Generate a new file if it's not found / new install */
   char * buffer = (char*) malloc(1024);
   if (XBMC->GetSetting("hostname", buffer))
     g_strHostname = buffer;
@@ -193,9 +172,7 @@ void ADDON_ReadSettings(void)
 
   free(buffer);
 
-  /*!
-   * @brief Log the crap out of client settings for debugging purposes
-   */
+  /* Log the crap out of client settings for debugging purposes */
   XBMC->Log(ADDON::LOG_DEBUG, "Version: %s", g_strAddonVersion.c_str());
   XBMC->Log(ADDON::LOG_DEBUG, "Hostname: %s", g_strHostname.c_str());
 
@@ -252,9 +229,7 @@ void ADDON_ReadSettings(void)
   XBMC->Log(ADDON::LOG_DEBUG, "Load recordings: %s", (g_bLoadRecordings) ? "yes" : "no");
 }
 
-/*!
- * @brief Called after loading. All steps to make client functional must be performed here
- */
+/* Called after loading. All steps to make client functional must be performed here */
 ADDON_STATUS ADDON_Create(void* hdl, void* props)
 {
   if (!hdl || !props)
@@ -325,9 +300,7 @@ unsigned int ADDON_GetSettings(ADDON_StructSetting ***_UNUSED(sSet))
   return 0;
 }
 
-/*!
- * @brief  Read settings from settings.xml, compare to UI settings, update settings.xml accordingly
- */
+/* Read settings from settings.xml, compare to UI settings, update settings.xml accordingly */
 ADDON_STATUS ADDON_SetSetting(const char *settingName,
     const void *settingValue)
 {
@@ -452,9 +425,7 @@ void ADDON_Announce(const char *_UNUSED(flag), const char *_UNUSED(sender), cons
 {
 }
 
-/*!
- * @brief PVR client addon specific public library functions (API and capabilities)
- */
+/* PVR client addon specific public library functions (API and capabilities) */
 const char* GetPVRAPIVersion(void)
 {
   static const char *strApiVersion = XBMC_PVR_API_VERSION;
@@ -496,9 +467,7 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
   return PVR_ERROR_NO_ERROR;
 }
 
-/*!
- * @brief PVR client addon backend identification
- */
+/* PVR client addon backend identification */
 const char *GetBackendName(void)
 {
   static std::string strBackendName = g_E2STBConnection->GetBackendName();
@@ -513,7 +482,7 @@ const char *GetBackendVersion(void)
 
 const char *GetConnectionString(void)
 {
-  /* only return hostname, otherwise we leak credentials */
+  /* Only return hostname, otherwise we may leak credentials */
   return g_strHostname.c_str();
 }
 
@@ -522,9 +491,7 @@ const char *GetBackendHostname(void)
   return g_strHostname.c_str();
 }
 
-/*!
- * @brief PVR client addon channels handling
- */
+/* PVR client addon channels handling */
 int GetChannelsAmount(void)
 {
   return g_E2STBChannels->GetChannelsVector().size();
@@ -556,17 +523,13 @@ int GetChannelGroupsAmount(void)
   return g_E2STBChannels->GetChannelGroupsAmount();
 }
 
-/*!
- * @brief PVR client addon EPG handling
- */
+/* PVR client addon EPG handling */
 PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   return g_E2STBChannels->GetEPGForChannel(handle, channel, iStart, iEnd);
 }
 
-/*!
- * @brief PVR client addon information handling
- */
+/* PVR client addon information handling */
 PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 {
   return g_E2STBData->GetDriveSpace(iTotal, iUsed);
@@ -577,9 +540,7 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   return g_E2STBData->SignalStatus(signalStatus);
 }
 
-/*!
- * @brief PVR client addon recordings handling
- */
+/* PVR client addon recordings handling */
 int GetRecordingsAmount(bool deleted)
 {
   return g_E2STBRecordings->GetRecordingsAmount();
@@ -600,9 +561,7 @@ PVR_ERROR RenameRecording(const PVR_RECORDING &_UNUSED(recording))
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-/*!
- * @brief PVR client addon stream handling
- */
+/* PVR client addon stream handling */
 bool OpenLiveStream(const PVR_CHANNEL &channel)
 {
   return g_E2STBData->OpenLiveStream(channel);
@@ -625,9 +584,7 @@ const char *GetLiveStreamURL(const PVR_CHANNEL &channel)
   return g_E2STBChannels->GetLiveStreamURL(channel);
 }
 
-/*!
- * @brief PVR client addon timers handling
- */
+/* PVR client addon timers handling */
 PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
 {
   /* TODO: Implement this to get support for the timer features introduced with PVR API 1.9.7 */
@@ -660,9 +617,7 @@ PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
   return g_E2STBData->UpdateTimer(timer);
 }
 
-/*!
- * @brief PVR client addon time shifting handling
- */
+/* PVR client addon time shifting handling */
 bool CanPauseStream(void)
 {
   return g_bUseTimeshift;
@@ -727,9 +682,7 @@ time_t GetPlayingTime()
   return GetBufferTimeEnd();
 }
 
-/*!
- * @brief Unused API functions
- */
+/* Unused API functions */
 
 /* Channel handling */
 PVR_ERROR    OpenDialogChannelAdd(const PVR_CHANNEL &_UNUSED(channel)) { return PVR_ERROR_NOT_IMPLEMENTED; }
