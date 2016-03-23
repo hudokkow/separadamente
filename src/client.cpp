@@ -184,6 +184,9 @@ void ADDON_ReadSettings(void)
   if (!XBMC->GetSetting("sendpowerstate", &g_bSendDeepStanbyToSTB))
     g_bSendDeepStanbyToSTB = false;
 
+  if (!XBMC->GetSetting("extradebug", &g_bExtraDebug))
+    g_bExtraDebug = false;
+
   free(buffer);
 
   /*!
@@ -239,6 +242,7 @@ void ADDON_ReadSettings(void)
   XBMC->Log(ADDON::LOG_DEBUG, "Use online picons: %s", (g_bLoadWebInterfacePicons) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Send deep standby to STB: %s", (g_bSendDeepStanbyToSTB) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Zap before channel change: %s", (g_bZapBeforeChannelChange) ? "yes" : "no");
+  XBMC->Log(ADDON::LOG_DEBUG, "Log extra debug information: %s", (g_bExtraDebug) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Automatic timer list cleanup: %s", (g_bAutomaticTimerlistCleanup) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Update interval: %dm", g_iClientUpdateInterval);
 }
@@ -412,6 +416,13 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName,
     {
       return ADDON_STATUS_NEED_RESTART;
     }
+  }
+  else if (str == "extradebug")
+  {
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed log extra debug information from %u to %u", __FUNCTION__,
+        g_bExtraDebug, *(int*) settingValue);
+    g_bExtraDebug = *(bool*) settingValue;
+    return ADDON_STATUS_NEED_RESTART;
   }
   return ADDON_STATUS_OK;
 }

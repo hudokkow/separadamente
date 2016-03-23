@@ -41,12 +41,14 @@
   <category label="70003">
     <setting label="70025" type="lsep" />
     <setting label="70100" id="usetimeshift"   type="bool"   default="false" />
-    <setting label="70101" id="timeshiftpath"  type="text"   default="special://userdata/addon_data/pvr.enigma2.stb" option="writeable" enable="eq(-1,true)" />
+    <setting label="70101" id="timeshiftpath"  type="text"   default="special://userdata/addon_data/pvr.enigma2.stb" option="writeable" visible="eq(-1,true)" />
     <setting label="70026" type="lsep" />
     <setting label="70102" id="onlinepicons"   type="bool"   default="true" />
-    <setting label="70103" id="piconspath"     type="folder" default="" enable="eq(-1,false)" />
+    <setting label="70103" id="piconspath"     type="folder" default="" visible="eq(-1,false)" />
+    <setting label="70027" type="lsep" />
+    <setting label="70104" id="sendpowerstate" type="bool"   default="false" />
     <setting label="70022" type="lsep" />
-    <setting label="70104" id="updateinterval" type="number" default="20" />
-    <setting label="70105" id="sendpowerstate" type="bool"   default="false" />
+    <setting label="70105" id="updateinterval" type="number" default="20" />
+    <setting label="70106" id="extradebug"     type="bool"   default="false" />
   </category>
 </settings>

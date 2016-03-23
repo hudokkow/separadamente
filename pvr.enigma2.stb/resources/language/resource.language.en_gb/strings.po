@@ -64,6 +64,10 @@ msgctxt "#70026"
 msgid "Channel Icons"
 msgstr ""
 
+msgctxt "#70027"
+msgid "STB Control"
+msgstr ""
+
 #empty strings from id 70027 to 70039
 
 #Connection labels
@@ -173,9 +177,13 @@ msgid "Load channel icons from folder"
 msgstr ""
 
 msgctxt "#70104"
-msgid "Update interval [m]"
+msgid "Put STB in standby mode during shutdown"
 msgstr ""
 
 msgctxt "#70105"
-msgid "Send standby command"
+msgid "Update interval [m]"
+msgstr ""
+
+msgctxt "#70106"
+msgid "Log extra debug information"
 msgstr ""
