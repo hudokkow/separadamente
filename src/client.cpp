@@ -77,7 +77,7 @@ std::string g_strTimeshiftBufferPath = "special://userdata/addon_data/pvr.enigma
 bool g_bLoadWebInterfacePicons       = true;
 std::string g_strPiconsLocationPath;
 int g_iClientUpdateInterval          = 120;
-bool g_bSendDeepStanbyToSTB          = false;
+int g_iSendPowerStateToSTB           = 0;
 bool g_bExtraDebug                   = false;
 
 extern "C"
@@ -164,8 +164,8 @@ void ADDON_ReadSettings(void)
   if (!XBMC->GetSetting("updateinterval", &g_iClientUpdateInterval))
     g_iClientUpdateInterval = 120;
 
-  if (!XBMC->GetSetting("sendpowerstate", &g_bSendDeepStanbyToSTB))
-    g_bSendDeepStanbyToSTB = false;
+  if (!XBMC->GetSetting("sendpowerstate", &g_iSendPowerStateToSTB))
+    g_iSendPowerStateToSTB = 0;
 
   if (!XBMC->GetSetting("extradebug", &g_bExtraDebug))
     g_bExtraDebug = false;
@@ -221,7 +221,24 @@ void ADDON_ReadSettings(void)
     XBMC->Log(ADDON::LOG_DEBUG, "Time shift buffer located at: %s", g_strTimeshiftBufferPath.c_str());
 
   XBMC->Log(ADDON::LOG_DEBUG, "Use online picons: %s", (g_bLoadWebInterfacePicons) ? "yes" : "no");
-  XBMC->Log(ADDON::LOG_DEBUG, "Send deep standby to STB: %s", (g_bSendDeepStanbyToSTB) ? "yes" : "no");
+
+  std::string strSendPowerState;
+  switch(g_iSendPowerStateToSTB)
+  {
+    case 2:
+      strSendPowerState = "Deep Standby";
+      break;
+    case 1:
+      strSendPowerState = "Standby";
+      break;
+    default:
+      strSendPowerState = "Off";
+  }
+
+  if(g_iSendPowerStateToSTB == 2)
+    strSendPowerState = "Deep Standby";
+
+  XBMC->Log(ADDON::LOG_DEBUG, "Send standby to STB: %s", strSendPowerState.c_str());
   XBMC->Log(ADDON::LOG_DEBUG, "Zap before channel change: %s", (g_bZapBeforeChannelChange) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Log extra debug information: %s", (g_bExtraDebug) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Automatic timer list cleanup: %s", (g_bAutomaticTimerlistCleanup) ? "yes" : "no");
@@ -280,7 +297,8 @@ ADDON_STATUS ADDON_GetStatus()
 
 void ADDON_Destroy()
 {
-  g_E2STBConnection->SendPowerstate();
+  if(g_iSendPowerStateToSTB != 0)
+    g_E2STBConnection->SendPowerstate();
   SAFE_DELETE(g_E2STBChannels);
   SAFE_DELETE(g_E2STBConnection);
   SAFE_DELETE(g_E2STBData);
@@ -408,6 +426,17 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName,
         g_bLoadRecordings, *(int*) settingValue);
     g_bLoadRecordings = *(bool*) settingValue;
     return ADDON_STATUS_NEED_RESTART;
+  }
+  else if (str == "sendpowerstate")
+  {
+    int iNewValue = *(int*) settingValue;
+    if (g_iSendPowerStateToSTB != iNewValue)
+    {
+      XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed standby mode during shutdown from %u to %u", __FUNCTION__,
+          g_iSendPowerStateToSTB, iNewValue);
+      g_iSendPowerStateToSTB = iNewValue;
+      return ADDON_STATUS_NEED_RESTART;
+    }
   }
   return ADDON_STATUS_OK;
 }

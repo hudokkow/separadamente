@@ -167,18 +167,27 @@ std::string CE2STBConnection::GetBackendURLStream() const
 
 void CE2STBConnection::SendPowerstate()
 {
-  if (!g_bSendDeepStanbyToSTB)
-    return;
-  /* TODO: Review power states functionality - http://dream.reichholf.net/wiki/Enigma2:WebInterface
-    0 = Toogle Standby
-    1 = Deepstandby
+  /* http://dream.reichholf.net/wiki/Enigma2:WebInterface
+    0 = Toggle Standby
+    1 = Deep standby
     2 = Reboot
     3 = Restart Enigma2
-    4 = Wakeup form Standby
+    4 = Wake up from Standby
     5 = Standby
    */
   std::string strResult;
-  SendCommandToSTB("web/powerstate?newstate=1", strResult, true);
+
+  switch(g_iSendPowerStateToSTB)
+  {
+    case 2:
+      SendCommandToSTB("web/powerstate?newstate=1", strResult, true);
+      break;
+    case 1:
+      SendCommandToSTB("web/powerstate?newstate=5", strResult, true);
+      break;
+    default:
+      XBMC->Log(ADDON::LOG_ERROR, "[%s] Unknown power state: %u", __FUNCTION__, g_iSendPowerStateToSTB);
+  }
 }
 
 bool CE2STBConnection::SendCommandToSTB(const std::string& strCommandURL, std::string& strResultText, bool bIgnoreResult)
@@ -269,7 +278,7 @@ std::string CE2STBConnection::GetBackendData(const std::string& strPath)
       XBMC->Log(ADDON::LOG_DEBUG, "[%s] Got result with length %u", __FUNCTION__, strResult.length());
   }
   else
-    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't open web interface.", __FUNCTION__);
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Couldn't reach web interface.", __FUNCTION__);
 
   return strResult;
 }

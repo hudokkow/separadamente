@@ -185,9 +185,21 @@ msgid "Put STB in standby mode during shutdown"
 msgstr ""
 
 msgctxt "#70105"
-msgid "Update interval [m]"
+msgid "No"
 msgstr ""
 
 msgctxt "#70106"
+msgid "Standby"
+msgstr ""
+
+msgctxt "#70107"
+msgid "Deep Standby"
+msgstr ""
+
+msgctxt "#70108"
+msgid "Update interval [m]"
+msgstr ""
+
+msgctxt "#70109"
 msgid "Log extra debug information"
 msgstr ""

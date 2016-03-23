@@ -82,5 +82,5 @@ extern std::string g_strTimeshiftBufferPath; /**< Timeshift buffer path */
 extern bool g_bLoadWebInterfacePicons;       /**< Use hostname webinterface picons */
 extern std::string g_strPiconsLocationPath;  /**< Hostname picons path */
 extern int g_iClientUpdateInterval;          /**< Client update interval in minutes */
-extern bool g_bSendDeepStanbyToSTB;          /**< Send deep standby command to STB */
+extern int g_iSendPowerStateToSTB;          /**< Send deep standby command to STB */
 extern bool g_bExtraDebug;                   /**< Enable extra debug mode (silence extremely verbose crap) */
