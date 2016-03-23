@@ -36,7 +36,8 @@ using namespace e2stb;
 CE2STBRecordings::CE2STBRecordings()
 : m_iNumRecordings{0}
 {
-  LoadRecordingLocations();
+  if(g_bLoadRecordings)
+    LoadRecordingLocations();
   XBMC->Log(ADDON::LOG_DEBUG, "[%s] hudosky CE2STBRecordings ctor", __FUNCTION__);
 }
 
@@ -116,9 +117,9 @@ bool CE2STBRecordings::LoadRecordingLocations()
   for (; pNode != NULL; pNode = pNode->NextSiblingElement("e2location"))
   {
     std::string strTemp = pNode->GetText();
+    XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added %s as a recording location", __FUNCTION__, strTemp.c_str());
     m_recordingsLocations.emplace_back(std::move(strTemp));
     iNumLocations++;
-    XBMC->Log(ADDON::LOG_NOTICE, "[%s] Added %s as a recording location", __FUNCTION__, strTemp.c_str());
   }
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %d recording locations", __FUNCTION__, iNumLocations);
   return true;
@@ -242,9 +243,9 @@ bool CE2STBRecordings::GetRecordingFromLocation(std::string strRecordingFolder)
     }
     m_iNumRecordings++;
     iNumRecording++;
-    m_recordings.emplace_back(std::move(recording));
     XBMC->Log(ADDON::LOG_DEBUG, "[%s] Loaded recording %s starting at %d with length %d", __FUNCTION__,
         recording.strTitle.c_str(), recording.startTime, recording.iDuration);
+    m_recordings.emplace_back(std::move(recording));
   }
   XBMC->Log(ADDON::LOG_NOTICE, "[%s] Loaded %u recording entries from folder %s", __FUNCTION__, iNumRecording,
       strRecordingFolder.c_str());

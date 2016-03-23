@@ -82,6 +82,7 @@ bool g_bZapBeforeChannelChange            = false;
 /*!
  * @brief Recordings/Timers client settings
  */
+bool g_bLoadRecordings                 = true;
 std::string g_strBackendRecordingPath;
 bool g_bUseOnlyCurrentRecordingPath    = false;
 bool g_bAutomaticTimerlistCleanup      = true;
@@ -156,6 +157,9 @@ void ADDON_ReadSettings(void)
 
   if (!XBMC->GetSetting("zap", &g_bZapBeforeChannelChange))
     g_bZapBeforeChannelChange = false;
+
+  if (!XBMC->GetSetting("loadrecordings", &g_bLoadRecordings))
+    g_bZapBeforeChannelChange = true;
 
   if (XBMC->GetSetting("recordingpath", buffer))
     g_strBackendRecordingPath = buffer;
@@ -245,6 +249,7 @@ void ADDON_ReadSettings(void)
   XBMC->Log(ADDON::LOG_DEBUG, "Log extra debug information: %s", (g_bExtraDebug) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Automatic timer list cleanup: %s", (g_bAutomaticTimerlistCleanup) ? "yes" : "no");
   XBMC->Log(ADDON::LOG_DEBUG, "Update interval: %dm", g_iClientUpdateInterval);
+  XBMC->Log(ADDON::LOG_DEBUG, "Load recordings: %s", (g_bLoadRecordings) ? "yes" : "no");
 }
 
 /*!
@@ -424,6 +429,13 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName,
     g_bExtraDebug = *(bool*) settingValue;
     return ADDON_STATUS_NEED_RESTART;
   }
+  else if (str == "loadrecordings")
+  {
+    XBMC->Log(ADDON::LOG_DEBUG, "[%s] Changed load recordings from %u to %u", __FUNCTION__,
+        g_bLoadRecordings, *(int*) settingValue);
+    g_bLoadRecordings = *(bool*) settingValue;
+    return ADDON_STATUS_NEED_RESTART;
+  }
   return ADDON_STATUS_OK;
 }
 
@@ -472,7 +484,7 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
   pCapabilities->bSupportsEPG                = true;
   pCapabilities->bSupportsTV                 = true;
   pCapabilities->bSupportsRadio              = g_bLoadRadioChannelsGroup;
-  pCapabilities->bSupportsRecordings         = true;
+  pCapabilities->bSupportsRecordings         = g_bLoadRecordings;
   pCapabilities->bSupportsRecordingsUndelete = false;
   pCapabilities->bSupportsTimers             = true;
   pCapabilities->bSupportsChannelGroups      = true;

@@ -70,6 +70,7 @@ extern bool g_bZapBeforeChannelChange;           /*!< @brief Zap before channel 
 /*!
  * @brief Recordings/Timers client settings
  */
+extern bool g_bLoadRecordings;                /*!< @brief Backend recording path */
 extern std::string g_strBackendRecordingPath; /*!< @brief Backend recording path */
 extern bool g_bUseOnlyCurrentRecordingPath;   /*!< @brief Use only current recording path */
 extern bool g_bAutomaticTimerlistCleanup;     /*!< @brief Automatic timer list cleanup */

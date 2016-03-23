@@ -146,14 +146,18 @@ msgstr ""
 
 #Recordings/Timers labels
 msgctxt "#70080"
-msgid "STB's recording folder"
+msgid "Load Recordings"
 msgstr ""
 
 msgctxt "#70081"
-msgid "Only use STB's default recording path"
+msgid "STB's recording folder"
 msgstr ""
 
 msgctxt "#70082"
+msgid "Only use STB's default recording path"
+msgstr ""
+
+msgctxt "#70083"
 msgid "Automatic timers list cleanup"
 msgstr ""
 

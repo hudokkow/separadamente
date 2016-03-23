@@ -31,10 +31,11 @@
   <!-- Recordings/Timers -->
   <category label="70002">
     <setting label="70023" type="lsep" />
-    <setting label="70080" id="recordingpath"            type="text" default="" />
-    <setting label="70081" id="onlycurrentrecordingpath" type="bool" default="false"/>
+    <setting label="70080" id="loadrecordings"           type="bool" default="true"/>
+    <setting label="70081" id="recordingpath"            type="text" default="" />
+    <setting label="70082" id="onlycurrentrecordingpath" type="bool" default="false"/>
     <setting label="70024" type="lsep" />
-    <setting label="70082" id="timerlistcleanup"         type="bool" default="true"/>
+    <setting label="70083" id="timerlistcleanup"         type="bool" default="true"/>
   </category>
 
   <!-- Advanced -->
